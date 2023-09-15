@@ -112,6 +112,8 @@ const verifyEmail = async (req: VerifyEmailRequest, res: any) => {
       emailVerificationToken!._id
     );
 
+    console.log(1);
+
     return res.status(201).json({ message: "Your email has been verified !" });
   } catch (error) {
     console.log(error);
