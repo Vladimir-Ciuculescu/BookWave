@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 
-export interface User extends RequestHandler {
+export interface UserRequest extends RequestHandler {
   body: {
     name: string;
     email: string;

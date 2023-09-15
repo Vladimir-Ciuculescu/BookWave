@@ -7,4 +7,6 @@ const router = Router();
 
 router.post("/add", validate(userSchema), UserController.addUser);
 
+router.post("/verify", UserController.verifyEmail);
+
 export default router;
