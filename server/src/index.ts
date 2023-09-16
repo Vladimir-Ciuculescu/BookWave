@@ -2,9 +2,8 @@ import express from "express";
 import "./db/db";
 import "module-alias/register";
 import "dotenv/config";
-import path from "path";
 
-import authRouter from "routers/auth";
+import authRouter from "routers/auth.route";
 
 const app = express();
 const port = 5000;

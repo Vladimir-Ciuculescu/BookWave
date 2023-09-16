@@ -4,9 +4,7 @@ import * as Yup from "yup";
 export const validate = (schema: any): RequestHandler => {
   return async (req, res, next) => {
     if (!req.body) {
-      return res
-        .status(422)
-        .json({ error: "The request has no attached body !" });
+      return res.status(422).json({ error: "The request has no attached body !" });
     }
 
     const schemaToValidate = Yup.object({ body: schema });
@@ -16,7 +14,7 @@ export const validate = (schema: any): RequestHandler => {
         {
           body: req.body,
         },
-        { abortEarly: true }
+        { abortEarly: true },
       );
       next();
     } catch (error) {

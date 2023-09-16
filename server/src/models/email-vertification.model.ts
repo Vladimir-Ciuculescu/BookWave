@@ -13,11 +13,7 @@ interface Methods {
 }
 
 // ? Schema
-const emailVerificationTokenSchema = new Schema<
-  EmailVertificationTokenDocument,
-  {},
-  Methods
->({
+const emailVerificationTokenSchema = new Schema<EmailVertificationTokenDocument, {}, Methods>({
   owner: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -45,21 +41,12 @@ emailVerificationTokenSchema.pre("save", async function (next) {
 });
 
 // ? Methods
-emailVerificationTokenSchema.methods.compareToken = async function (
-  token: string
-) {
+emailVerificationTokenSchema.methods.compareToken = async function (token: string) {
   const result = await compare(token, this.token);
   return result;
 };
 
 // ? Model
-const EmailVerificationTokenModel = mongoose.model(
-  "EmailVerificationToken",
-  emailVerificationTokenSchema
-);
+const EmailVerificationTokenModel = mongoose.model("EmailVerificationToken", emailVerificationTokenSchema);
 
-export default EmailVerificationTokenModel as Model<
-  EmailVertificationTokenDocument,
-  {},
-  Methods
->;
+export default EmailVerificationTokenModel as Model<EmailVertificationTokenDocument, {}, Methods>;

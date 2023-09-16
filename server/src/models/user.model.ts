@@ -65,7 +65,7 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
     ],
     tokens: [String],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ? Hooks

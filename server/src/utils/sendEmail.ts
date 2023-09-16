@@ -6,13 +6,7 @@ interface AttachmentProps {
   cid: string;
 }
 
-export const sendEmail = (
-  to: string,
-  from: string,
-  subject: string,
-  html: string,
-  attachments?: AttachmentProps[]
-) => {
+export const sendEmail = (to: string, from: string, subject: string, html: string, attachments?: AttachmentProps[]) => {
   mailtrap.sendMail({
     to,
     subject,
