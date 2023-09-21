@@ -4,6 +4,8 @@ import { sendEmail } from "utils/sendEmail";
 import { generateToken } from "utils/generateToken";
 import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "models/email-vertification.model";
 import path from "path";
+import fs from "fs";
+
 import { VerifyEmailRequest } from "types/verify-email.request.";
 import { isValidObjectId } from "mongoose";
 import { ReVerifyEmailRequest } from "types/re-verrify-email.request";
@@ -12,8 +14,16 @@ import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/pass
 import crypto from "crypto";
 import { verifyEmailTemplate } from "../mail/verify-email.template";
 import { resetPasswordTemplate } from "../mail/reset-password.template";
+import { VerifyPasswordResetTokenRequest } from "types/verify-password-reset-token.request";
+import { ChangePasswordRequest } from "types/change-password.request";
+import { SignInRequest } from "types/sign-in.request";
+import { Request, RequestHandler, Response } from "express";
+import jwt from "jsonwebtoken";
+import { FilesRequest } from "types/files.request";
+import cloudinary from "../cloud/cloud";
+import formidable from "formidable";
 
-const addUser = async (req: UserRequest, res: any) => {
+const addUser = async (req: UserRequest, res: Response) => {
   const { name, email, password } = req.body;
 
   const user = new UserModel<UserDocument>({
@@ -82,7 +92,59 @@ const addUser = async (req: UserRequest, res: any) => {
   }
 };
 
-const sendVerificationToken = async (req: VerifyEmailRequest, res: any) => {
+const getUsers = async (req: RequestHandler, res: Response) => {
+  try {
+    const users = await UserModel.find();
+
+    return res.status(200).json({ users });
+  } catch (error) {
+    console.log(error);
+    return res.status(403).json({ error });
+  }
+};
+
+const signIn = async (req: SignInRequest, res: Response) => {
+  const secretKey = process.env.JWT_SECRET_KEY as jwt.Secret;
+  const { email, password } = req.body;
+
+  try {
+    const user = await UserModel.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ error: "The email or password are not correct !" });
+    }
+
+    const matchedPassword = await user.comparePassword(password);
+
+    if (!matchedPassword) {
+      return res.status(404).json({ error: "The email or password are not correct !" });
+    }
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, secretKey);
+
+    //await user.updateOne({ tokens: [token] });
+
+    await user.updateOne({ tokens: [...user.tokens, token] });
+
+    res.status(201).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        verified: user.verified,
+        avatar: user.avatar,
+        followers: user.followers.length,
+        followings: user.followings.length,
+      },
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
+const sendVerificationToken = async (req: VerifyEmailRequest, res: Response) => {
   const { token, userId } = req.body;
 
   try {
@@ -118,7 +180,7 @@ const sendVerificationToken = async (req: VerifyEmailRequest, res: any) => {
   }
 };
 
-const resendVerificationToken = async (req: ReVerifyEmailRequest, res: any) => {
+const resendVerificationToken = async (req: ReVerifyEmailRequest, res: Response) => {
   const { userId } = req.body;
 
   try {
@@ -181,7 +243,7 @@ const resendVerificationToken = async (req: ReVerifyEmailRequest, res: any) => {
   }
 };
 
-const forgotPassword = async (req: ForgotPasswordRequest, res: any) => {
+const forgotPassword = async (req: ForgotPasswordRequest, res: Response) => {
   const { email } = req.body;
 
   try {
@@ -236,17 +298,131 @@ const forgotPassword = async (req: ForgotPasswordRequest, res: any) => {
     return res.status(201).json({ link: passwordResetLink });
   } catch (error) {
     console.log(error);
-    res.status(422).json({
+    return res.status(422).json({
       error: error,
     });
   }
 };
 
+const verifyPasswordResetToken = async (req: VerifyPasswordResetTokenRequest, res: Response) => {
+  return res.status(201).json({ message: "Your token is valid !" });
+};
+
+const changePassword = async (req: ChangePasswordRequest, res: Response) => {
+  const { password, userId } = req.body;
+
+  try {
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found !" });
+    }
+
+    const isTheSamePassword = await user.comparePassword(password);
+
+    if (isTheSamePassword) {
+      return res.status(422).json({ error: "The new password cannot be the same as the old one !" });
+    }
+
+    await PasswordResetTokenModel.findByIdAndDelete(userId);
+
+    await user.updateOne({ password: password });
+
+    // TODO Send email that password was changed
+
+    return res.status(201).json({ message: "Password was succesfully changed !" });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error: error });
+  }
+};
+
+const updateProfile = async (req: any, res: Response) => {
+  try {
+    const { name } = req.body;
+    const avatar = req.files?.avatar;
+    const userId = req.user.id;
+
+    const jsonString = JSON.stringify(name);
+
+    const stringValue = jsonString.substring(1, jsonString.length - 1);
+
+    const nameValue = stringValue.replace(/"/g, "");
+
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      throw new Error("User not found !");
+    }
+
+    if (stringValue.trim().length < 3) {
+      return res.status(422).json({ error: "Invalid name !" });
+    }
+
+    console.log(stringValue);
+
+    if (avatar) {
+      if (user.avatar?.publicId) {
+        await cloudinary.uploader.destroy(user.avatar.publicId);
+      }
+
+      const { public_id, secure_url } = await cloudinary.uploader.upload(avatar[0].filepath, {
+        width: 300,
+        height: 300,
+        crop: "thumb",
+        gravity: "face",
+      });
+
+      await user.updateOne({ name: nameValue, avatar: { url: secure_url, publicId: public_id } });
+      return res.status(200).json({ avatar: user.avatar });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error: req.files.avatar[0].filepath });
+  }
+};
+
+const logOut = async (req: Request, res: Response) => {
+  const { fromAll } = req.query;
+  const token = req.token;
+
+  try {
+    const user = await UserModel.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found !" });
+    }
+
+    let tokens;
+    let message;
+
+    if (fromAll === "yes") {
+      tokens = [];
+      message = "Succesfully log out from all devices !";
+    } else if (fromAll === "no" || !fromAll) {
+      tokens = user.tokens.filter((tokenItem) => tokenItem !== token);
+      message = "Succesfully log out !";
+    }
+    await user.updateOne({ tokens: tokens });
+
+    return res.status(201).json({ message: message });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const UserController = {
   addUser,
+  signIn,
+  getUsers,
   sendVerificationToken,
   resendVerificationToken,
   forgotPassword,
+  verifyPasswordResetToken,
+  changePassword,
+  updateProfile,
+  logOut,
 };
 
 export default UserController;

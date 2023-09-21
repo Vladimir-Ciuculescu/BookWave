@@ -1,18 +1,31 @@
 import express from "express";
-import "./db/db";
 import "module-alias/register";
 import "dotenv/config";
-
-import authRouter from "routers/auth.route";
+import authRouter from "routers/user.route";
+import mongoose from "mongoose";
 
 const app = express();
-const port = 5000;
+
+const connectToDB = async () => {
+  try {
+    mongoose.connect(process.env.MONGO_URL);
+    console.log("Connected to Database !");
+  } catch (error) {
+    console.log("Cannot connect to Database :", error);
+  }
+};
+
+connectToDB();
+
+const PORT = process.env.PORT;
 
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static("src/public"));
 
-app.use("/auth", authRouter);
+app.use("/users", authRouter);
 
-app.listen(port, () => {
-  console.log(`App listening to port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Application running on port ${PORT} !`);
 });

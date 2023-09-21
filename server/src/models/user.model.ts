@@ -8,7 +8,7 @@ export interface UserDocument {
   password: string;
   verified: boolean;
   avatar?: { url: string; publicId: string };
-  tokens: ObjectId[];
+  tokens: string[];
   favorites: ObjectId[];
   followers: ObjectId[];
   followings: ObjectId[];

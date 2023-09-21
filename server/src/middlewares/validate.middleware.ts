@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import * as Yup from "yup";
 
-export const validate = (schema: any): RequestHandler => {
+export const validateMiddleware = (schema: any): RequestHandler => {
   return async (req, res, next) => {
     if (!req.body) {
       return res.status(422).json({ error: "The request has no attached body !" });
