@@ -34,5 +34,5 @@ app.use("/audio", audioRouter);
 app.use("/favorites", favoriteRouter);
 
 app.listen(PORT, () => {
-  console.log(`Application running on port ${PORT} !`);
+  console.log(`application running on port ${PORT} !`);
 });
