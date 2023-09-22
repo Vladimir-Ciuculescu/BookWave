@@ -1,8 +1,13 @@
 import express from "express";
+import mongoose from "mongoose";
+
 import "module-alias/register";
 import "dotenv/config";
-import authRouter from "routers/user.route";
-import mongoose from "mongoose";
+
+// ? Routers
+import usersRouter from "routers/user.route";
+import audioRouter from "routers/audio.route";
+import favoriteRouter from "routers/favorite.route";
 
 const app = express();
 
@@ -24,7 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("src/public"));
 
-app.use("/users", authRouter);
+app.use("/users", usersRouter);
+app.use("/audio", audioRouter);
+app.use("/favorites", favoriteRouter);
 
 app.listen(PORT, () => {
   console.log(`Application running on port ${PORT} !`);

@@ -1,4 +1,4 @@
-import mongoose, { Model, ObjectId, Schema, mongo } from "mongoose";
+import mongoose, { Model, ObjectId, Schema, models } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 // ? Interfaces
@@ -47,6 +47,6 @@ emailVerificationTokenSchema.methods.compareToken = async function (token: strin
 };
 
 // ? Model
-const EmailVerificationTokenModel = mongoose.model("EmailVerificationToken", emailVerificationTokenSchema);
+const EmailVerificationTokenModel = models.EmailVerificationToken || mongoose.model("EmailVerificationToken", emailVerificationTokenSchema);
 
 export default EmailVerificationTokenModel as Model<EmailVertificationTokenDocument, {}, Methods>;

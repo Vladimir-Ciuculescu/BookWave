@@ -1,8 +1,18 @@
 import { RequestHandler } from "express";
 import * as Yup from "yup";
+import { Request, Response, NextFunction } from "express";
+import { convertFormData } from "utils/convertFormData";
 
 export const validateMiddleware = (schema: any): RequestHandler => {
-  return async (req, res, next) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    let body = req.body;
+
+    if (req.headers["content-type"]?.startsWith("multipart/form-data;")) {
+      const jsonData = convertFormData(body);
+
+      body = jsonData;
+      req.body = body;
+    }
     if (!req.body) {
       return res.status(422).json({ error: "The request has no attached body !" });
     }

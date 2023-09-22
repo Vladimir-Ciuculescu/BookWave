@@ -1,8 +1,8 @@
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response, NextFunction } from "express";
 import PasswordResetTokenModel from "models/password-reset-token.model";
 
 export const validateTokenMiddleware = (): RequestHandler => {
-  return async (req, res, next) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     const { token, userId } = req.body;
     try {
       const passwordResetToken = await PasswordResetTokenModel.findOne({ owner: userId });

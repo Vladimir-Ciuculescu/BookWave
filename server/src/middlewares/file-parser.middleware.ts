@@ -1,9 +1,9 @@
-import { NextFunction, RequestHandler } from "express";
+import { NextFunction, RequestHandler, Response } from "express";
 import formidable from "formidable";
 import { IncomingMessage } from "http";
-import { FilesRequest } from "types/files.request";
+import { FilesRequest } from "../types/request types/files.request";
 
-export const fileParserMiddleware = async (req: FilesRequest, res: any, next: NextFunction) => {
+export const fileParserMiddleware = async (req: FilesRequest, res: Response, next: NextFunction) => {
   req.headers["content-type"];
 
   if (!req.headers["content-type"]?.startsWith("multipart/form-data")) {
@@ -13,8 +13,6 @@ export const fileParserMiddleware = async (req: FilesRequest, res: any, next: Ne
   }
 
   const form = formidable({ multiples: false });
-
-  // const shallowReq = req as unknown as IncomingMessage;
 
   form.parse(req, (err, fields, files) => {
     if (err) {

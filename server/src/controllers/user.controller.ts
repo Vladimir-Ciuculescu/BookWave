@@ -1,4 +1,4 @@
-import { UserRequest } from "types/user.request";
+import { UserRequest } from "types/request types/user.request";
 import UserModel, { UserDocument } from "models/user.model";
 import { sendEmail } from "utils/sendEmail";
 import { generateToken } from "utils/generateToken";
@@ -6,22 +6,21 @@ import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "mo
 import path from "path";
 import fs from "fs";
 
-import { VerifyEmailRequest } from "types/verify-email.request.";
+import { VerifyEmailRequest } from "types/request types/verify-email.request.";
 import { isValidObjectId } from "mongoose";
-import { ReVerifyEmailRequest } from "types/re-verrify-email.request";
-import { ForgotPasswordRequest } from "types/forgot-password.request";
+import { ReVerifyEmailRequest } from "types/request types/re-verrify-email.request";
 import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
 import crypto from "crypto";
 import { verifyEmailTemplate } from "../mail/verify-email.template";
 import { resetPasswordTemplate } from "../mail/reset-password.template";
-import { VerifyPasswordResetTokenRequest } from "types/verify-password-reset-token.request";
-import { ChangePasswordRequest } from "types/change-password.request";
-import { SignInRequest } from "types/sign-in.request";
+import { ChangePasswordRequest } from "types/request types/change-password.request";
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
-import { FilesRequest } from "types/files.request";
 import cloudinary from "../cloud/cloud";
 import formidable from "formidable";
+import { SignInRequest } from "types/request types/sign-in.request";
+import { ForgotPasswordRequest } from "types/request types/forgot-password.request";
+import { VerifyPasswordResetTokenRequest } from "types/request types/verify-password-reset-token.request";
 
 const addUser = async (req: UserRequest, res: Response) => {
   const { name, email, password } = req.body;
@@ -358,8 +357,6 @@ const updateProfile = async (req: any, res: Response) => {
     if (stringValue.trim().length < 3) {
       return res.status(422).json({ error: "Invalid name !" });
     }
-
-    console.log(stringValue);
 
     if (avatar) {
       if (user.avatar?.publicId) {

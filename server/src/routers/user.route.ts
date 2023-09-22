@@ -39,8 +39,8 @@ router.get("/is-auth", isAuthenticatedMiddleware, (req: any, res: Response) => {
 
 router.post("/update-profile", isAuthenticatedMiddleware, fileParserMiddleware, UserController.updateProfile);
 
-//Test endpoint for auth middleware
-//router.get("/users", isAuthenticatedMiddleware, UserController.getUsers);
+// //Test endpoint for auth middleware
+// router.get("/users", isAuthenticatedMiddleware, UserController.getUsers);
 
 router.post("/log-out", isAuthenticatedMiddleware, UserController.logOut);
 

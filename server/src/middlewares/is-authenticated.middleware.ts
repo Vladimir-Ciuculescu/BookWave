@@ -1,8 +1,8 @@
-import { RequestHandler, Response } from "express";
+import { RequestHandler, Request, Response, NextFunction } from "express";
 import jwt, { Jwt, JwtPayload, verify } from "jsonwebtoken";
 import UserModel from "models/user.model";
 
-export const isAuthenticatedMiddleware: RequestHandler = async (req, res: Response, next: any) => {
+export const isAuthenticatedMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
 
   const secretKey = process.env.JWT_SECRET_KEY as jwt.Secret;

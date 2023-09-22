@@ -1,4 +1,4 @@
-import mongoose, { Model, ObjectId, Schema } from "mongoose";
+import mongoose, { Model, ObjectId, Schema, models } from "mongoose";
 import { compare } from "bcrypt";
 
 // ? Interfaces
@@ -39,6 +39,6 @@ passwordResetTokenSchema.methods.compareToken = async function (token: string) {
 };
 
 // ? Model
-const PasswordResetTokenModel = mongoose.model("PasswordResetToken", passwordResetTokenSchema);
+const PasswordResetTokenModel = models.PasswordResetToken || mongoose.model("PasswordResetToken", passwordResetTokenSchema);
 
 export default PasswordResetTokenModel as Model<PasswordResetTokenDocument, {}, Methods>;
