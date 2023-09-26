@@ -1,7 +1,7 @@
 import { NextFunction, RequestHandler, Response } from "express";
 import formidable from "formidable";
 import { IncomingMessage } from "http";
-import { FilesRequest } from "../types/request types/files.request";
+import { FilesRequest } from "../types/requests/files.request";
 
 export const fileParserMiddleware = async (req: FilesRequest, res: Response, next: NextFunction) => {
   req.headers["content-type"];

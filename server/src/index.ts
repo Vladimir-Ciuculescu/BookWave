@@ -8,6 +8,7 @@ import "dotenv/config";
 import usersRouter from "routers/user.route";
 import audioRouter from "routers/audio.route";
 import favoriteRouter from "routers/favorite.route";
+import playlistRouter from "routers/playlist.route";
 
 const app = express();
 
@@ -25,13 +26,14 @@ connectToDB();
 const PORT = process.env.PORT;
 
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("src/public"));
 
+// ? ROUTES
 app.use("/users", usersRouter);
 app.use("/audio", audioRouter);
 app.use("/favorites", favoriteRouter);
+app.use("/playlist", playlistRouter);
 
 app.listen(PORT, () => {
   console.log(`application running on port ${PORT} !`);

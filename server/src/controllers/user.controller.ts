@@ -1,4 +1,4 @@
-import { UserRequest } from "types/request types/user.request";
+import { UserRequest } from "types/requests/user.request";
 import UserModel, { UserDocument } from "models/user.model";
 import { sendEmail } from "utils/sendEmail";
 import { generateToken } from "utils/generateToken";
@@ -6,21 +6,21 @@ import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "mo
 import path from "path";
 import fs from "fs";
 
-import { VerifyEmailRequest } from "types/request types/verify-email.request.";
+import { VerifyEmailRequest } from "types/requests/verify-email.request.";
 import { isValidObjectId } from "mongoose";
-import { ReVerifyEmailRequest } from "types/request types/re-verrify-email.request";
+import { ReVerifyEmailRequest } from "types/requests/re-verrify-email.request";
 import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
 import crypto from "crypto";
 import { verifyEmailTemplate } from "../mail/verify-email.template";
 import { resetPasswordTemplate } from "../mail/reset-password.template";
-import { ChangePasswordRequest } from "types/request types/change-password.request";
+import { ChangePasswordRequest } from "types/requests/change-password.request";
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import cloudinary from "../cloud/cloud";
 import formidable from "formidable";
-import { SignInRequest } from "types/request types/sign-in.request";
-import { ForgotPasswordRequest } from "types/request types/forgot-password.request";
-import { VerifyPasswordResetTokenRequest } from "types/request types/verify-password-reset-token.request";
+import { SignInRequest } from "types/requests/sign-in.request";
+import { ForgotPasswordRequest } from "types/requests/forgot-password.request";
+import { VerifyPasswordResetTokenRequest } from "types/requests/verify-password-reset-token.request";
 
 const addUser = async (req: UserRequest, res: Response) => {
   const { name, email, password } = req.body;

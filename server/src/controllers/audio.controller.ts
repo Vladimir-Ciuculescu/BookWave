@@ -1,7 +1,7 @@
 import cloudinary from "../cloud/cloud";
 import { RequestHandler, Response } from "express";
 import AudioModel, { AudioDocument } from "models/audio.model";
-import { AudioRequest } from "types/request types/audio.request";
+import { AudioRequest } from "types/requests/audio.request";
 
 const addAudioFile: RequestHandler = async (req: AudioRequest, res: Response) => {
   const { title, about, category } = req.body;
