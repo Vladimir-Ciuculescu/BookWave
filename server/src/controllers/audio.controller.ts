@@ -1,9 +1,9 @@
 import cloudinary from "../cloud/cloud";
 import { RequestHandler, Response } from "express";
 import AudioModel, { AudioDocument } from "models/audio.model";
-import { AudioRequest } from "types/requests/audio.request";
+import { AddAudioRequest } from "types/requests/audio/add-audio.request";
 
-const addAudioFile: RequestHandler = async (req: AudioRequest, res: Response) => {
+const addAudioFile: RequestHandler = async (req: AddAudioRequest, res: Response) => {
   const { title, about, category } = req.body;
 
   const audioFile = req.files?.audio;
@@ -38,7 +38,7 @@ const addAudioFile: RequestHandler = async (req: AudioRequest, res: Response) =>
       poster,
     };
 
-    await AudioModel.create<AudioDocument>(audio);
+    await AudioModel.create(audio);
 
     return res.status(201).json({ message: "Audio file uploaded succesfully !" });
   } catch (error) {
@@ -46,7 +46,7 @@ const addAudioFile: RequestHandler = async (req: AudioRequest, res: Response) =>
   }
 };
 
-const updateAudioFile = async (req: AudioRequest, res: Response) => {
+const updateAudioFile = async (req: AddAudioRequest, res: Response) => {
   const { title, about, category } = req.body;
   const user = req.user;
   const posterFile = req.files?.poster;

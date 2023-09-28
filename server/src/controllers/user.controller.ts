@@ -1,4 +1,4 @@
-import { UserRequest } from "types/requests/user.request";
+import { AddUserRequest } from "types/requests/user/add-user.request";
 import UserModel, { UserDocument } from "models/user.model";
 import { sendEmail } from "utils/sendEmail";
 import { generateToken } from "utils/generateToken";
@@ -6,23 +6,23 @@ import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "mo
 import path from "path";
 import fs from "fs";
 
-import { VerifyEmailRequest } from "types/requests/verify-email.request.";
+import { VerifyEmailRequest } from "types/requests/user/verify-email.request.";
 import { isValidObjectId } from "mongoose";
-import { ReVerifyEmailRequest } from "types/requests/re-verrify-email.request";
+import { ReVerifyEmailRequest } from "types/requests/user/re-verrify-email.request";
 import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
 import crypto from "crypto";
 import { verifyEmailTemplate } from "../mail/verify-email.template";
 import { resetPasswordTemplate } from "../mail/reset-password.template";
-import { ChangePasswordRequest } from "types/requests/change-password.request";
+import { ChangePasswordRequest } from "types/requests/user/change-password.request";
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import cloudinary from "../cloud/cloud";
 import formidable from "formidable";
-import { SignInRequest } from "types/requests/sign-in.request";
-import { ForgotPasswordRequest } from "types/requests/forgot-password.request";
-import { VerifyPasswordResetTokenRequest } from "types/requests/verify-password-reset-token.request";
+import { SignInRequest } from "types/requests/user/sign-in.request";
+import { ForgotPasswordRequest } from "types/requests/user/forgot-password.request";
+import { VerifyPasswordResetTokenRequest } from "types/requests/user/verify-password-reset-token.request";
 
-const addUser = async (req: UserRequest, res: Response) => {
+const addUser = async (req: AddUserRequest, res: Response) => {
   const { name, email, password } = req.body;
 
   const user = new UserModel<UserDocument>({

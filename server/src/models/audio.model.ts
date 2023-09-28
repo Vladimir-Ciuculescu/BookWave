@@ -17,6 +17,7 @@ export interface AudioDocument<T = ObjectId> {
   };
   likes: ObjectId[];
   category: Category;
+  createdAt: Date;
 }
 
 // ? Schema
