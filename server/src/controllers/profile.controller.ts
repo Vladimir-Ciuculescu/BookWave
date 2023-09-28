@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import AudioModel from "models/audio.model";
 import UserModel from "models/user.model";
 import { isValidObjectId } from "mongoose";
@@ -79,7 +79,7 @@ const getAudios = async (req: getAudiosRequest, res: Response) => {
   }
 };
 
-const getPublicProfile = async (req, res) => {};
+const getPublicProfile = async (req: Request, res: Response) => {};
 
 const ProfileController = {
   followProfile,
