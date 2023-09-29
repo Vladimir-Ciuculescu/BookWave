@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import AudioModel from "models/audio.model";
+import PlayListModel from "models/playlist.model";
 import UserModel from "models/user.model";
 import { isValidObjectId } from "mongoose";
 import { getAudiosRequest } from "types/requests/audio/get-audios.request";
 import { FollowRequest } from "types/requests/profile/follow.request";
+import { PublicPlaylistsRequest } from "types/requests/profile/get-public-playlists.request";
+import { PublicProfileRequest } from "types/requests/profile/public-profile.request";
 import { UnfollowRequest } from "types/requests/profile/unfollow.request";
 
 const followProfile = async (req: FollowRequest, res: Response) => {
@@ -79,12 +82,70 @@ const getAudios = async (req: getAudiosRequest, res: Response) => {
   }
 };
 
-const getPublicProfile = async (req: Request, res: Response) => {};
+const getPublicProfile = async (req: PublicProfileRequest, res: Response) => {
+  const { profileId } = req.params;
+
+  try {
+    if (!isValidObjectId(profileId)) {
+      return res.status(422).json({ error: "Invalid Profile id !" });
+    }
+
+    const profile = await UserModel.findById(profileId);
+
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found !" });
+    }
+
+    return res.status(200).json({
+      id: profile._id,
+      name: profile.name,
+      followers: profile.followers.length,
+      avatar: profile.avatar?.url,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
+const getPublicPlaylists = async (req: PublicPlaylistsRequest, res: Response) => {
+  const { profileId } = req.params;
+  const { limit, pageNumber } = req.query;
+
+  try {
+    if (!isValidObjectId(profileId)) {
+      return res.status(422).json({ error: "Invalid profile id !" });
+    }
+
+    const playlists = await PlayListModel.find({
+      owner: profileId,
+      visibility: "public",
+    })
+      .sort({ createdAt: "desc" })
+      .skip(parseInt(limit) * parseInt(pageNumber))
+      .limit(parseInt(limit));
+
+    return res.status(200).json({
+      playlists: playlists.map((playlist) => {
+        return {
+          id: playlist._id,
+          title: playlist.title,
+          items: playlist.items.length,
+        };
+      }),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
 
 const ProfileController = {
   followProfile,
   unfollowProfile,
   getAudios,
+  getPublicProfile,
+  getPublicPlaylists,
 };
 
 export default ProfileController;

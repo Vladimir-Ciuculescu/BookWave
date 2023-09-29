@@ -11,6 +11,8 @@ router.post("/unfollow/:profileId", isAuthenticatedMiddleware, isVerifiedMiddlew
 
 router.get("/audios", isAuthenticatedMiddleware, isVerifiedMiddleware, ProfileController.getAudios);
 
-router.get("/profile/:profileId", isAuthenticatedMiddleware, isVerifiedMiddleware);
+router.get("/:profileId", ProfileController.getPublicProfile);
+
+router.get("/playlists/:profileId", ProfileController.getPublicPlaylists);
 
 export default router;

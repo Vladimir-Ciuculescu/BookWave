@@ -1,4 +1,6 @@
 # Ignore Node.js modules and package-lock.json
+
+/server/.env
 node_modules
 package-lock.json
 yarn-error.log
