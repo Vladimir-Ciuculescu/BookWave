@@ -1,4 +1,3 @@
-import { isValidObjectId } from "mongoose";
 import { categories } from "types/enums/audio-category.enum";
 import * as Yup from "yup";
 

@@ -10,6 +10,7 @@ import audioRouter from "routers/audio.route";
 import favoriteRouter from "routers/favorite.route";
 import playlistRouter from "routers/playlist.route";
 import profileRouter from "routers/profile.route";
+import historyRouter from "routers/history.route";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/audio", audioRouter);
 app.use("/favorites", favoriteRouter);
 app.use("/playlist", playlistRouter);
 app.use("/profile", profileRouter);
+app.use("/history", historyRouter);
 
 app.listen(PORT, () => {
   console.log(`application running on port ${PORT} !`);

@@ -1,12 +1,8 @@
 import { validateMiddleware } from "../middlewares/validate.middleware";
 import UserController from "../controllers/user.controller";
-import { userSchema } from "../yup/schemas/user.schema";
+import { userSchema, changePasswordSchema, signInSchema, passwordResetTokenSchem, tokenSchema } from "../yup/user.schemas";
 import { Router, Response } from "express";
-import { tokenSchema } from "../yup/schemas/token.schema";
-import { passwordResetTokenSchem } from "../yup/schemas/password-reset-token.schema";
 import { validateTokenMiddleware } from "../middlewares/validate-token.middleware";
-import { changePasswordSchema } from "../yup/schemas/change-password.schema";
-import { signInSchema } from "../yup/schemas/sign-in.schema";
 import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
 import { fileParserMiddleware } from "../middlewares/file-parser.middleware";
 

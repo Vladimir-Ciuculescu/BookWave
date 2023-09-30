@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
-import jwt, { Jwt, JwtPayload, verify } from "jsonwebtoken";
+import jwt, { JwtPayload, verify } from "jsonwebtoken";
 import UserModel from "models/user.model";
 
 export const isAuthenticatedMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
@@ -39,7 +39,7 @@ export const isAuthenticatedMiddleware: RequestHandler = async (req: Request, re
 
     next();
   } catch (error: any) {
-    console.log(111, error);
+    console.log(error);
     res.status(422).json({ error: "Unauthorized access !" });
   }
 };

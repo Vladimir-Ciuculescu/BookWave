@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import UserModel from "models/user.model";
 
 export const isVerifiedMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {

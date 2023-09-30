@@ -1,13 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import AudioModel from "models/audio.model";
 import PlayListModel from "models/playlist.model";
 import UserModel from "models/user.model";
 import { isValidObjectId } from "mongoose";
-import { getAudiosRequest } from "types/requests/audio/get-audios.request";
-import { FollowRequest } from "types/requests/profile/follow.request";
-import { PublicPlaylistsRequest } from "types/requests/profile/get-public-playlists.request";
-import { PublicProfileRequest } from "types/requests/profile/public-profile.request";
-import { UnfollowRequest } from "types/requests/profile/unfollow.request";
+import { getAudiosRequest } from "types/requests/audio.requests";
+import { FollowRequest, PublicPlaylistsRequest, PublicProfileRequest, UnfollowRequest } from "types/requests/profile.requests";
 
 const followProfile = async (req: FollowRequest, res: Response) => {
   const { profileId } = req.params;

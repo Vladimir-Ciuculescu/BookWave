@@ -1,26 +1,25 @@
-import { AddUserRequest } from "types/requests/user/add-user.request";
 import UserModel, { UserDocument } from "models/user.model";
 import { sendEmail } from "utils/sendEmail";
 import { generateToken } from "utils/generateToken";
 import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "models/email-vertification.model";
 import path from "path";
-import fs from "fs";
-
-import { VerifyEmailRequest } from "types/requests/user/verify-email.request.";
 import { isValidObjectId } from "mongoose";
-import { ReVerifyEmailRequest } from "types/requests/user/re-verrify-email.request";
 import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
 import crypto from "crypto";
 import { verifyEmailTemplate } from "../mail/verify-email.template";
 import { resetPasswordTemplate } from "../mail/reset-password.template";
-import { ChangePasswordRequest } from "types/requests/user/change-password.request";
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
 import cloudinary from "../cloud/cloud";
-import formidable from "formidable";
-import { SignInRequest } from "types/requests/user/sign-in.request";
-import { ForgotPasswordRequest } from "types/requests/user/forgot-password.request";
-import { VerifyPasswordResetTokenRequest } from "types/requests/user/verify-password-reset-token.request";
+import {
+  AddUserRequest,
+  ChangePasswordRequest,
+  ForgotPasswordRequest,
+  ReVerifyEmailRequest,
+  SignInRequest,
+  VerifyEmailRequest,
+  VerifyPasswordResetTokenRequest,
+} from "types/requests/user.requests";
 
 const addUser = async (req: AddUserRequest, res: Response) => {
   const { name, email, password } = req.body;

@@ -3,8 +3,7 @@ import { Router } from "express";
 import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
 import { isVerifiedMiddleware } from "../middlewares/is-verified.middleware";
 import { validateMiddleware } from "../middlewares/validate.middleware";
-import { addPlayListSchema } from "../yup/schemas/playlist/playlist.add.schema";
-import { updatePlayListSchema } from "../yup/schemas/playlist/playlist.update.schema";
+import { addPlayListSchema, updatePlayListSchema } from "../yup/playlists.schemas";
 
 const router: any = Router();
 

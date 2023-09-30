@@ -1,12 +1,14 @@
-import { Response, Request } from "express";
-import AudioModel, { AudioDocument } from "models/audio.model";
+import { Response } from "express";
+import AudioModel from "models/audio.model";
 import PlayListModel, { PlayListDocument } from "models/playlist.model";
 import { Schema, isValidObjectId } from "mongoose";
-import { AddPlayListRequest } from "types/requests/playlist/add-playlist.request";
-import { GetPlaylistAudiosRequest } from "types/requests/playlist/get-playlist-audios.request";
-import { GetPlaylistsRequest } from "types/requests/playlist/get-playlists.request";
-import { RemovePlayListRequest } from "types/requests/playlist/remove-playlist.request";
-import { UpdatePlayListRequest } from "types/requests/playlist/update-playlist.request";
+import {
+  AddPlayListRequest,
+  GetPlaylistAudiosRequest,
+  GetPlaylistsRequest,
+  RemovePlayListRequest,
+  UpdatePlayListRequest,
+} from "types/requests/playlist.requests";
 
 const createPlayList = async (req: AddPlayListRequest, res: Response) => {
   const { title, audioId, visibility } = req.body;

@@ -1,4 +1,4 @@
-import mongoose, { Model, ObjectId, Schema, SchemaType, models } from "mongoose";
+import mongoose, { Model, ObjectId, Schema, models } from "mongoose";
 
 export interface FavoriteDocument {
   owner: ObjectId;
