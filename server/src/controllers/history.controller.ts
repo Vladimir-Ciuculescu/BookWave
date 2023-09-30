@@ -111,10 +111,46 @@ const getHistories = async (req: Request, res: Response) => {
   }
 };
 
+const getRecentlyPlayed = async (req: Request, res: Response) => {
+  const userId = req.user.id;
+
+  try {
+    const audios = await HistoryModel.aggregate([
+      { $match: { owner: userId } },
+      { $project: { recentlyPlayed: { $slice: ["$all", 10] } } },
+      { $project: { histories: { $sortArray: { input: "$recentlyPlayed", sortBy: { date: -1 } } } } },
+      { $unwind: { path: "$histories", includeArrayIndex: "index" } },
+      { $lookup: { from: "audios", localField: "histories.audio", foreignField: "_id", as: "audioInfo" } },
+      { $unwind: "$audioInfo" },
+      { $lookup: { from: "users", localField: "audioInfo.owner", foreignField: "_id", as: "owner" } },
+      { $unwind: "$owner" },
+      {
+        $project: {
+          _id: 0,
+          owner: { name: "$owner.name", _id: "$owner._id" },
+          id: "$audioInfo._id",
+          title: "$audioInfo.title",
+          about: "$audioInfo.about",
+          file: "$audioInfo.file",
+          poster: "$audioInfo.poster",
+          date: "$histories.date",
+          progress: "$histories.progress",
+        },
+      },
+    ]);
+
+    return res.status(200).json({ audios });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const HistoryController = {
   updateHistory,
   removeHistory,
   getHistories,
+  getRecentlyPlayed,
 };
 
 export default HistoryController;

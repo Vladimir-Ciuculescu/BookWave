@@ -13,4 +13,6 @@ router.delete("/", isAuthenticatedMiddleware, isVerifiedMiddleware, HistoryContr
 
 router.get("/", isAuthenticatedMiddleware, isVerifiedMiddleware, HistoryController.getHistories);
 
+router.get("/recently-played", isAuthenticatedMiddleware, isVerifiedMiddleware, HistoryController.getRecentlyPlayed);
+
 export default router;
