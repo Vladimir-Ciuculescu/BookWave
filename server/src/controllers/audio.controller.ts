@@ -1,6 +1,7 @@
 import cloudinary from "../cloud/cloud";
-import { RequestHandler, Response } from "express";
-import AudioModel from "models/audio.model";
+import { Request, RequestHandler, Response } from "express";
+import AudioModel, { AudioDocument } from "models/audio.model";
+import { ObjectId } from "mongoose";
 import { AddAudioRequest } from "types/requests/audio.requests";
 
 const addAudioFile: RequestHandler = async (req: AddAudioRequest, res: Response) => {
@@ -83,9 +84,35 @@ const updateAudioFile = async (req: AddAudioRequest, res: Response) => {
   }
 };
 
+const getLatestUploads = async (req: Request, res: Response) => {
+  try {
+    const uploads = await AudioModel.find()
+      .populate<AudioDocument<{ _id: ObjectId; name: string }>>({ path: "owner", select: "name  _id" })
+      .sort({ createdAt: "desc" });
+
+    const latest = uploads.map((upload) => {
+      return {
+        id: upload._id,
+        title: upload.title,
+        about: upload.about,
+        category: upload.category,
+        file: upload.file.url,
+        poster: upload.poster?.url,
+        owner: { id: upload.owner._id, name: upload.owner.name },
+      };
+    });
+
+    return res.status(200).json({ uploads: latest });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const AudioController = {
   addAudioFile,
   updateAudioFile,
+  getLatestUploads,
 };
 
 export default AudioController;

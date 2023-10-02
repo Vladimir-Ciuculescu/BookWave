@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import AudioModel from "models/audio.model";
 import PlayListModel from "models/playlist.model";
 import UserModel from "models/user.model";
@@ -137,12 +137,50 @@ const getPublicPlaylists = async (req: PublicPlaylistsRequest, res: Response) =>
   }
 };
 
+const getRecommendedAudios = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  try {
+    if (user) {
+      //Get recommended audios based on profile !
+    } else {
+      // Get generic audios
+      const audios = await AudioModel.aggregate([
+        { $addFields: { likesLength: { $size: "$likes" } } },
+        { $match: { _id: { $exists: true } } },
+        { $sort: { likesLength: -1 } },
+        { $limit: 10 },
+        { $lookup: { from: "users", localField: "owner", foreignField: "_id", as: "owner" } },
+        { $unwind: "$owner" },
+        {
+          $project: {
+            _id: 0,
+            owner: { name: "$owner.name", id: "$owner._id" },
+            id: "$_id",
+            title: "$title",
+            category: "$category",
+            about: "$about",
+            file: "$file.url",
+            poster: "$poster.url",
+          },
+        },
+      ]);
+
+      return res.status(200).json({ audios });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const ProfileController = {
   followProfile,
   unfollowProfile,
   getAudios,
   getPublicProfile,
   getPublicPlaylists,
+  getRecommendedAudios,
 };
 
 export default ProfileController;

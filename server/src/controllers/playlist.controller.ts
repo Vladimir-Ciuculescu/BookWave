@@ -132,7 +132,7 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
 
     const playlist = await PlayListModel.findOne({ _id: playlistId, owner: userId }).populate({
       path: "items",
-      populate: { path: "owner", select: "name" },
+      populate: { path: "owner", select: "name " },
     });
 
     if (!playlist) {
