@@ -38,3 +38,13 @@ export interface UpdatePlayListRequest extends Request {
     visibility: Visibility;
   };
 }
+
+export interface GetPlaylistAudios extends Request {
+  params: {
+    playlistId: string;
+  };
+  query: {
+    limit: string;
+    pageNumber: string;
+  };
+}

@@ -1,7 +1,0 @@
-Need to create some more routes
-
-// Get latest uploads
-// Get recommended audios
-// Get auto generated playlists
-// Get followers (public and private)
-// Get followings

@@ -36,6 +36,12 @@ const addUser = async (req: AddUserRequest, res: Response) => {
   });
 
   try {
+    const existentUser = await UserModel.findOne({ email });
+
+    if (existentUser) {
+      return res.status(422).json({ error: "Email address already in use !" });
+    }
+
     const newUser = await UserModel.create<UserDocument>(user);
 
     const token = generateToken();
@@ -77,13 +83,8 @@ const addUser = async (req: AddUserRequest, res: Response) => {
     return res.status(201).json({
       user: newUser,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Email already exists !",
-      });
-    }
     return res.status(422).json({
       error: error,
     });
@@ -185,10 +186,13 @@ const resendVerificationToken = async (req: ReVerifyEmailRequest, res: Response)
     if (!isValidObjectId(userId)) {
       return res.status(403).json({ error: "Invalid user Id" });
     }
+    const user = await UserModel.findById(userId);
+
+    if (user?.verified) {
+      return res.status(200).json({ message: "This user already has their email verified !" });
+    }
 
     await EmailVerificationTokenModel.findOneAndDelete({ owner: userId });
-
-    const user = await UserModel.findById(userId);
 
     if (!user) {
       return res.status(403).json({ error: "This user does not exist !" });

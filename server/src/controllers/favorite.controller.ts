@@ -3,6 +3,7 @@ import AudioModel, { AudioDocument } from "models/audio.model";
 import FavoriteModel, { FavoriteDocument } from "models/favorite.model";
 import { ObjectId, isValidObjectId } from "mongoose";
 import { ToggleFavoriteAudioRequest } from "types/requests/audio.requests";
+import { GetFavoritesRequest } from "types/requests/favorite.request";
 
 const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Response) => {
   const { audioId } = req.query;
@@ -64,34 +65,38 @@ const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Respons
   }
 };
 
-const getFavorites = async (req: Request, res: Response) => {
+const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
   const userId = req.user.id;
+  const { limit = "20", pageNumber = "0" } = req.query;
 
   try {
-    const favorites: any = await FavoriteModel.findOne({ owner: userId }).populate({
-      path: "items",
-      populate: { path: "owner" },
-    });
-
-    if (!favorites) {
-      return res.status(200).json({ audios: [] });
-    }
-
-    const audios = favorites.items.map((item: AudioDocument<{ _id: ObjectId; name: string }>) => {
-      return {
-        id: item._id,
-        title: item.title,
-        category: item.category,
-        file: item.file.url,
-        poster: item.poster?.url,
-        owner: {
-          name: item.owner.name,
-          id: item.owner._id,
+    const favorites: any = await FavoriteModel.aggregate([
+      { $match: { owner: userId } },
+      {
+        $project: {
+          audioIds: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
         },
-      };
-    });
+      },
+      { $unwind: "$audioIds" },
+      { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
+      { $unwind: "$audio" },
+      { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
+      { $unwind: "$owner" },
+      {
+        $project: {
+          _id: 0,
+          id: "$audio._id",
+          title: "$audio.title",
+          about: "$audio.about",
+          category: "$audio.category",
+          file: "$audio.file.url",
+          poster: "$audio.poster.url",
+          owner: { name: "$owner.name", id: "$owner._id" },
+        },
+      },
+    ]);
 
-    return res.status(200).json({ audios });
+    return res.status(200).json({ favorites });
   } catch (error) {
     console.log(error);
     return res.status(422).json({ error });

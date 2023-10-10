@@ -1,8 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
-
 import "module-alias/register";
 import "dotenv/config";
+import "./utils/schedule";
 
 // ? Routers
 import usersRouter from "routers/user.route";

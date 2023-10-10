@@ -139,7 +139,7 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
       return res.status(404).json({ error: "Playlist not found !" });
     }
 
-    const audios = playlist.items.map((audio: any) => {
+    const audios: any = playlist.items.map((audio: any) => {
       return {
         id: audio._id,
         title: audio.title,
