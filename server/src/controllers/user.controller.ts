@@ -121,8 +121,6 @@ const signIn = async (req: SignInRequest, res: Response) => {
 
     const token = jwt.sign({ userId: user._id, email: user.email }, secretKey);
 
-    //await user.updateOne({ tokens: [token] });
-
     await user.updateOne({ tokens: [...user.tokens, token] });
 
     res.status(201).json({
@@ -152,16 +150,16 @@ const sendVerificationToken = async (req: VerifyEmailRequest, res: Response) => 
     });
 
     if (!emailVerificationToken) {
-      res.status(403).json({
-        message: "Invalid token !",
+      return res.status(403).json({
+        error: "Invalid token !",
       });
     }
 
     const validToken = await emailVerificationToken?.compareToken(token);
 
     if (!validToken) {
-      res.status(403).json({
-        message: "Invalid token !",
+      return res.status(403).json({
+        error: "Invalid token !",
       });
     }
 
@@ -171,10 +169,8 @@ const sendVerificationToken = async (req: VerifyEmailRequest, res: Response) => 
 
     return res.status(201).json({ message: "Your email has been verified !" });
   } catch (error) {
-    console.log(error);
-
     return res.status(422).json({
-      error: error,
+      error: "Invalid token !",
     });
   }
 };
