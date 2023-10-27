@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { StackNavigatorProps } from "types/interfaces/stack-navigator";
+import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
 
 const { width, height } = Dimensions.get("window");
 

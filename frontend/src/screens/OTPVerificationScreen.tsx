@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Dimensions, FlatList, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { Button, Text, View } from "react-native-ui-lib";
@@ -15,9 +8,9 @@ import { MotiView } from "moti";
 import { StatusBar } from "expo-status-bar";
 import BWButton from "components/shared/BWButton";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { StackNavigatorProps } from "types/interfaces/stack-navigator";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
-import { sendVerificationTokenApi } from "api/users-api";
+import UserService from "api/users.api";
+import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
 
 const { width, height } = Dimensions.get("window");
 
@@ -53,16 +46,18 @@ interface OTPVerification {
 
 const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route }) => {
   // ? Hooks
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [code, setCode] = useState<number[]>([]);
-  const [timer, setTimer] = useState<number>(60);
+  const [timer, setTimer] = useState<number>(10);
+  const [isResendActive, setIsResendActive] = useState<boolean>(false);
 
   useEffect(() => {
-    setInterval(() => {
-      setTimer((oldTimer) => oldTimer - 1);
-    }, 1000);
-  }, []);
+    if (isResendActive) {
+      return;
+    }
+
+    startTimer();
+  }, [isResendActive]);
 
   const { params } = route;
   const userInfo = params?.userInfo;
@@ -76,38 +71,69 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
     }
   };
 
+  const startTimer = () => {
+    const timerInterval = setInterval(() => {
+      setTimer((previousTimer) => {
+        if (previousTimer === 0) {
+          setIsResendActive(true);
+          clearInterval(timerInterval);
+          return 0;
+        }
+        return previousTimer - 1;
+      });
+    }, 1000);
+  };
+
+  const resetTimer = () => {
+    setTimer(10);
+    setIsResendActive(false);
+    startTimer();
+  };
+
   const goToSignIn = () => {
     navigation.navigate("Login");
   };
 
+  const resendOTP = async () => {
+    try {
+      const data = await UserService.resendVerificationTokenApi(userInfo!.user._id);
+      Alert.alert("Success", data.message, [
+        {
+          text: "Ok",
+          onPress: () => resetTimer(),
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const submitToken = async () => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const token = code.join("");
-    const data = await sendVerificationTokenApi({
-      userId: userInfo!.user._id,
-      token: token.toString(),
-    });
+      const token = code.join("");
+      const data = await UserService.sendVerificationTokenApi({
+        userId: userInfo!.user._id,
+        token: token.toString(),
+      });
 
-    if (data.error) {
-      setErrorMessage(data.error);
+      Alert.alert("Success", data.message, [
+        {
+          text: "OK",
+          onPress: () => goToSignIn(),
+        },
+      ]);
+      setLoading(false);
+    } catch (error: any) {
       setLoading(false);
       setCode([]);
-      Alert.alert("Error", data.error, [
+      Alert.alert("Error", error.message, [
         {
           text: "Try again",
         },
       ]);
-      return;
     }
-
-    Alert.alert("Success", data.message, [
-      {
-        text: "OK",
-        onPress: () => goToSignIn(),
-      },
-    ]);
-    setLoading(false);
   };
 
   return (
@@ -145,11 +171,12 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
             disabled={code.length < 6}
             onPress={submitToken}
             title="Submit"
-            style={styles.submitBtn}
+            style={styles.submitOTPBtn}
           />
 
-          <View style={{ width: "100%" }}>
-            <Text style={styles.subtitle}>Re-send OTP</Text>
+          <View style={styles.resendOtpContainer}>
+            {timer > 0 && <Text style={styles.timer}>{timer} sec.</Text>}
+            <BWButton onPress={resendOTP} title="Re-send OTP" link disabled={!isResendActive} />
           </View>
         </View>
       </BWFadeInContainer>
@@ -176,11 +203,23 @@ const styles = StyleSheet.create({
     fontFamily: "MinomuBold",
     fontSize: 28,
   },
+  resendOtpContainer: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    gap: 20,
+  },
 
   subtitle: {
     fontSize: 16,
     textAlign: "left",
     fontFamily: "Minomu",
+    color: COLORS.WARNING[500],
+  },
+  timer: {
+    fontSize: 16,
+    textAlign: "left",
+    fontFamily: "MinomuBold",
     color: COLORS.WARNING[500],
   },
   content: {
@@ -215,7 +254,9 @@ const styles = StyleSheet.create({
     fontFamily: "Minomu",
     fontSize: 24,
   },
-  submitBtn: {
+
+  submitOTPBtn: {
     width: "100%",
+    height: 50,
   },
 });

@@ -19,19 +19,11 @@ interface BWInputProps extends TextInputProps {
   autoCapitalize: TextInputProps["autoCapitalize"];
   rightIcon?: any;
   placeholderTextColor?: string;
-  textContentType?: TextInputProps["textContentType"];
 }
 
 const BWInput: React.FC<BWInputProps> = (props) => {
-  const {
-    name,
-    placeholder,
-    secureTextEntry,
-    autoCapitalize,
-    rightIcon,
-    placeholderTextColor,
-    textContentType,
-  } = props;
+  const { name, placeholder, secureTextEntry, autoCapitalize, rightIcon, placeholderTextColor } =
+    props;
 
   const { handleChange, errors, values, handleBlur, touched } = useFormikContext<{
     [key: string]: string;
@@ -59,7 +51,7 @@ const BWInput: React.FC<BWInputProps> = (props) => {
   const shakeInput = () => {
     xOffSet.value = withSequence(
       withTiming(-10, { duration: 50 }),
-      withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 })
+      withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 }),
     );
   };
 
@@ -67,7 +59,7 @@ const BWInput: React.FC<BWInputProps> = (props) => {
     <Animated.View entering={FadeInUp} style={[inputStyle]}>
       <TextField
         {...props}
-        textContentType={textContentType || "none"}
+        textContentType="oneTimeCode"
         autoCapitalize={autoCapitalize || "sentences"}
         secureTextEntry={secureTextEntry || false}
         style={styles.input}

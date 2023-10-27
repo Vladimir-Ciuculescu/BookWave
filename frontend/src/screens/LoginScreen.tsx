@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
@@ -6,19 +6,21 @@ import BWInput from "components/shared/BWInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
-import { loginSchema } from "yup/loginSchemta";
-import { NavigationProp, useIsFocused } from "@react-navigation/native";
-import { StackNavigatorProps } from "types/interfaces/stack-navigator";
+import { NavigationProp } from "@react-navigation/native";
 import BWButton from "components/shared/BWButton";
-
 import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import { StatusBar } from "expo-status-bar";
-
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
+import { loginSchema } from "yup/auth.schemas";
+import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { useDispatch } from "react-redux";
+import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
+import UserService from "api/users.api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
-interface LoginData {
+export interface LoginData {
   email: string;
   password: string;
 }
@@ -33,6 +35,9 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const goToRegister = () => {
     navigation.navigate("Register");
   };
@@ -41,7 +46,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     navigation.navigate("ForgotPassword");
   };
 
-  const handleLogin = async () => {};
+  const goToHome = () => {
+    navigation.navigate("App");
+  };
+
+  const handleLogin = async (values: LoginData) => {
+    try {
+      const userInfo = await UserService.loginApi(values);
+
+      await AsyncStorage.setItem("token", userInfo.token);
+      dispatch(setProfileAction(userInfo.user));
+      dispatch(setLoggedInAction(true));
+      goToHome();
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    }
+  };
 
   return (
     <BWAuthScreenContainer
@@ -63,14 +83,30 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
                     <BWInput name="email" autoCapitalize="sentences" placeholder="Email" />
-                    <BWInput name="password" autoCapitalize="none" placeholder="Password" />
+                    <BWInput
+                      name="password"
+                      autoCapitalize="none"
+                      placeholder="Password"
+                      secureTextEntry
+                    />
                   </View>
 
                   <View style={styles.options}>
-                    <BWButton title="Forgot Password" link onPress={goToForgotPassword} />
-                    <BWButton title="Sign Up" link onPress={goToRegister} />
+                    <BWButton
+                      title="Forgot Password"
+                      link
+                      onPress={goToForgotPassword}
+                      labelStyle={styles.linkOption}
+                    />
+                    <BWButton
+                      title="Sign Up"
+                      link
+                      onPress={goToRegister}
+                      labelStyle={styles.linkOption}
+                    />
                   </View>
-                  <BWSubmitButton title="Log in" />
+                  <BWSubmitButton title="Log in" style={styles.signInBtn} />
+                  {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}
                 </View>
               </BWForm>
             </View>
@@ -122,6 +158,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
+  linkOption: {
+    color: COLORS.MUTED[50],
+  },
+
   title: {
     fontSize: 28,
     fontWeight: "700",
@@ -148,8 +188,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
-  signUpLabel: {
-    fontFamily: "Minomu",
+  signInBtn: {
+    width: 160,
+    height: 50,
+  },
+  errorMsg: {
     fontSize: 16,
+    color: COLORS.DANGER[500],
+    fontFamily: "Minomu",
   },
 });

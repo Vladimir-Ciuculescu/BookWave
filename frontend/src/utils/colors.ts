@@ -36,4 +36,11 @@ export const COLORS = {
     800: "#9f1239",
     900: "#881337",
   },
+  // TODO : Dark colors are not definitive yet
+  DARK: {
+    50: "#181a20",
+    100: "#1f2026",
+    200: "#1f222a",
+    300: "#35383f",
+  },
 };

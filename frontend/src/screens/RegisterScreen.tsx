@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Dimensions,
   TouchableWithoutFeedback,
@@ -11,19 +10,19 @@ import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
 import BWInput from "components/shared/BWInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { registerSchema } from "yup/register.schemas";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
 import { Feather } from "@expo/vector-icons";
 import BWIconButton from "components/shared/BWIconButton";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProp, useIsFocused, useNavigation } from "@react-navigation/native";
-import { StackNavigatorProps } from "types/interfaces/stack-navigator";
 import BWButton from "components/shared/BWButton";
 import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import { StatusBar } from "expo-status-bar";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
-import { registerApi } from "api/users-api";
+import UserService from "api/users.api";
+import { registerSchema } from "yup/auth.schemas";
+import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
 
 const { width, height } = Dimensions.get("window");
 
@@ -65,17 +64,15 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   };
 
   const handleRegister = async (values: RegisterData) => {
-    setLoading(true);
-    const data = await registerApi(values);
-    setLoading(false);
-
-    if (data.error) {
-      setErrorMessage(data.error);
-      return;
+    try {
+      setLoading(true);
+      const data = await UserService.registerApi(values);
+      setLoading(false);
+      setErrorMessage("");
+      goToOTPVerification(data);
+    } catch (error: any) {
+      setErrorMessage(error.message);
     }
-
-    setErrorMessage("");
-    goToOTPVerification(data);
   };
 
   return (
@@ -121,10 +118,20 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
                     />
                   </View>
                   <View style={styles.options}>
-                    <BWButton title="Forgot Password" link onPress={goToForgotPassword} />
-                    <BWButton title="Sign In" link onPress={goToSignIn} />
+                    <BWButton
+                      title="Forgot Password"
+                      link
+                      onPress={goToForgotPassword}
+                      labelStyle={styles.linkOption}
+                    />
+                    <BWButton
+                      title="Sign In"
+                      link
+                      onPress={goToSignIn}
+                      labelStyle={styles.linkOption}
+                    />
                   </View>
-                  <BWSubmitButton title="Sign Up" loading={loading} />
+                  <BWSubmitButton title="Sign Up" loading={loading} style={styles.signUpBtn} />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}
                 </View>
               </BWForm>
@@ -178,6 +185,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
+  linkOption: {
+    color: COLORS.MUTED[50],
+  },
+
   title: {
     fontSize: 28,
     fontWeight: "700",
@@ -204,9 +215,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
-  signUpLabel: {
-    fontFamily: "Minomu",
-    fontSize: 16,
+  signUpBtn: {
+    width: 160,
+    height: 50,
   },
 
   errorMsg: {
