@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
-import BWInput from "components/shared/BWInput";
+import BWAuthInput from "components/shared/BWAuthInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
@@ -82,8 +82,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               >
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
-                    <BWInput name="email" autoCapitalize="sentences" placeholder="Email" />
-                    <BWInput
+                    <BWAuthInput name="email" autoCapitalize="sentences" placeholder="Email" />
+                    <BWAuthInput
                       name="password"
                       autoCapitalize="none"
                       placeholder="Password"

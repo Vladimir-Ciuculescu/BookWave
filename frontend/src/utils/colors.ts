@@ -43,4 +43,7 @@ export const COLORS = {
     200: "#1f222a",
     300: "#35383f",
   },
+  BACKDROP: {
+    50: "rgba(0, 0, 0, 0.3)",
+  },
 };

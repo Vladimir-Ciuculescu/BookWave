@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
-import BWInput from "components/shared/BWInput";
+import BWAuthInput from "components/shared/BWAuthInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
@@ -23,6 +23,7 @@ import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import UserService from "api/users.api";
 import { registerSchema } from "yup/auth.schemas";
 import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import BWBackButton from "components/shared/BWBackButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -46,10 +47,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
-  const goBack = () => {
-    navigation.goBack();
-  };
 
   const goToForgotPassword = () => {
     navigation.navigate("ForgotPassword");
@@ -80,11 +77,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
       image="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
       navigation={navigation}
     >
-      <BWIconButton
-        onPress={goBack}
-        style={styles.backBtn}
-        icon={() => <Ionicons name="md-arrow-back" size={26} color="black" />}
-      />
+      <BWBackButton navigation={navigation} />
       <StatusBar style="light" />
       <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} enableOnAndroid={true}>
         <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -99,9 +92,9 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
               >
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
-                    <BWInput name="name" autoCapitalize="sentences" placeholder="Name" />
-                    <BWInput name="email" autoCapitalize="none" placeholder="Email" />
-                    <BWInput
+                    <BWAuthInput name="name" autoCapitalize="sentences" placeholder="Name" />
+                    <BWAuthInput name="email" autoCapitalize="none" placeholder="Email" />
+                    <BWAuthInput
                       name="password"
                       autoCapitalize="none"
                       secureTextEntry={!passwordVisible}

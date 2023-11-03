@@ -1,28 +1,29 @@
-import { useEffect } from "react";
 import { useFormikContext } from "formik";
+import React, { useEffect } from "react";
 import { TextInputProps, StyleSheet } from "react-native";
 import Animated, {
-  useAnimatedStyle,
   useSharedValue,
+  useAnimatedStyle,
   withSequence,
-  withSpring,
   withTiming,
+  withSpring,
+  FadeInUp,
 } from "react-native-reanimated";
+import { TextField, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
-import { Text, TextField, View } from "react-native-ui-lib";
-import BWView from "./BWView";
 
-interface BWInputProps extends TextInputProps {
+interface BWAuthInputProps extends TextInputProps {
   name: string;
+  placeholder: string;
   secureTextEntry?: boolean;
-  autoCapitalize?: TextInputProps["autoCapitalize"];
+  autoCapitalize: TextInputProps["autoCapitalize"];
   rightIcon?: any;
   placeholderTextColor?: string;
-  label: string;
 }
 
-const BWInput: React.FC<BWInputProps> = (props) => {
-  const { name, label, multiline, numberOfLines, autoCapitalize } = props;
+const BWAuthInput: React.FC<BWAuthInputProps> = (props) => {
+  const { name, placeholder, secureTextEntry, autoCapitalize, rightIcon, placeholderTextColor } =
+    props;
 
   const { handleChange, errors, values, handleBlur, touched } = useFormikContext<{
     [key: string]: string;
@@ -34,17 +35,17 @@ const BWInput: React.FC<BWInputProps> = (props) => {
   // ? Hooks
   const xOffSet = useSharedValue(0);
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const inputStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: xOffSet.value }],
     };
   });
 
   useEffect(() => {
-    if (errorMessage && isTouched) {
+    if (errorMessage) {
       shakeInput();
     }
-  }, [errorMessage, isTouched]);
+  }, [errorMessage]);
 
   // ? Functions
   const shakeInput = () => {
@@ -55,58 +56,38 @@ const BWInput: React.FC<BWInputProps> = (props) => {
   };
 
   return (
-    <Animated.View style={[animatedStyle, styles.container]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <Animated.View style={[inputStyle]}>
       <TextField
-        autoCapitalize={autoCapitalize || "sentences"}
+        {...props}
         textContentType="oneTimeCode"
-        style={[styles.input, multiline ? styles.multiLine : null]}
-        multiline={multiline || false}
-        numberOfLines={numberOfLines || undefined}
+        autoCapitalize={autoCapitalize || "sentences"}
+        secureTextEntry={secureTextEntry || false}
+        style={styles.input}
+        placeholder={placeholder}
+        placeholderTextColor={placeholderTextColor || COLORS.MUTED[300]}
         value={values[name]}
         onChangeText={handleChange(name)}
         onBlur={handleBlur(name)}
         enableErrors
         validationMessage={isTouched && errorMessage ? errorMessage : ""}
         validationMessageStyle={styles.errorMessage}
+        trailingAccessory={<View style={{ position: "absolute", right: 20 }}>{rightIcon}</View>}
       />
     </Animated.View>
   );
 };
 
-export default BWInput;
+export default BWAuthInput;
 
 const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-  },
-
-  label: {
-    color: COLORS.MUTED[50],
-    fontSize: 24,
-    fontFamily: "MinomuBold",
-  },
-
   input: {
-    backgroundColor: COLORS.DARK[200],
-    minHeight: 50,
-    borderRadius: 16,
-    color: COLORS.MUTED[50],
-    textAlignVertical: "top",
-    fontFamily: "Minomu",
-    paddingHorizontal: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderRadius: 20,
+    height: 50,
+    paddingHorizontal: 16,
+    color: COLORS.MUTED[300],
   },
-
-  multiLine: {
-    paddingTop: 16,
-    paddingBottom: 16,
-  },
-
   errorMessage: {
     color: COLORS.DANGER[500],
-    fontFamily: "Minomu",
-    top: 10,
   },
 });

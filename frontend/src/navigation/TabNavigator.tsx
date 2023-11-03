@@ -14,11 +14,12 @@ const TabNavigator: React.FC<any> = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarStyle: styles.tabBar,
+        unmountOnBlur: true,
         tabBarActiveTintColor: COLORS.WARNING[500],
         tabBarInactiveTintColor: COLORS.MUTED[500],
         headerShown: false,
-        tabBarBackground: () => <BlurView tint="dark" intensity={100} style={styles.blurView} />,
+        tabBarBackground: () => <BlurView intensity={100} tint="dark" style={styles.blurView} />,
+        tabBarStyle: styles.tabBar,
       }}
     >
       <Tab.Screen
@@ -63,44 +64,16 @@ const TabNavigator: React.FC<any> = () => {
 export default TabNavigator;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  blurContainer: {
-    flex: 1,
-    padding: 20,
-    margin: 16,
-    textAlign: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    borderRadius: 20,
-  },
-
-  box: {
-    width: "25%",
-    height: "20%",
-  },
-  boxEven: {
-    backgroundColor: "orangered",
-  },
-  boxOdd: {
-    backgroundColor: "gold",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "600",
-  },
-
   tabBar: {
     position: "absolute",
     height: 80,
-    borderRadius: 20,
-    elevation: 0,
-    borderTopWidth: 0,
+
+    borderRadius: 15,
     borderTopColor: "transparent",
-    backgroundColor: "#18181b",
   },
   blurView: {
-    borderRadius: 15,
+    flex: 1,
+    borderRadius: 20,
+    overflow: "hidden",
   },
 });

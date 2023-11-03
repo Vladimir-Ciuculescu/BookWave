@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
-import BWInput from "components/shared/BWInput";
+import BWAuthInput from "components/shared/BWAuthInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
@@ -83,7 +83,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
               >
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
-                    <BWInput
+                    <BWAuthInput
                       name="email"
                       autoCapitalize="sentences"
                       placeholder="Email"

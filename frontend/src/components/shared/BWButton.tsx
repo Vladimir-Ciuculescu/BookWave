@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { StyleSheet, ViewStyle, ActivityIndicator, TextStyle } from "react-native";
 
 import { Button } from "react-native-ui-lib";
@@ -12,6 +12,8 @@ interface BWButtonProps {
   disabled?: boolean;
   link?: boolean;
   loading?: boolean;
+  iconSource?: any;
+  iconOnRight?: boolean;
 }
 
 const BWButton: React.FC<BWButtonProps> = ({
@@ -22,6 +24,8 @@ const BWButton: React.FC<BWButtonProps> = ({
   disabled,
   link,
   loading,
+  iconSource,
+  iconOnRight,
 }) => {
   return (
     <Button
@@ -29,8 +33,13 @@ const BWButton: React.FC<BWButtonProps> = ({
       disabled={disabled}
       label={loading ? undefined : title}
       iconSource={
-        loading ? () => <ActivityIndicator size="small" color={COLORS.MUTED[50]} /> : null
+        loading
+          ? () => <ActivityIndicator size="small" color={COLORS.MUTED[50]} />
+          : iconSource
+          ? iconSource
+          : null
       }
+      iconOnRight={iconOnRight}
       onPress={onPress}
       labelStyle={[
         link ? styles.linkLabel : styles.containedLabel,

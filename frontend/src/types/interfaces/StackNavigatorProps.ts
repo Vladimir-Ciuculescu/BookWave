@@ -4,4 +4,5 @@ export type StackNavigatorProps = {
   ForgotPassword: undefined;
   OTPVerification: { userInfo: any };
   App: undefined;
+  InitialScreen: undefined;
 };

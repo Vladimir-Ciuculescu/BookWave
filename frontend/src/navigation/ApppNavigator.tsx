@@ -1,10 +1,8 @@
-import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import StackNavigator from "./StackNavigator";
 import { DefaultTheme } from "@react-navigation/native";
 import { COLORS } from "utils/colors";
-import { StatusBar } from "expo-status-bar";
-import { useSelector } from "react-redux";
+import { Text } from "react-native-ui-lib";
 
 const NavigatorTheme = {
   ...DefaultTheme,

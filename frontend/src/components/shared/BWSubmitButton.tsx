@@ -11,7 +11,9 @@ interface BWSubmitButtonProps {
 }
 
 const BWSubmitButton: React.FC<BWSubmitButtonProps> = ({ title, style, loading }) => {
-  const { handleSubmit } = useFormikContext();
+  const { handleSubmit, values } = useFormikContext();
+
+  console.log(values);
 
   return <BWButton title={title} onPress={handleSubmit} style={style!} loading={loading} />;
 };
