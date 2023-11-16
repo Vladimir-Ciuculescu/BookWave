@@ -14,6 +14,7 @@ import {
   GetFollowersRequest,
   GetFollowingsRequest,
   GetIsFollowingRequest,
+  GetRecommendedAudiosRequest,
   PublicPlaylistsRequest,
   PublicProfileRequest,
   UnfollowRequest,
@@ -152,8 +153,9 @@ const getPublicPlaylists = async (req: PublicPlaylistsRequest, res: Response) =>
   }
 };
 
-const getRecommendedAudios = async (req: Request, res: Response) => {
+const getRecommendedAudios = async (req: GetRecommendedAudiosRequest, res: Response) => {
   const user = req.user;
+  const { limit = "5" } = req.query;
 
   let matchOptions: PipelineStage.Match = { $match: { _id: { $exists: true } } };
 
@@ -188,6 +190,7 @@ const getRecommendedAudios = async (req: Request, res: Response) => {
           poster: "$poster.url",
         },
       },
+      { $limit: parseInt(limit) },
     ]);
 
     return res.status(200).json({ audios });

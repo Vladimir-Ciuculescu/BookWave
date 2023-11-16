@@ -2,10 +2,10 @@ import { Provider } from "react-redux";
 import { useFonts } from "expo-font";
 import store from "redux/store";
 import AppNavigator from "navigation/ApppNavigator";
+import { QueryClientProvider, QueryClient } from "react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { PortalHost, PortalProvider } from "@gorhom/portal";
-import { Text } from "react-native-ui-lib";
+
+const queryClient = new QueryClient();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -18,16 +18,10 @@ export default function App() {
   }
 
   return (
-    // <Provider store={store}>
-    //   <PortalProvider>
-    //     <AppNavigator />
-    //   </PortalProvider>
-    // </Provider>
-    // <Provider store={store}>
-    //   <Text>Awdawd</Text>
-    // </Provider>
     <Provider store={store}>
-      <AppNavigator />
+      <QueryClientProvider client={queryClient}>
+        <AppNavigator />
+      </QueryClientProvider>
     </Provider>
   );
 }

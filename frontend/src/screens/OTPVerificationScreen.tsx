@@ -138,7 +138,7 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <BWFadeInContainer>
         <View style={styles.content}>
           <Text style={styles.title}>Fill in the token we sent you through email !</Text>
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "MinomuBold",
     fontSize: 28,
+    color: COLORS.MUTED[50],
   },
   resendOtpContainer: {
     display: "flex",

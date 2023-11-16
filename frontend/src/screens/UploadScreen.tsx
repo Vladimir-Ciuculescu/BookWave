@@ -1,23 +1,13 @@
-import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
+import { SafeAreaView, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
 import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import {
-  Button,
-  Icon,
-  Modal,
   RadioButton,
   RadioGroup,
   Text,
-  TextField,
   View,
+  Image,
+  AnimatedImage,
+  Chip,
 } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
 import { FontAwesome } from "@expo/vector-icons";
@@ -26,31 +16,29 @@ import BWView from "components/shared/BWView";
 import BWInput from "components/shared/BWInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BWButton from "components/shared/BWButton";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInDown,
-  SlideOutDown,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
 import "react-native-gesture-handler";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { categories } from "consts/categories";
 import { Categories } from "types/enums/categories.enum";
-import { DocumentPickerAsset, DocumentPickerResult } from "expo-document-picker";
+import { DocumentPickerAsset } from "expo-document-picker";
 import BWBottomSheet from "components/shared/BWBottomSheet";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
 import { uploadAudioSchema } from "yup/app.schemas";
+import { StatusBar } from "expo-status-bar";
+import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import BWIconButton from "components/shared/BWIconButton";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AudioService from "api/audios.api";
+import { useDispatch } from "react-redux";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { useFormikContext } from "formik";
 
 const { width, height } = Dimensions.get("window");
 
-export interface UploadFileData {
+export interface UploadAudioData {
   title: string;
   category: Categories | "";
   description: string;
@@ -58,7 +46,7 @@ export interface UploadFileData {
   audio?: DocumentPickerAsset;
 }
 
-const initialValues: UploadFileData = {
+const initialValues: UploadAudioData = {
   title: "",
   description: "",
   category: "",
@@ -73,7 +61,8 @@ const initialValues: UploadFileData = {
 const UploadScreen: React.FC<any> = () => {
   // ? Hooks
   const [categoryBottomSheet, toggleCategoryBottomSheet] = useState(false);
-  const [category, setCategory] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const closeBottomSheet = () => {
     toggleCategoryBottomSheet(false);
@@ -85,26 +74,85 @@ const UploadScreen: React.FC<any> = () => {
     let timeout = setTimeout(() => {
       closeBottomSheet();
       clearInterval(timeout);
-    }, 300);
+    }, 500);
+  };
+
+  const removePoster = (setFieldValue: (label: string, value: any) => void) => {
+    setFieldValue("poster", undefined);
+  };
+
+  const removeAudio = (setFieldValue: (label: string, value: any) => void) => {
+    setFieldValue("audio", { name: "", uri: "", size: undefined, mimeType: undefined });
+  };
+
+  const handleUploadAudio = async (values: UploadAudioData, resetForm: () => void) => {
+    const { title, category, description, audio, poster } = values;
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("title", title);
+      formData.append("category", category);
+      formData.append("about", description);
+
+      formData.append("audio", {
+        name: audio!.name,
+        type: audio?.mimeType,
+        uri: audio?.uri,
+      } as any);
+
+      formData.append("poster", {
+        name: poster?.name,
+        type: poster?.mimeType,
+        uri: poster?.uri,
+      } as any);
+
+      await AudioService.uploadAudioApi(formData);
+
+      dispatch(
+        setToastMessageAction({ message: "Audio file succesfully uploaded", type: "success" }),
+      );
+
+      resetForm();
+    } catch (error) {
+      dispatch(
+        setToastMessageAction({
+          message: "Something gone wrong, please try again !",
+          type: "error",
+        }),
+      );
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar style="light" />
+
         <BWForm
           initialValues={initialValues}
-          onSubmit={() => {}}
+          onSubmit={(values, { resetForm }) => handleUploadAudio(values, resetForm)}
           validationSchema={uploadAudioSchema}
         >
-          {/*@ts-ignore*/}
+          {/* @ts-ignore */}
           {({ values, errors, setFieldValue, touched }) => {
             return (
               <View style={{ flex: 1 }}>
-                <KeyboardAwareScrollView style={styles.container}>
+                <KeyboardAwareScrollView
+                  contentContainerStyle={styles.scrollContainer}
+                  showsVerticalScrollIndicator={false}
+                  style={styles.container}
+                >
                   <BWView column gap={30}>
                     <Text style={styles.title}>Upload new audio</Text>
                     <BWView row gap={30}>
                       <BWFileSelector
+                        label="Select a poster"
                         name="poster"
                         icon={() => (
                           <FontAwesome name="image" size={24} color={COLORS.WARNING[500]} />
@@ -113,6 +161,7 @@ const UploadScreen: React.FC<any> = () => {
                         options={{ type: "image/*" }}
                       />
                       <BWFileSelector
+                        label="Select an audio"
                         name="audio"
                         icon={() => (
                           <FontAwesome name="file-audio-o" size={24} color={COLORS.WARNING[500]} />
@@ -122,15 +171,50 @@ const UploadScreen: React.FC<any> = () => {
                       />
                     </BWView>
 
+                    {values.poster && (
+                      <View style={styles.posterContainer}>
+                        <BWIconButton
+                          onPress={() => removePoster(setFieldValue)}
+                          style={styles.removePosterBtn}
+                          icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
+                        />
+                        <AnimatedImage source={{ uri: values.poster.uri }} style={styles.poster} />
+                      </View>
+                    )}
+
+                    {values.audio.name && (
+                      <BWView row>
+                        <Chip
+                          borderRadius={22}
+                          label={values.audio.name}
+                          leftElement={
+                            <Ionicons name="ios-musical-notes" size={24} color="black" />
+                          }
+                          rightElement={
+                            <BWIconButton
+                              onPress={() => removeAudio(setFieldValue)}
+                              style={{ backgroundColor: "transparent" }}
+                              icon={() => (
+                                <AntDesign name="close" size={20} color={COLORS.DARK[50]} />
+                              )}
+                            />
+                          }
+                          labelStyle={styles.audioChipLabel}
+                          containerStyle={styles.audioChipContainer}
+                        />
+                      </BWView>
+                    )}
+
                     {touched.audio && errors.audio && (
                       <Text style={styles.errorMessage}>{errors.audio.uri}</Text>
                     )}
-                    <BWInput name="title" label="Title" />
+
+                    <BWInput enablerError name="title" label="Title" />
 
                     <BWButton
                       title="Category"
                       link
-                      style={{ width: 140 }}
+                      style={styles.categoryBtn}
                       labelStyle={{
                         color: COLORS.MUTED[50],
                         fontSize: 24,
@@ -151,11 +235,21 @@ const UploadScreen: React.FC<any> = () => {
                     {touched.category && errors.category && (
                       <Text style={styles.errorMessage}>{errors.category}</Text>
                     )}
-                    <BWInput name="description" label="Description" multiline numberOfLines={4} />
-                    <BWSubmitButton title="Upload" />
+                    <BWInput
+                      enablerError
+                      name="description"
+                      label="Description"
+                      multiline
+                      numberOfLines={4}
+                    />
+                    <BWSubmitButton title="Upload" loading={loading} full />
                   </BWView>
                 </KeyboardAwareScrollView>
-                <BWBottomSheet visible={categoryBottomSheet} onPressOut={closeBottomSheet}>
+                <BWBottomSheet
+                  visible={categoryBottomSheet}
+                  onPressOut={closeBottomSheet}
+                  height="60%"
+                >
                   <Text style={styles.bottomSheetTitle}>Choose a category</Text>
                   <View style={styles.bottomSheetContainer}>
                     <View style={{ height: "80%", width: "100%" }}>
@@ -174,7 +268,7 @@ const UploadScreen: React.FC<any> = () => {
                               value={item}
                               label={item}
                               color={COLORS.WARNING[500]}
-                              selected={category === item}
+                              selected={values.category === item}
                             />
                           ))}
                         </RadioGroup>
@@ -200,6 +294,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
 
+  scrollContainer: {
+    paddingBottom: TAB_BAR_HEIGHT + 30,
+  },
+
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -223,6 +321,49 @@ const styles = StyleSheet.create({
 
   fileSelectorsContainer: {
     display: "flex",
+  },
+
+  posterContainer: {
+    width: "100%",
+    height: 200,
+  },
+
+  poster: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 15,
+  },
+
+  removePosterBtn: {
+    position: "absolute",
+    zIndex: 1,
+    right: 5,
+    top: 5,
+    backgroundColor: COLORS.MUTED[900],
+    width: 30,
+    height: 30,
+    borderRadius: 0,
+  },
+
+  removeAudioBtn: {
+    backgroundColor: "transparent",
+  },
+
+  audioChipLabel: {
+    color: COLORS.MUTED[50],
+    fontSize: 14,
+    fontFamily: "Minomu",
+    marginHorizontal: 10,
+  },
+
+  audioChipContainer: {
+    backgroundColor: COLORS.WARNING[500],
+    paddingHorizontal: 10,
+    height: 40,
+  },
+
+  categoryBtn: {
+    width: 140,
   },
 
   fileSelector: {

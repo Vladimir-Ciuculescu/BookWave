@@ -1,6 +1,6 @@
 export enum Categories {
   Arts = "Arts",
-  Business = "Business",
+  Bussiness = "Bussiness",
   Education = "Education",
   Entertainment = "Entertainment",
   Kids_Family = "Kids & Family",

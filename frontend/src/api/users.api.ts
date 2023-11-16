@@ -1,9 +1,8 @@
+import { apiUrl, getToken } from "api";
 import axios from "axios";
 import { LoginData } from "screens/LoginScreen";
 import { RegisterData } from "screens/RegisterScreen";
-import { SendVerificationEmailRequest } from "types/interfaces/auth-requests";
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import { SendVerificationEmailRequest } from "types/interfaces/auth-requests.interfaces";
 
 const registerApi = async (payload: RegisterData) => {
   try {
@@ -25,11 +24,11 @@ const loginApi = async (payload: LoginData) => {
   }
 };
 
-const isAuthApi = async (token: string) => {
+const isAuthApi = async () => {
   try {
     const { data } = await axios.get(`${apiUrl}/users/is-auth`, {
       headers: {
-        Authorization: `Bearer=${token}`,
+        Authorization: `Bearer=${await getToken()}`,
       },
     });
     return data;

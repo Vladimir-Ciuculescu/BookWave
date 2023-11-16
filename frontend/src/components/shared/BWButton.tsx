@@ -7,7 +7,7 @@ import { COLORS } from "utils/colors";
 interface BWButtonProps {
   title: string;
   onPress: () => void;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   labelStyle?: TextStyle;
   disabled?: boolean;
   link?: boolean;
@@ -30,7 +30,7 @@ const BWButton: React.FC<BWButtonProps> = ({
   return (
     <Button
       link={link || false}
-      disabled={disabled}
+      disabled={disabled || loading}
       label={loading ? undefined : title}
       iconSource={
         loading
@@ -42,14 +42,15 @@ const BWButton: React.FC<BWButtonProps> = ({
       iconOnRight={iconOnRight}
       onPress={onPress}
       labelStyle={[
-        link ? styles.linkLabel : styles.containedLabel,
+        link ? styles.linkLabel : null,
         disabled ? styles.disabled : styles.enabled,
         styles.btnLabel,
         labelStyle,
+        title && iconSource && { paddingLeft: 7 },
       ]}
       style={[
         link ? styles.link : styles.contained,
-        disabled ? styles.disabled : styles.enabled,
+        disabled || loading ? styles.disabled : styles.enabled,
         styles.btn,
         style,
       ]}
@@ -88,8 +89,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     color: COLORS.WARNING[500],
   },
-
-  containedLabel: {},
 
   linkLabel: {
     color: COLORS.WARNING[500],

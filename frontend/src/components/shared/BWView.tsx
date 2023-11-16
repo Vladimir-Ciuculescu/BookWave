@@ -9,16 +9,24 @@ interface BWViewProps {
   gap?: ViewStyle["gap"];
   style?: ViewStyle;
   justifyContent?: ViewStyle["justifyContent"];
+  alignItems?: ViewStyle["alignItems"];
 }
 
 const BWView: ForwardRefRenderFunction<any, PropsWithChildren<BWViewProps>> = (
-  { row, column, gap, justifyContent, style, children },
+  { row, column, gap, justifyContent, style, children, alignItems },
   ref,
 ) => {
   return (
     <View
       row={row || !column}
-      style={[{ gap: gap, justifyContent: justifyContent || "flex-start" }, style]}
+      style={[
+        {
+          gap: gap,
+          justifyContent: justifyContent || "flex-start",
+          alignItems: alignItems || "stretch",
+        },
+        style,
+      ]}
     >
       {children}
     </View>

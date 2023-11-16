@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useFormikContext } from "formik";
-import { TextInputProps, StyleSheet } from "react-native";
+import { TextInputProps, StyleSheet, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,8 +9,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { COLORS } from "utils/colors";
-import { Text, TextField, View } from "react-native-ui-lib";
-import BWView from "./BWView";
+import { Text, TextField } from "react-native-ui-lib";
 
 interface BWInputProps extends TextInputProps {
   name: string;
@@ -18,11 +17,25 @@ interface BWInputProps extends TextInputProps {
   autoCapitalize?: TextInputProps["autoCapitalize"];
   rightIcon?: any;
   placeholderTextColor?: string;
-  label: string;
+  label?: string;
+  style?: ViewStyle;
+  inputStyle?: ViewStyle;
+  enablerError?: boolean;
+  placeholder?: string;
 }
 
 const BWInput: React.FC<BWInputProps> = (props) => {
-  const { name, label, multiline, numberOfLines, autoCapitalize } = props;
+  const {
+    name,
+    label,
+    multiline,
+    numberOfLines,
+    autoCapitalize,
+    style,
+    inputStyle,
+    enablerError,
+    placeholder,
+  } = props;
 
   const { handleChange, errors, values, handleBlur, touched } = useFormikContext<{
     [key: string]: string;
@@ -55,18 +68,20 @@ const BWInput: React.FC<BWInputProps> = (props) => {
   };
 
   return (
-    <Animated.View style={[animatedStyle, styles.container]}>
+    <Animated.View style={[animatedStyle, styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextField
+        placeholder={placeholder}
+        placeholderTextColor={COLORS.MUTED[500]}
         autoCapitalize={autoCapitalize || "sentences"}
         textContentType="oneTimeCode"
-        style={[styles.input, multiline ? styles.multiLine : null]}
+        style={[styles.input, multiline ? styles.multiLine : null, inputStyle]}
         multiline={multiline || false}
         numberOfLines={numberOfLines || undefined}
         value={values[name]}
         onChangeText={handleChange(name)}
         onBlur={handleBlur(name)}
-        enableErrors
+        enableErrors={enablerError || false}
         validationMessage={isTouched && errorMessage ? errorMessage : ""}
         validationMessageStyle={styles.errorMessage}
       />

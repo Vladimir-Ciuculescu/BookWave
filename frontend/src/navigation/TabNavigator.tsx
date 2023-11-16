@@ -7,6 +7,7 @@ import { COLORS } from "utils/colors";
 import HomeScreen from "screens/HomeScreen";
 import UploadScreen from "screens/UploadScreen";
 import ProfileScreen from "screens/ProfileScreen";
+import { TAB_BAR_HEIGHT } from "consts/dimensions";
 
 const Tab = createBottomTabNavigator();
 
@@ -66,7 +67,7 @@ export default TabNavigator;
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    height: 80,
+    height: TAB_BAR_HEIGHT,
 
     borderRadius: 15,
     borderTopColor: "transparent",

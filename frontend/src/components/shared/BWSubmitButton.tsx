@@ -2,20 +2,37 @@ import { useFormikContext } from "formik";
 import React from "react";
 
 import BWButton from "./BWButton";
-import { ViewStyle } from "react-native";
+import { ViewStyle, StyleSheet, StyleProp } from "react-native";
 
 interface BWSubmitButtonProps {
   title: string;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
   loading?: boolean;
+  full?: boolean;
 }
 
-const BWSubmitButton: React.FC<BWSubmitButtonProps> = ({ title, style, loading }) => {
-  const { handleSubmit, values } = useFormikContext();
+const BWSubmitButton: React.FC<BWSubmitButtonProps> = ({ title, style, loading, full }) => {
+  const { handleSubmit, resetForm, isValid, validationSchema, touched } = useFormikContext();
 
-  console.log(values);
-
-  return <BWButton title={title} onPress={handleSubmit} style={style!} loading={loading} />;
+  return (
+    <BWButton
+      title={title}
+      onPress={handleSubmit}
+      //@ts-ignore
+      style={[!full && styles.button, styles.defaultBtn, style!]}
+      loading={loading}
+    />
+  );
 };
 
 export default BWSubmitButton;
+
+const styles = StyleSheet.create({
+  button: {
+    width: 160,
+    //height: 50,
+  },
+  defaultBtn: {
+    height: 50,
+  },
+});

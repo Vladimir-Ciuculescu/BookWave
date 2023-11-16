@@ -21,6 +21,12 @@ export interface PublicPlaylistsRequest extends Request {
   };
 }
 
+export interface GetRecommendedAudiosRequest extends Request {
+  query: {
+    limit: string;
+  };
+}
+
 export interface PublicProfileRequest extends Request {
   params: {
     profileId: string;

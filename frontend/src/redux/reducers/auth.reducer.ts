@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { UserProfile } from "types/interfaces/UserProfile";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { UserProfile } from "types/interfaces/users";
 
 interface InitialStateProps {
   profile: UserProfile | null;

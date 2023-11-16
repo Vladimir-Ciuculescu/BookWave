@@ -1,8 +1,8 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useIsFocused } from "@react-navigation/native";
 import StackNavigator from "./StackNavigator";
 import { DefaultTheme } from "@react-navigation/native";
 import { COLORS } from "utils/colors";
-import { Text } from "react-native-ui-lib";
+import ToastNotification from "components/ToastNotification";
 
 const NavigatorTheme = {
   ...DefaultTheme,
@@ -16,6 +16,7 @@ const AppNavigator: React.FC<any> = () => {
   return (
     <NavigationContainer theme={NavigatorTheme}>
       <StackNavigator />
+      <ToastNotification />
     </NavigationContainer>
   );
 };

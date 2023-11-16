@@ -64,12 +64,12 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
     try {
       setLoading(true);
       const data = await UserService.registerApi(values);
-      setLoading(false);
       setErrorMessage("");
       goToOTPVerification(data);
     } catch (error: any) {
       setErrorMessage(error.message);
     }
+    setLoading(false);
   };
 
   return (

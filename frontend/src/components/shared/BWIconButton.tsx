@@ -5,7 +5,7 @@ import { Button } from "react-native-ui-lib";
 interface IconButtonProps {
   icon: any;
   style?: ViewStyle;
-  onPress: () => void;
+  onPress: (e?: any) => void;
 }
 
 const BWIconButton: React.FC<IconButtonProps> = ({ icon, style, onPress }) => {

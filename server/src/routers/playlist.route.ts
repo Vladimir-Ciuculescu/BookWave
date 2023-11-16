@@ -25,7 +25,7 @@ router.patch(
 
 router.delete("/delete", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.removePlayList);
 
-router.get("/", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlaylistsByUser);
+router.get("/by-profile", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlaylistsByUser);
 
 router.get("/:playlistId", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlayListAudios);
 

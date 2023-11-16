@@ -10,7 +10,7 @@ export const addPlayListSchema = Yup.object().shape({
     }
     return "";
   }),
-  visibility: Yup.string().oneOf(visibilites, "Invalid visibility option !").required("Visibility is required !"),
+  visibility: Yup.string().oneOf(visibilites, "Invalid visibility option !").required("Visibility is requiredddd !"),
 });
 
 export const updatePlayListSchema = Yup.object().shape({

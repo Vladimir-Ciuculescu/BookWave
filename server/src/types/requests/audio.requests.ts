@@ -17,6 +17,12 @@ export interface getAudiosRequest extends Request {
   };
 }
 
+export interface GetLatestUploadsRequest extends Request {
+  query: {
+    limit: string;
+  };
+}
+
 export interface ToggleFavoriteAudioRequest extends Request {
   query: {
     audioId: any;

@@ -17,6 +17,7 @@ import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import UserService from "api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
 

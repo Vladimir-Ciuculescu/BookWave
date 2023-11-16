@@ -29,7 +29,7 @@ const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Respons
       // * Audio is already in list and must be unselected
       isAdded = false;
       await alreadyFavorite.updateOne({ $pull: { items: audioId } });
-      status = "Audio succesfully removed from list !";
+      status = "removed";
     } else {
       const favoriteList = await FavoriteModel.findOne({ owner: userId });
 
@@ -37,11 +37,11 @@ const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Respons
         // * Audio is not in the list and you simply add it
         await favoriteList.updateOne({ $addToSet: { items: audioId } });
         isAdded = true;
-        status = "Audio succesfully added to the list !";
+        status = "added";
       } else {
         // * Add audio file in newly created favorites list !
         isAdded = true;
-        status = "Audio file added, new list created !";
+        status = "Added & Created";
         const newFavoriteList = {
           owner: userId,
           items: [audioId],

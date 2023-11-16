@@ -1,4 +1,6 @@
 import { categories } from "consts/categories";
+import { visibilites } from "consts/visibilites";
+import { Visibilites } from "types/enums/visibilites.enum";
 import * as Yup from "yup";
 
 export const uploadAudioSchema = Yup.object().shape({
@@ -13,4 +15,11 @@ export const uploadAudioSchema = Yup.object().shape({
     size: Yup.number().required("Audio file is missing !"),
     uri: Yup.string().required("Audio file is missing !"),
   }),
+});
+
+export const newPlayListSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required !"),
+  visibility: Yup.string()
+    .oneOf(visibilites, "Invalid visibility option")
+    .required("Visibility is required !"),
 });

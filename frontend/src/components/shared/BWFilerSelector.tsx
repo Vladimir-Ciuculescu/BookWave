@@ -11,9 +11,17 @@ interface BWFileSelectorProps {
   style?: ViewStyle;
   onPress?: () => void;
   options: DocumentPicker.DocumentPickerOptions;
+  label: string;
 }
 
-const BWFileSelector: React.FC<BWFileSelectorProps> = ({ icon, onPress, style, options, name }) => {
+const BWFileSelector: React.FC<BWFileSelectorProps> = ({
+  icon,
+  onPress,
+  style,
+  options,
+  name,
+  label,
+}) => {
   const { setFieldValue } = useFormikContext();
 
   const pickFile = async () => {
@@ -33,7 +41,7 @@ const BWFileSelector: React.FC<BWFileSelectorProps> = ({ icon, onPress, style, o
   return (
     <View style={styles.container}>
       <BWIconButton style={style} icon={icon} onPress={pickFile} />
-      <Text style={{ color: COLORS.MUTED[50] }}>Select a file</Text>
+      <Text style={{ color: COLORS.MUTED[50] }}>{label}</Text>
     </View>
   );
 };
