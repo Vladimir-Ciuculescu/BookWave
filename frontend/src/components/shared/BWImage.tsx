@@ -5,8 +5,9 @@ import { COLORS } from "utils/colors";
 
 interface BWImageProps {
   placeholder?: boolean;
+  iconName: keyof typeof FontAwesome.glyphMap;
   style?: ImageStyle;
-  src: string;
+  src?: string;
   backgroundColor?: string;
   iconColor?: string;
   iconSize?: number;
@@ -14,6 +15,7 @@ interface BWImageProps {
 
 const BWImage: React.FC<BWImageProps> = ({
   placeholder,
+  iconName,
   style,
   src,
   backgroundColor,
@@ -29,7 +31,7 @@ const BWImage: React.FC<BWImageProps> = ({
           { backgroundColor: backgroundColor || COLORS.WARNING[500] },
         ]}
       >
-        <FontAwesome name="image" size={iconSize || 50} color={iconColor || COLORS.MUTED[200]} />
+        <FontAwesome name={iconName} size={iconSize || 50} color={iconColor || COLORS.MUTED[200]} />
       </View>
     );
   }

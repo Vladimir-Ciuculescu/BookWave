@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, Text, StyleSheet, Pressable, Keyboard } from "react-native";
+import { ScrollView, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { COLORS } from "utils/colors";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/queries";
@@ -17,8 +17,8 @@ import { AntDesign } from "@expo/vector-icons";
 import FavoriteController from "api/favorites.api";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { useDispatch } from "react-redux";
-import PlayLists from "components/PlayLists";
-import AddPlayList from "components/AddPlayList";
+import PlayLists from "screens/Home/components/PlayLists";
+import AddPlayList from "screens/Home/components/AddPlayList";
 import { StatusBar } from "expo-status-bar";
 import { AudioFile } from "types/interfaces/audios";
 
@@ -165,6 +165,7 @@ const HomeScreen: React.FC<any> = () => {
               <BWImage
                 src={selectedAudio?.poster!}
                 placeholder={!selectedAudio?.poster}
+                iconName="image"
                 style={styles.audioImage}
                 iconSize={34}
               />

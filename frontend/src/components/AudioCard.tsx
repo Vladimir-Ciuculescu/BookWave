@@ -4,6 +4,7 @@ import BWView from "./shared/BWView";
 import { COLORS } from "utils/colors";
 import BWImage from "./shared/BWImage";
 import { AudioFile } from "types/interfaces/audios";
+import { FontAwesome } from "@expo/vector-icons";
 
 interface AudioCard {
   audio: AudioFile;
@@ -20,7 +21,12 @@ const AudioCard: React.FC<AudioCard> = ({ audio, onPress, onLongPress }) => {
       onLongPress={onLongPress}
     >
       <BWView column gap={10} key={audio.id} style={styles.listContainer}>
-        <BWImage style={styles.image} placeholder={!audio.poster} src={audio.poster!} />
+        <BWImage
+          style={styles.image}
+          placeholder={!audio.poster}
+          iconName="image"
+          src={audio.poster!}
+        />
         <Text style={styles.imageTitle} numberOfLines={2} ellipsizeMode="tail">
           {audio.title}
         </Text>

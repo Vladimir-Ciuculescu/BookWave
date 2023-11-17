@@ -2,12 +2,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "utils/colors";
-import HomeScreen from "screens/HomeScreen";
-import UploadScreen from "screens/UploadScreen";
-import ProfileScreen from "screens/ProfileScreen";
+import HomeScreen from "screens/Home/HomeScreen";
+import ProfileScreen from "screens/Profile/ProfileScreen";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import UploadAudioScreen from "screens/UploadAudio/UploadScreen";
+import FavoritesScreen from "screens/Favorites/FavoritesScreen";
+import PlayListsScreen from "screens/PlayLists/PlayListsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,8 +35,21 @@ const TabNavigator: React.FC<any> = () => {
         }}
       />
       <Tab.Screen
+        name="Favorites"
+        component={FavoritesScreen}
+        options={{
+          tabBarIcon: ({ focused, color }) => (
+            <MaterialIcons
+              name={focused ? "favorite" : "favorite-border"}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Upload"
-        component={UploadScreen}
+        component={UploadAudioScreen}
         options={{
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
@@ -45,6 +60,16 @@ const TabNavigator: React.FC<any> = () => {
           ),
         }}
       />
+      <Tab.Screen
+        name="Playlists"
+        component={PlayListsScreen}
+        options={{
+          tabBarIcon: ({ focused, color }) => (
+            <Ionicons name={focused ? "newspaper" : "newspaper-outline"} size={24} color={color} />
+          ),
+        }}
+      />
+
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

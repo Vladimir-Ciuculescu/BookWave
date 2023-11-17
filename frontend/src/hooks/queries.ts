@@ -40,3 +40,15 @@ export const useFetchPlaylistsByProfile = () => {
 
   return query;
 };
+
+export const useFetchAudiosByProfile = () => {
+  const dispatch = useDispatch();
+  const query = useQuery(["audios=by-profile"], {
+    queryFn: () => ProfileService.getAudiosByProfile(),
+    onError: (error: any) => {
+      dispatch(setToastMessageAction({ message: error.message, type: "error" }));
+    },
+  });
+
+  return query;
+};

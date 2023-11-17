@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
-import LoginScreen from "./LoginScreen";
+import LoginScreen from "./Login/LoginScreen";
 import { Text } from "react-native-ui-lib";
 
 const InitializationScreen: React.FC<any> = () => {

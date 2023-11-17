@@ -5,10 +5,17 @@
     "baseUrl": ".",
     "paths": {
       "*": ["src/*"],
+      "@api/*": ["src/api/*"],
       "@components/*": ["src/components/*"],
+      "@consts/*": ["src/consts/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@redux/*": ["src/redux/*"],
       "@screens/*": ["src/screens/*"],
+      "@types/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],
-      "@assets/*": ["../frontend/assets"]
+      "@assets/*": ["../frontend/assets"],
+      "@yup/*": ["src/yup/*"]
     }
   }
 }

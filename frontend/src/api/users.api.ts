@@ -1,6 +1,6 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
-import { LoginData } from "screens/LoginScreen";
+import { LoginData } from "screens/Login/LoginScreen";
 import { RegisterData } from "screens/RegisterScreen";
 import { SendVerificationEmailRequest } from "types/interfaces/auth-requests.interfaces";
 

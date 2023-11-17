@@ -13,9 +13,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
 import { Feather } from "@expo/vector-icons";
-import BWIconButton from "components/shared/BWIconButton";
-import { Ionicons } from "@expo/vector-icons";
-import { NavigationProp, useIsFocused, useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
 import BWButton from "components/shared/BWButton";
 import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import { StatusBar } from "expo-status-bar";

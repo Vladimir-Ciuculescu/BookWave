@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet } from "react-native";
 import { Text, Checkbox } from "react-native-ui-lib";
-import BWView from "./shared/BWView";
-import BWButton from "./shared/BWButton";
+import BWView from "../../../components/shared/BWView";
+import BWButton from "../../../components/shared/BWButton";
 import { AntDesign } from "@expo/vector-icons";
 import { COLORS } from "utils/colors";
-import BWDivider from "./shared/BWDivider";
+import BWDivider from "../../../components/shared/BWDivider";
 import { useFetchPlaylistsByProfile } from "hooks/queries";
 import { PlayList } from "types/interfaces/playlists";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Visibilites } from "types/enums/visibilites.enum";
-import BWPressable from "./shared/BWPressable";
-import { AudioFile } from "types/interfaces/audios";
+import BWPressable from "../../../components/shared/BWPressable";
 import PlayListService from "api/playlists.api";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { AudioFile } from "types/interfaces/audios";
 
 interface PlayListItemProps {
   playlist: PlayList;
@@ -29,7 +29,7 @@ const PlayListItem: React.FC<PlayListItemProps> = ({
   selectedPlayList,
   audio,
 }) => {
-  const isSelected = () => {
+  const isChecked = () => {
     if (!selectedPlayList) {
       return playlist.items.includes(audio.id);
     } else {
@@ -37,7 +37,7 @@ const PlayListItem: React.FC<PlayListItemProps> = ({
     }
   };
 
-  const selection = isSelected();
+  const checked = isChecked();
 
   return (
     <BWPressable onPress={() => onSelect(playlist)}>
@@ -46,7 +46,7 @@ const PlayListItem: React.FC<PlayListItemProps> = ({
           <Checkbox
             //value={selectedPlayList === playlist}
             // value={playlist.items.includes(audio.id) || selectedPlayList === playlist}
-            value={selection}
+            value={checked}
             onValueChange={() => onSelect(playlist)}
             color={COLORS.WARNING[500]}
             style={{ borderColor: COLORS.WARNING[500] }}

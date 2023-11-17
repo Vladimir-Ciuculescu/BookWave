@@ -58,7 +58,7 @@ const initialValues: UploadAudioData = {
   },
 };
 
-const UploadScreen: React.FC<any> = () => {
+const UploadAudioScreen: React.FC<any> = () => {
   // ? Hooks
   const [categoryBottomSheet, toggleCategoryBottomSheet] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -285,7 +285,7 @@ const UploadScreen: React.FC<any> = () => {
   );
 };
 
-export default UploadScreen;
+export default UploadAudioScreen;
 
 const styles = StyleSheet.create({
   container: {

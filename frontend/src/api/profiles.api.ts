@@ -16,8 +16,22 @@ const getRecommendedAudiosApi = async () => {
   }
 };
 
+const getAudiosByProfile = async () => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/profile/audios`, {
+      headers: {
+        Authorization: `Bearer=${await getToken()}`,
+      },
+    });
+    return data.audios;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const ProfileService = {
   getRecommendedAudiosApi,
+  getAudiosByProfile,
 };
 
 export default ProfileService;
