@@ -6,10 +6,11 @@ interface IconButtonProps {
   icon: any;
   style?: ViewStyle;
   onPress: (e?: any) => void;
+  link?: boolean;
 }
 
-const BWIconButton: React.FC<IconButtonProps> = ({ icon, style, onPress }) => {
-  return <Button style={[style]} iconSource={icon} onPress={onPress} />;
+const BWIconButton: React.FC<IconButtonProps> = ({ icon, style, onPress, link }) => {
+  return <Button style={[style]} iconSource={icon} onPress={onPress} link={link} />;
 };
 
 export default BWIconButton;

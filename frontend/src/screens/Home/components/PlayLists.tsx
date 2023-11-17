@@ -6,7 +6,6 @@ import BWButton from "../../../components/shared/BWButton";
 import { AntDesign } from "@expo/vector-icons";
 import { COLORS } from "utils/colors";
 import BWDivider from "../../../components/shared/BWDivider";
-import { useFetchPlaylistsByProfile } from "hooks/queries";
 import { PlayList } from "types/interfaces/playlists";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Visibilites } from "types/enums/visibilites.enum";
@@ -15,6 +14,7 @@ import PlayListService from "api/playlists.api";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { AudioFile } from "types/interfaces/audios";
+import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
 
 interface PlayListItemProps {
   playlist: PlayList;

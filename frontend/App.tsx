@@ -6,7 +6,10 @@ import AppNavigator from "navigation/ApppNavigator";
 import { QueryClientProvider, QueryClient } from "react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-LogBox.ignoreLogs(["Sending `onAnimatedValueUpdate` with no listeners registered."]);
+LogBox.ignoreLogs([
+  "Sending `onAnimatedValueUpdate` with no listeners registered.",
+  // "Encountered two children with the same key,",
+]);
 
 const queryClient = new QueryClient();
 

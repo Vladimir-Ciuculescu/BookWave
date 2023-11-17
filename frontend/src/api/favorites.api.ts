@@ -1,7 +1,21 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
 
-export const toggleFavoriteAudio = async (audioId: string) => {
+export const getFavoritesApi = async () => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/favorites`, {
+      headers: {
+        Authorization: `Bearer=${await getToken()}`,
+      },
+    });
+
+    return data.favorites;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+export const toggleFavoriteAudioApi = async (audioId: string) => {
   try {
     const { data } = await axios.post(`${apiUrl}/favorites/toggle?audioId=${audioId}`, null, {
       headers: {
@@ -14,8 +28,9 @@ export const toggleFavoriteAudio = async (audioId: string) => {
   }
 };
 
-const FavoriteController = {
-  toggleFavoriteAudio,
+const FavoriteService = {
+  getFavoritesApi,
+  toggleFavoriteAudioApi,
 };
 
-export default FavoriteController;
+export default FavoriteService;

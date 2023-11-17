@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { ScrollView, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { COLORS } from "utils/colors";
-import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/queries";
 import BWView from "components/shared/BWView";
 import BWButton from "components/shared/BWButton";
 import AudioCard from "components/AudioCard";
@@ -14,13 +13,14 @@ import BWDivider from "components/shared/BWDivider";
 import { FontAwesome } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import FavoriteController from "api/favorites.api";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { useDispatch } from "react-redux";
 import PlayLists from "screens/Home/components/PlayLists";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import { StatusBar } from "expo-status-bar";
 import { AudioFile } from "types/interfaces/audios";
+import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
+import FavoriteService from "api/favorites.api";
 
 interface Option {
   label: string;
@@ -60,9 +60,9 @@ const HomeScreen: React.FC<any> = () => {
 
   const toggleFavoriteAudio = async () => {
     try {
-      const data = await FavoriteController.toggleFavoriteAudio(selectedAudio!.id);
+      const data = await FavoriteService.toggleFavoriteAudioApi(selectedAudio!.id);
       if (data.message) {
-        dispatch(setToastMessageAction({ message: "Added to favorites !", type: "success" }));
+        dispatch(setToastMessageAction({ message: "Audio added to favorites !", type: "success" }));
       }
     } catch (error) {
       console.log(error);

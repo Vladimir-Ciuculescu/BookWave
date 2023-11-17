@@ -1,14 +1,11 @@
-import { FlatList, StyleSheet } from "react-native";
-import { useFetchAudiosByProfile } from "hooks/queries";
-import { Text, View } from "react-native-ui-lib";
+import { StyleSheet } from "react-native";
 import { AudioFile } from "types/interfaces/audios";
-import BWView from "components/shared/BWView";
-import BWImage from "components/shared/BWImage";
-import { COLORS } from "utils/colors";
-import BWIconButton from "components/shared/BWIconButton";
+import BWView from "./shared/BWView";
+import BWImage from "./shared/BWImage";
+import { Text } from "react-native-ui-lib";
+import BWIconButton from "./shared/BWIconButton";
 import { Ionicons } from "@expo/vector-icons";
-import BWDivider from "components/shared/BWDivider";
-import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import { COLORS } from "utils/colors";
 
 interface PlayAudioCardProps {
   audio: AudioFile;
@@ -48,54 +45,9 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio }) => {
   );
 };
 
-const UploadsTab = () => {
-  const { data, isLoading } = useFetchAudiosByProfile();
-
-  return (
-    <View style={styles.container}>
-      <BWView column gap={15}>
-        {data && (
-          <>
-            <Text style={styles.audioCounter}>{data.length} audios</Text>
-            <BWDivider
-              orientation="horizontal"
-              thickness={1.5}
-              width="100%"
-              color={COLORS.MUTED[700]}
-            />
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={data}
-              contentContainerStyle={styles.listContainer}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <PlayAudioCard audio={item} />}
-            />
-          </>
-        )}
-      </BWView>
-    </View>
-  );
-};
-
-export default UploadsTab;
+export default PlayAudioCard;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-
-  audioCounter: {
-    color: COLORS.MUTED[50],
-    fontFamily: "MinomuBold",
-    fontSize: 22,
-  },
-  listContainer: {
-    gap: 15,
-    paddingBottom: TAB_BAR_HEIGHT + 40,
-  },
-
   audioImage: {
     height: 80,
     width: 80,
@@ -121,5 +73,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  playBtn: { height: 30, width: 30, borderRadius: 50, backgroundColor: COLORS.WARNING[500] },
+  playBtn: {
+    height: 30,
+    width: 30,
+    borderRadius: 50,
+    backgroundColor: COLORS.WARNING[500],
+  },
 });

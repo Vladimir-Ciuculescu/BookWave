@@ -8,10 +8,10 @@ import { useDispatch } from "react-redux";
 import FavoritesTab from "screens/Profile/Tabs/FavoritesTab";
 import HistoryTab from "screens/Profile/Tabs/HistoryTab";
 import PlayListTab from "screens/Profile/Tabs/PlayListTab";
-import UploadsTab from "screens/Profile/Tabs/UploadsTab";
 import { COLORS } from "utils/colors";
 import ProfileInfo from "./components/ProfileInfo";
 import BWView from "components/shared/BWView";
+import AudiosTab from "screens/Profile/Tabs/AudiosTab";
 
 const { width } = Dimensions.get("screen");
 
@@ -43,7 +43,7 @@ const ProfileScreen: React.FC<any> = () => {
             tabBarIndicatorContainerStyle: styles.tabBarIndicatorContainer,
           }}
         >
-          <Tab.Screen name="Audios" component={UploadsTab} />
+          <Tab.Screen name="Audios" component={AudiosTab} />
           {/* <Tab.Screen name="PlayList" component={PlayListTab} />
           <Tab.Screen name="Favorites" component={FavoritesTab} /> */}
           <Tab.Screen name="History" component={HistoryTab} />
