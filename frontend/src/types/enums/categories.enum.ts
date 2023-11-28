@@ -1,4 +1,4 @@
-export enum Categories {
+export enum Category {
   Arts = "Arts",
   Bussiness = "Bussiness",
   Education = "Education",

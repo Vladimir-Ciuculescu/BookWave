@@ -67,7 +67,13 @@ const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Respons
 
 const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
   const userId = req.user.id;
-  const { limit = "20", pageNumber = "0" } = req.query;
+  const {
+    limit = "20",
+    pageNumber = "0",
+    //categories
+  } = req.query;
+
+  // console.log(11111, categories);
 
   try {
     const favorites: any = await FavoriteModel.aggregate([
@@ -80,6 +86,7 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
       { $unwind: "$audioIds" },
       { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
       { $unwind: "$audio" },
+
       { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
       { $unwind: "$owner" },
       {
@@ -94,6 +101,7 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
           owner: { name: "$owner.name", id: "$owner._id" },
         },
       },
+      //{ $match: { category: { $in: categories } } },
     ]);
 
     return res.status(200).json({ favorites });

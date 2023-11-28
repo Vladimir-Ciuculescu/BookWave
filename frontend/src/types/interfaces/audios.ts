@@ -1,10 +1,10 @@
-import { Categories } from "types/enums/categories.enum";
+import { Category } from "types/enums/categories.enum";
 
 export interface AudioFile {
   id: string;
   title: string;
   about: string;
-  category: Categories;
+  category: Category;
   file: string;
   poster?: string;
   owner: { id: string; name: string };

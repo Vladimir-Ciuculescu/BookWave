@@ -1,12 +1,12 @@
-import { Categories } from "types/enums/categories.enum";
+import { Category } from "types/enums/categories.enum";
 
-export const categories: Categories[] = [
-  Categories.Arts,
-  Categories.Bussiness,
-  Categories.Education,
-  Categories.Entertainment,
-  Categories.Kids_Family,
-  Categories.Music,
-  Categories.Tech,
-  Categories.Others,
+export const categories: Category[] = [
+  Category.Arts,
+  Category.Bussiness,
+  Category.Education,
+  Category.Entertainment,
+  Category.Kids_Family,
+  Category.Music,
+  Category.Tech,
+  Category.Others,
 ];

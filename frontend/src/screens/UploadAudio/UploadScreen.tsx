@@ -20,7 +20,7 @@ import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { categories } from "consts/categories";
-import { Categories } from "types/enums/categories.enum";
+import { Category } from "types/enums/categories.enum";
 import { DocumentPickerAsset } from "expo-document-picker";
 import BWBottomSheet from "components/shared/BWBottomSheet";
 import BWForm from "components/shared/BWForm";
@@ -30,17 +30,15 @@ import { StatusBar } from "expo-status-bar";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import BWIconButton from "components/shared/BWIconButton";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import AudioService from "api/audios.api";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import { useFormikContext } from "formik";
 
 const { width, height } = Dimensions.get("window");
 
 export interface UploadAudioData {
   title: string;
-  category: Categories | "";
+  category: Category | "";
   description: string;
   poster?: DocumentPickerAsset;
   audio?: DocumentPickerAsset;
@@ -437,4 +435,6 @@ const styles = StyleSheet.create({
     color: COLORS.DANGER[500],
     fontFamily: "Minomu",
   },
+
+  //test
 });
