@@ -10,7 +10,7 @@ import BWButton from "components/shared/BWButton";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import UserService from "api/users.api";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 
 const { width, height } = Dimensions.get("window");
 

@@ -1,20 +1,14 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
+import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
 
-export const getFavoritesApi = async (
-  payload: any,
-  // limit: number,
-  //categories: any[]
-) => {
+export const getFavoritesApi = async (payload: GetFavoritesRequest) => {
   try {
     const { data } = await axios.get(`${apiUrl}/favorites`, {
       headers: {
         Authorization: `Bearer=${await getToken()}`,
       },
-      // params: {
-      //   limit: limit,
-      //   //categories: categories,
-      // },
+
       params: payload,
     });
 

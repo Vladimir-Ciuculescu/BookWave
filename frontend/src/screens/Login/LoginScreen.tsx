@@ -12,7 +12,7 @@ import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import { StatusBar } from "expo-status-bar";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import { loginSchema } from "yup/auth.schemas";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import UserService from "api/users.api";

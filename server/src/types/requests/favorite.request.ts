@@ -7,5 +7,6 @@ export interface GetFavoritesRequest extends Request {
     pageNumber: string;
     //test
     categories: Category[];
+    title?: string;
   };
 }

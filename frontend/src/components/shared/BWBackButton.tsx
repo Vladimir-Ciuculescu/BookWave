@@ -4,7 +4,7 @@ import BWIconButton from "./BWIconButton";
 import { COLORS } from "utils/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProp } from "@react-navigation/native";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 
 interface BWBackButton {
   navigation: NavigationProp<StackNavigatorProps>;

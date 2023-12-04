@@ -11,132 +11,73 @@ import PlayAudioCard from "components/PlayAudioCard";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { categories } from "consts/categories";
 import { Category } from "types/enums/categories.enum";
-import { AudioFile } from "types/interfaces/audios";
-import _, { filter } from "lodash";
-import BWPressable from "components/shared/BWPressable";
+import _ from "lodash";
+import Categories from "./Categories";
+import NoResultsFound from "../../../assets/illustrations/no_results_found.svg";
 
 const FavoritesScreen: React.FC<any> = () => {
-  // const [favorites, setFavorites] = useState();
-  // const [limit, setLimit] = useState(5);
+  const LIMIT = 10;
 
-  const [favoritesResults, setFavoritesResults] = useState<AudioFile[]>([]);
+  const [index, setIndex] = useState(0);
+
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
-  const [text, setText] = useState<string>("");
+  const [selectedCategories, toggleSelectedCategories] = useState<Category[]>([]);
+  const [title, setTitle] = useState<string>("");
   const textRef = useRef<any>(null);
 
-  const { data } = useFetchFavorites(5);
+  const { data, refetch, isLoading } = useFetchFavorites({
+    limit: LIMIT,
+    pageNumber: index,
+    title,
+    categories: selectedCategories,
+  });
 
   useEffect(() => {
     if (searchMode) {
-      typing(text);
       textRef.current!.focus();
     }
   }, [searchMode]);
 
-  const enableSearchMode = () => {
-    toggleSearchMode(true);
-  };
-
-  const disableSearchMode = () => {
-    toggleSearchMode(false);
-  };
-
-  const typing = (value: string) => {
-    if (data) {
-      setFavoritesResults(
-        data.filter((favorite: AudioFile) =>
-          favorite.title.toLowerCase().includes(value.toLocaleLowerCase()),
-        ),
-      );
+  useEffect(() => {
+    if (!title) {
+      refetch();
     }
-  };
+  }, [title]);
 
-  // const typing = (favorites:AudioFile[], value:String) => {
-  //   return favorites.filter((favorite:AudioFile) => favorite.title.toLocaleLowerCase().includes(value.toLocaleLowerCase()))
-  // }
-
-  const debounceTyping = useCallback(_.debounce(typing, 500), []);
+  const debounceTyping = useCallback(
+    _.debounce(() => refetch(), 500),
+    [],
+  );
 
   const handleTyping = (value: string) => {
-    setText(value);
-    debounceTyping(value);
-    //debounceTyping(value);
-  };
-
-  const goBackToViewMode = () => {
-    disableSearchMode();
-    setFavoritesResults([]);
-  };
-
-  const handleSearch = () => {
-    disableSearchMode();
-    typing(text);
+    setTitle(value);
+    debounceTyping();
   };
 
   const clearText = () => {
-    goBackToViewMode();
-    setText("");
-    //setFavoritesResults([]);
+    toggleSearchMode(false);
+    setTitle("");
   };
 
   const clearSearch = () => {
-    goBackToViewMode();
-    setText("");
-    setFavoritesResults([]);
+    toggleSearchMode(false);
+    setTitle("");
   };
 
   const toggleCategory = (category: Category) => {
     const isCategorySelected = selectedCategories.includes(category);
 
-    setSelectedCategories((oldValue) =>
+    toggleSelectedCategories((oldValues) =>
       isCategorySelected
-        ? oldValue.filter((item: Category) => category !== item)
-        : [...oldValue, category],
+        ? oldValues.filter((item: Category) => category !== item)
+        : [...oldValues, category],
     );
-
-    //disableSearchMode();
   };
 
   const removeCategory = (category: Category) => {
-    setSelectedCategories((oldValue) => oldValue.filter((item: Category) => category !== item));
-  };
-
-  const FILTERING = (data: AudioFile[]) => {
-    {
-      return data.filter((favorite: AudioFile) =>
-        favorite.title.toLowerCase().includes(text.toLocaleLowerCase()),
-      );
-    }
-  };
-
-  const debounceFilter = useCallback(_.debounce(FILTERING), []);
-
-  const filteredResults = () => {
-    let filteredData;
-
-    if (data) {
-      filteredData = data;
-    }
-
-    if (favoritesResults.length) {
-      //filteredData = data;
-      filteredData = favoritesResults;
-
-      filteredData = filteredData.filter((favorite: AudioFile) =>
-        favorite.title.toLowerCase().includes(text.toLocaleLowerCase()),
-      );
-
-      if (selectedCategories.length) {
-        filteredData = filteredData.filter((favorite: AudioFile) => {
-          return selectedCategories.includes(favorite.category);
-        });
-      }
-    }
-
-    //debounceFilter(filteredData);
-
-    return filteredData;
+    toggleSelectedCategories((oldValues) =>
+      oldValues.filter((item: Category) => category !== item),
+    );
   };
 
   return (
@@ -149,21 +90,21 @@ const FavoritesScreen: React.FC<any> = () => {
               <Text style={styles.title}>Favorites</Text>
             </BWView>
             <BWIconButton
-              onPress={enableSearchMode}
+              onPress={() => toggleSearchMode(true)}
               icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />}
               link
             />
           </BWView>
-          {text && favoritesResults.length > 0 && (
+          {title && data.length > 0 && (
             <BWView row>
               <Chip
                 borderRadius={22}
-                label={`Results for: ${text}`}
+                label={`Results for: ${title}`}
                 rightElement={
                   <BWIconButton
                     onPress={clearText}
                     style={{ backgroundColor: "transparent" }}
-                    icon={() => <AntDesign name="close" size={20} color={COLORS.DARK[50]} />}
+                    icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
                   />
                 }
                 labelStyle={styles.resultsChipLabel}
@@ -186,7 +127,7 @@ const FavoritesScreen: React.FC<any> = () => {
                       <BWIconButton
                         onPress={() => removeCategory(category)}
                         style={{ backgroundColor: "transparent" }}
-                        icon={() => <AntDesign name="close" size={20} color={COLORS.DARK[50]} />}
+                        icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
                       />
                     }
                     labelStyle={styles.resultsChipLabel}
@@ -200,10 +141,7 @@ const FavoritesScreen: React.FC<any> = () => {
             {data && (
               <BWView column gap={15}>
                 <BWView row justifyContent="space-between">
-                  <Text style={styles.favoritesCount}>
-                    {/* {favoritesResults.length > 0 ? favoritesResults.length : data.length} favorites */}
-                    {filteredResults().length} favorites
-                  </Text>
+                  <Text style={styles.favoritesCount}>{data.length} favorites</Text>
                   <Text style={styles.test}>Test button</Text>
                 </BWView>
                 <BWDivider
@@ -214,10 +152,7 @@ const FavoritesScreen: React.FC<any> = () => {
                 />
                 <FlatList
                   showsVerticalScrollIndicator={false}
-                  //data={favorites}
-                  data={filteredResults()}
-                  //data={favoritesResults.length > 0 ? favoritesResults : data}
-                  //data={copy}
+                  data={data}
                   renderItem={({ item }) => <PlayAudioCard audio={item} />}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.listContainer}
@@ -229,16 +164,16 @@ const FavoritesScreen: React.FC<any> = () => {
       ) : (
         <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
           <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
-            <Pressable onPress={goBackToViewMode}>
+            <Pressable onPress={() => toggleSearchMode(false)}>
               <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
             </Pressable>
             <View style={styles.flex}>
               <TextField
                 keyboardAppearance="dark"
                 returnKeyType="search"
-                onSubmitEditing={handleSearch}
+                onSubmitEditing={() => toggleSearchMode(false)}
                 ref={textRef}
-                value={text}
+                value={title}
                 onChangeText={handleTyping}
                 style={styles.searchInput}
                 leadingAccessory={
@@ -261,45 +196,44 @@ const FavoritesScreen: React.FC<any> = () => {
             </View>
           </BWView>
           <View style={styles.flex}>
-            {data && (
-              <BWView column gap={15}>
-                <ScrollView
-                  showsHorizontalScrollIndicator={false}
-                  horizontal
-                  contentContainerStyle={styles.categoriesContainer}
-                >
-                  {categories.map((category: Category) => (
-                    <BWPressable key={category} onPress={() => toggleCategory(category)}>
-                      <Chip
-                        //onPress={() => toggleCategory(category)}
-                        key={category}
-                        label={category}
-                        labelStyle={[
-                          selectedCategories.includes(category)
-                            ? styles.selectedLabel
-                            : styles.unselectedLabel,
-                          styles.categoryLabel,
-                        ]}
-                        containerStyle={[
-                          selectedCategories.includes(category)
-                            ? styles.selectedContainer
-                            : styles.unselectedContainer,
-                          styles.categoryContainer,
-                        ]}
-                      />
-                    </BWPressable>
-                  ))}
-                </ScrollView>
+            <BWView column gap={15}>
+              <Categories
+                selectedCategories={selectedCategories}
+                categories={categories}
+                onToggle={toggleCategory}
+              />
+
+              {/* {data && data.length ? (
                 <FlatList
                   showsVerticalScrollIndicator={false}
-                  data={filteredResults()}
-                  //data={favoritesResults}
+                  data={data}
                   renderItem={({ item }) => <PlayAudioCard audio={item} />}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
                 />
-              </BWView>
-            )}
+              ) : (
+                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                  <NoResultsFound width="100%" height={250} />
+                  <BWView column alignItems="center" gap={10}>
+                    <Text
+                      style={{ fontFamily: "MinomuBold", fontSize: 22, color: COLORS.MUTED[50] }}
+                    >
+                      Not found
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "Minomu",
+                        fontSize: 16,
+                        color: COLORS.MUTED[400],
+                        textAlign: "center",
+                      }}
+                    >
+                      Sorry, no results found. Please try again or type anything else{" "}
+                    </Text>
+                  </BWView>
+                </BWView>
+              )} */}
+            </BWView>
           </View>
         </View>
       )}
@@ -363,41 +297,6 @@ const styles = StyleSheet.create({
   rightIcon: {
     position: "absolute",
     right: 15,
-  },
-
-  categoriesContainer: {
-    gap: 15,
-    paddingHorizontal: 15,
-
-    alignItems: "center",
-    paddingVertical: 5,
-  },
-
-  categoryLabel: {
-    fontFamily: "Minomu",
-    fontSize: 14,
-  },
-
-  selectedLabel: {
-    color: COLORS.MUTED[50],
-  },
-
-  unselectedLabel: {
-    color: COLORS.WARNING[500],
-  },
-
-  categoryContainer: {
-    height: 40,
-    borderColor: COLORS.WARNING[500],
-    borderWidth: 2,
-  },
-
-  selectedContainer: {
-    backgroundColor: COLORS.WARNING[500],
-  },
-
-  unselectedContainer: {
-    backgroundColor: "transparent",
   },
 
   resultsChipLabel: {

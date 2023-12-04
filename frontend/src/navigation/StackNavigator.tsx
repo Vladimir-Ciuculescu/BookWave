@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ForgotPasswordScreen from "screens/ForgotPassword/ForgotPasswordScreen";
 import LoginScreen from "screens/Login/LoginScreen";
 import OTPVerificationScreen from "screens/OTPVerification/OTPVerificationScreen";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import TabNavigator from "./TabNavigator";
 import InitializationScreen from "screens/InitializationScreen";
 import RegisterScreen from "screens/Register/RegisterScreen";

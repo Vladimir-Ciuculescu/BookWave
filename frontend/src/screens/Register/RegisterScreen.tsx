@@ -20,7 +20,7 @@ import { StatusBar } from "expo-status-bar";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import UserService from "api/users.api";
 import { registerSchema } from "yup/auth.schemas";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import BWBackButton from "components/shared/BWBackButton";
 
 const { width, height } = Dimensions.get("window");

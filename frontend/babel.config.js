@@ -18,7 +18,6 @@ module.exports = function (api) {
             "@screens": "./src/screens",
             "@types": "./src/types",
             "@utils": "./src/utils",
-            "@assets": "../frontend/assets",
             "@yup": "./src/yup",
           },
         },

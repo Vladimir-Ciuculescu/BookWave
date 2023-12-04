@@ -1,4 +1,4 @@
-import { NavigationContainer, useIsFocused } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import StackNavigator from "./StackNavigator";
 import { DefaultTheme } from "@react-navigation/native";
 import { COLORS } from "utils/colors";

@@ -1,8 +1,8 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
 import { LoginData } from "screens/Login/LoginScreen";
-import { RegisterData } from "screens/RegisterScreen";
-import { SendVerificationEmailRequest } from "types/interfaces/auth-requests.interfaces";
+import { RegisterData } from "screens/Register/RegisterScreen";
+import { SendVerificationEmailRequest } from "types/interfaces/requests/auth-requests.interfaces";
 
 const registerApi = async (payload: RegisterData) => {
   try {

@@ -5,7 +5,7 @@ import UserService from "api/users.api";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import LoginScreen from "./Login/LoginScreen";
 import { Text } from "react-native-ui-lib";
 

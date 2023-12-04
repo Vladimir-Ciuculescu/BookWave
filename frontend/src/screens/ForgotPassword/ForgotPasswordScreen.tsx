@@ -14,7 +14,7 @@ import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import { StatusBar } from "expo-status-bar";
 import UserService from "api/users.api";
 import { forgotPasswordSchema } from "yup/auth.schemas";
-import { StackNavigatorProps } from "types/interfaces/StackNavigatorProps";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 
 const { width, height } = Dimensions.get("window");
 

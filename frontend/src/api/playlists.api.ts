@@ -3,7 +3,7 @@ import axios from "axios";
 import {
   AddPlayListRequest,
   UpdatePlayListRequest,
-} from "types/interfaces/playlists-requests.interfaces";
+} from "types/interfaces/requests/playlists-requests.interfaces";
 
 const getPlayListsByProfileApi = async () => {
   try {
