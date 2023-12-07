@@ -2,17 +2,19 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import {
   AddPlayListRequest,
+  GetPlaylistsRequest,
   UpdatePlayListRequest,
 } from "types/interfaces/requests/playlists-requests.interfaces";
 
-const getPlayListsByProfileApi = async () => {
+const getPlayListsByProfileApi = async (payload: GetPlaylistsRequest) => {
   try {
     const { data } = await axios.get(`${apiUrl}/playlist/by-profile`, {
       headers: {
         Authorization: `Bearer=${await getToken()}`,
       },
+      params: payload,
     });
-    return data;
+    return data.playlists;
   } catch (error: any) {
     throw new Error(error.response.data.error);
   }

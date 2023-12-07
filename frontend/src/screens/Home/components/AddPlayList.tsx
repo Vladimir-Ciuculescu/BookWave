@@ -14,6 +14,7 @@ import PlayListService from "api/playlists.api";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { AudioFile } from "types/interfaces/audios";
+import { AddPlayListRequest } from "types/interfaces/requests/playlists-requests.interfaces";
 
 export interface NewPlayListData {
   title: string;
@@ -27,7 +28,7 @@ const initialValues: NewPlayListData = {
 
 interface AddPlayListProps {
   onClose: () => void;
-  audio: AudioFile | undefined;
+  audio?: AudioFile | undefined;
 }
 
 const radioOptions: Visibilites[] = [Visibilites.public, Visibilites.private];
@@ -45,11 +46,14 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
   const handleAddPlaylist = async (values: NewPlayListData) => {
     const { title, visibility } = values;
 
-    const payload = {
+    const payload: AddPlayListRequest = {
       title,
       visibility,
-      audioId: audio!.id,
     };
+
+    if (audio) {
+      payload.audioId = audio.id;
+    }
 
     try {
       await PlayListService.addPlayListApi(payload);

@@ -4,5 +4,5 @@ export interface GetFavoritesRequest {
   limit: number;
   pageNumber: number;
   title: string;
-  categories?: Category[];
+  categories?: string;
 }

@@ -67,13 +67,9 @@ const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Respons
 
 const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
   const userId = req.user.id;
-  const { limit = "20", pageNumber = "0", title, categories } = req.query;
+  const { limit = "20", pageNumber = "0", title, categories = "" } = req.query;
 
-  // const filterPipeLine: PipelineStage[] = [{ $match: { title: { $regex: title } } }];
-
-  // if (categories && categories.length) {
-  //   filterPipeLine.push({ $match: { category: { $in: categories } } });
-  // }
+  console.log(categories);
 
   const pipeLine: PipelineStage[] = [
     { $match: { owner: userId } },
@@ -100,62 +96,18 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
         owner: { name: "$owner.name", id: "$owner._id" },
       },
     },
-    // ? Match the audios where search text matches title of them
-    //{ $match: { title: { $regex: title } } },
-    // ?  Match the audios where category is included in categories array
-    //{ $match: { category: { $in: categories } } },
-    // ? Let's try to combine both conditions
-    //{ $match: { $and: [{ title: { $regex: title } }, { category: { $in: categories } }] } },
-    // { $match: { title: { $regex: title } } },
-    // { $match: { category: { $in: categories } } },
-    // filterPipeLine,
   ];
 
   if (title) {
-    pipeLine.push({ $match: { title: { $regex: title } } });
+    pipeLine.push({ $match: { title: { $regex: title, $options: "i" } } });
   }
 
-  if (categories) {
-    pipeLine.push({ $match: { category: { $in: categories } } });
+  if (categories !== "") {
+    pipeLine.push({ $match: { category: { $in: categories.split(",") } } });
   }
 
   try {
     const favorites = await FavoriteModel.aggregate(pipeLine);
-    // const favorites: any = await FavoriteModel.aggregate([
-    //   { $match: { owner: userId } },
-    //   {
-    //     $project: {
-    //       audioIds: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
-    //     },
-    //   },
-    //   { $unwind: "$audioIds" },
-    //   { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
-    //   { $unwind: "$audio" },
-
-    //   { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
-    //   { $unwind: "$owner" },
-    //   {
-    //     $project: {
-    //       _id: 0,
-    //       id: "$audio._id",
-    //       title: "$audio.title",
-    //       about: "$audio.about",
-    //       category: "$audio.category",
-    //       file: "$audio.file.url",
-    //       poster: "$audio.poster.url",
-    //       owner: { name: "$owner.name", id: "$owner._id" },
-    //     },
-    //   },
-    //   // ? Match the audios where search text matches title of them
-    //   //{ $match: { title: { $regex: title } } },
-    //   // ?  Match the audios where category is included in categories array
-    //   //{ $match: { category: { $in: categories } } },
-    //   // ? Let's try to combine both conditions
-    //   //{ $match: { $and: [{ title: { $regex: title } }, { category: { $in: categories } }] } },
-    //   { $match: { title: { $regex: title } } },
-    //   // { $match: { category: { $in: categories } } },
-    //   // filterPipeLine,
-    // ]);
 
     return res.status(200).json({ favorites });
   } catch (error) {

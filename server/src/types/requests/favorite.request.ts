@@ -6,7 +6,7 @@ export interface GetFavoritesRequest extends Request {
     limit: string;
     pageNumber: string;
     //test
-    categories: Category[];
+    categories: string;
     title?: string;
   };
 }

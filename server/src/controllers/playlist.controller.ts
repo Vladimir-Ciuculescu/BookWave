@@ -1,7 +1,7 @@
 import { Response } from "express";
 import AudioModel from "models/audio.model";
 import PlayListModel, { PlayListDocument } from "models/playlist.model";
-import { Schema, isValidObjectId } from "mongoose";
+import { PipelineStage, Schema, isValidObjectId } from "mongoose";
 import {
   AddPlayListRequest,
   GetPlaylistAudiosRequest,
@@ -107,14 +107,82 @@ const removePlayList = async (req: RemovePlayListRequest, res: Response) => {
 
 const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
   const userId = req.user.id;
-  const { limit = "20", pageNumber = "0" } = req.query;
+  const { limit = "20", pageNumber = "0", title } = req.query;
 
   // * Fetch only the summary of each playlist, not all audios from each one
   try {
-    const playlists = await PlayListModel.find({ owner: userId, visibility: { $ne: "auto" } })
-      .sort({ createdAt: "desc" })
-      .skip(parseInt(pageNumber) * parseInt(limit))
-      .limit(parseInt(limit));
+    // ! Do not delete, probably will need it in the future
+    // const playlists = await PlayListModel.find({ owner: userId, visibility: { $ne: "auto" } })
+    //   .sort({ createdAt: "desc" })
+    //   .skip(parseInt(pageNumber) * parseInt(limit))
+    //   .limit(parseInt(limit));
+
+    const pipeline: PipelineStage[] = [
+      { $match: { owner: userId, visibility: { $ne: "auto" } } },
+      {
+        $project: {
+          audio: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
+          title: "$title",
+          visibility: "$visibility",
+        },
+      },
+      { $unwind: { path: "$audio", preserveNullAndEmptyArrays: true } },
+      { $lookup: { from: "audios", localField: "audio", foreignField: "_id", as: "audio" } },
+      {
+        $group: {
+          _id: "$_id",
+          title: { $first: "$title" },
+          visibility: { $first: "$visibility" },
+          // audios: { $push: { $arrayElemAt: ["$audio", 0] } },
+          audios: { $push: { $ifNull: [{ $arrayElemAt: ["$audio", 0] }, null] } },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          visibility: 1,
+          audios: {
+            $cond: {
+              if: { $eq: [{ $arrayElemAt: ["$audios", 0] }, null] },
+              then: [],
+              else: {
+                $map: {
+                  input: "$audios",
+                  as: "audio",
+                  in: {
+                    $cond: {
+                      if: { $eq: [{ $indexOfArray: ["$audios", "$$audio"] }, 0] },
+                      then: { _id: "$$audio._id", poster: "$$audio.poster.url" },
+                      else: { _id: "$$audio._id" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          // audios: {
+          // $map: {
+          //   input: "$audios",
+          //   as: "audio",
+          //   in: {
+          //     $cond: {
+          //       if: { $eq: [{ $indexOfArray: ["$audios", "$$audio"] }, 0] },
+          //       then: { _id: "$$audio._id", poster: "$$audio.poster.url" },
+          //       else: { _id: "$$audio._id" },
+          //     },
+          //   },
+          // },
+          // },
+        },
+      },
+    ];
+
+    if (title) {
+      pipeline.push({ $match: { title: { $regex: title, $options: "i" } } });
+    }
+
+    const playlists = await PlayListModel.aggregate(pipeline);
 
     return res.status(200).json({ playlists });
   } catch (error) {

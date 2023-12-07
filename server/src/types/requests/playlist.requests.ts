@@ -19,6 +19,7 @@ export interface GetPlaylistsRequest extends Request {
   query: {
     limit: string;
     pageNumber: string;
+    title?: string;
   };
 }
 

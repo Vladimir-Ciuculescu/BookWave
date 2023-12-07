@@ -3,7 +3,7 @@ import { Visibilites } from "types/enums/visibilites.enum";
 export interface AddPlayListRequest {
   title: string;
   visibility: Visibilites | "";
-  audioId: string;
+  audioId?: string;
 }
 
 export interface UpdatePlayListRequest {
@@ -11,4 +11,8 @@ export interface UpdatePlayListRequest {
   id: string;
   audioId: string;
   visibility: Visibilites;
+}
+
+export interface GetPlaylistsRequest {
+  title: string;
 }

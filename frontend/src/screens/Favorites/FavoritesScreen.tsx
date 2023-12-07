@@ -1,5 +1,13 @@
-import { SafeAreaView, FlatList, StyleSheet, ScrollView, Keyboard, Pressable } from "react-native";
-import { Chip, Text, TextField, View } from "react-native-ui-lib";
+import {
+  SafeAreaView,
+  FlatList,
+  StyleSheet,
+  ScrollView,
+  Keyboard,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
 import BWView from "components/shared/BWView";
 import { COLORS } from "utils/colors";
 import { FontAwesome, Feather, Ionicons, AntDesign } from "@expo/vector-icons";
@@ -23,13 +31,13 @@ const FavoritesScreen: React.FC<any> = () => {
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
   const [selectedCategories, toggleSelectedCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState<string>("");
-  const textRef = useRef<any>(null);
+  const textRef = useRef<TextFieldRef>(null);
 
   const { data, refetch, isLoading } = useFetchFavorites({
     limit: LIMIT,
     pageNumber: index,
     title,
-    categories: selectedCategories,
+    categories: selectedCategories.join(","),
   });
 
   useEffect(() => {
@@ -114,9 +122,7 @@ const FavoritesScreen: React.FC<any> = () => {
           )}
           {selectedCategories.length > 0 && (
             <BWView column gap={10}>
-              <Text style={{ color: COLORS.MUTED[50], fontFamily: "Minomu" }}>
-                Categories applied:
-              </Text>
+              <Text style={styles.categoriesApplied}>Categories applied:</Text>
               <ScrollView horizontal contentContainerStyle={{ gap: 10 }}>
                 {selectedCategories.map((category: Category) => (
                   <Chip
@@ -202,8 +208,25 @@ const FavoritesScreen: React.FC<any> = () => {
                 categories={categories}
                 onToggle={toggleCategory}
               />
-
-              {/* {data && data.length ? (
+              {isLoading ? (
+                <View style={{ marginTop: 50 }}>
+                  <ActivityIndicator
+                    color={COLORS.WARNING[500]}
+                    size="large"
+                    style={styles.loadinngSpinner}
+                  />
+                </View>
+              ) : !data.length ? (
+                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                  <NoResultsFound width="100%" height={250} />
+                  <BWView column alignItems="center" gap={10}>
+                    <Text style={styles.notFoundTitle}>Not found</Text>
+                    <Text style={styles.notFoundDescription}>
+                      Sorry, no results found. Please try again or type anything else
+                    </Text>
+                  </BWView>
+                </BWView>
+              ) : (
                 <FlatList
                   showsVerticalScrollIndicator={false}
                   data={data}
@@ -211,28 +234,7 @@ const FavoritesScreen: React.FC<any> = () => {
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
                 />
-              ) : (
-                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
-                  <NoResultsFound width="100%" height={250} />
-                  <BWView column alignItems="center" gap={10}>
-                    <Text
-                      style={{ fontFamily: "MinomuBold", fontSize: 22, color: COLORS.MUTED[50] }}
-                    >
-                      Not found
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: "Minomu",
-                        fontSize: 16,
-                        color: COLORS.MUTED[400],
-                        textAlign: "center",
-                      }}
-                    >
-                      Sorry, no results found. Please try again or type anything else{" "}
-                    </Text>
-                  </BWView>
-                </BWView>
-              )} */}
+              )}
             </BWView>
           </View>
         </View>
@@ -310,5 +312,25 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WARNING[500],
     paddingHorizontal: 10,
     height: 40,
+  },
+
+  categoriesApplied: {
+    color: COLORS.MUTED[50],
+    fontFamily: "Minomu",
+  },
+  loadinngSpinner: {
+    transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
+  },
+  notFoundTitle: {
+    fontFamily: "MinomuBold",
+    fontSize: 22,
+    color: COLORS.MUTED[50],
+  },
+
+  notFoundDescription: {
+    fontFamily: "Minomu",
+    fontSize: 16,
+    color: COLORS.MUTED[400],
+    textAlign: "center",
   },
 });

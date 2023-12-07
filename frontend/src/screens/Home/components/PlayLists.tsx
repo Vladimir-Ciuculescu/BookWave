@@ -31,7 +31,7 @@ const PlayListItem: React.FC<PlayListItemProps> = ({
 }) => {
   const isChecked = () => {
     if (!selectedPlayList) {
-      return playlist.items.includes(audio.id);
+      return playlist.audios.includes(audio.id);
     } else {
       return selectedPlayList === playlist;
     }
@@ -122,7 +122,7 @@ const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) 
         {data && (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={data.playlists}
+            data={data}
             contentContainerStyle={{ gap: 30 }}
             keyExtractor={(item: PlayList) => item._id}
             renderItem={({ item }) => (
