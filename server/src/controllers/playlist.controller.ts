@@ -111,12 +111,6 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
 
   // * Fetch only the summary of each playlist, not all audios from each one
   try {
-    // ! Do not delete, probably will need it in the future
-    // const playlists = await PlayListModel.find({ owner: userId, visibility: { $ne: "auto" } })
-    //   .sort({ createdAt: "desc" })
-    //   .skip(parseInt(pageNumber) * parseInt(limit))
-    //   .limit(parseInt(limit));
-
     const pipeline: PipelineStage[] = [
       { $match: { owner: userId, visibility: { $ne: "auto" } } },
       {
@@ -124,6 +118,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           audio: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
           title: "$title",
           visibility: "$visibility",
+          updatedAt: "$updatedAt",
         },
       },
       { $unwind: { path: "$audio", preserveNullAndEmptyArrays: true } },
@@ -133,7 +128,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           _id: "$_id",
           title: { $first: "$title" },
           visibility: { $first: "$visibility" },
-          // audios: { $push: { $arrayElemAt: ["$audio", 0] } },
+          updatedAt: { $first: "$updatedAt" },
           audios: { $push: { $ifNull: [{ $arrayElemAt: ["$audio", 0] }, null] } },
         },
       },
@@ -161,21 +156,10 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
               },
             },
           },
-          // audios: {
-          // $map: {
-          //   input: "$audios",
-          //   as: "audio",
-          //   in: {
-          //     $cond: {
-          //       if: { $eq: [{ $indexOfArray: ["$audios", "$$audio"] }, 0] },
-          //       then: { _id: "$$audio._id", poster: "$$audio.poster.url" },
-          //       else: { _id: "$$audio._id" },
-          //     },
-          //   },
-          // },
-          // },
+          updatedAt: 1,
         },
       },
+      { $sort: { updatedAt: -1 } },
     ];
 
     if (title) {

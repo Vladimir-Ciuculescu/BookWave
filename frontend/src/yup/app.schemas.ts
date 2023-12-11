@@ -23,3 +23,7 @@ export const newPlayListSchema = Yup.object().shape({
     .oneOf(visibilites, "Invalid visibility option")
     .required("Visibility is required !"),
 });
+
+export const updateProfileSchema = Yup.object().shape({
+  title: Yup.string().required("Name is required !"),
+});

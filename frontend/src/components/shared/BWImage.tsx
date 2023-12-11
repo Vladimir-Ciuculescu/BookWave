@@ -11,6 +11,7 @@ interface BWImageProps {
   backgroundColor?: string;
   iconColor?: string;
   iconSize?: number;
+  onLayout?: () => void;
 }
 
 const BWImage: React.FC<BWImageProps> = ({
@@ -21,6 +22,7 @@ const BWImage: React.FC<BWImageProps> = ({
   backgroundColor,
   iconColor,
   iconSize,
+  onLayout,
 }) => {
   if (placeholder) {
     return (
@@ -36,7 +38,7 @@ const BWImage: React.FC<BWImageProps> = ({
     );
   }
 
-  return <AnimatedImage source={{ uri: src }} style={style} />;
+  return <AnimatedImage onLayout={onLayout} source={{ uri: src }} style={style} />;
 };
 
 export default BWImage;

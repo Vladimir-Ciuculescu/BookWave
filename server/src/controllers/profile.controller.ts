@@ -112,7 +112,9 @@ const getPublicProfile = async (req: PublicProfileRequest, res: Response) => {
     return res.status(200).json({
       id: profile._id,
       name: profile.name,
+      email: profile.email,
       followers: profile.followers.length,
+      followings: profile.followings.length,
       avatar: profile.avatar?.url,
     });
   } catch (error) {

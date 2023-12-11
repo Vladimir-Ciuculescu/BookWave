@@ -6,21 +6,24 @@ import { StackNavigatorProps } from "types/interfaces/navigation";
 import TabNavigator from "./TabNavigator";
 import InitializationScreen from "screens/InitializationScreen";
 import RegisterScreen from "screens/Register/RegisterScreen";
+import SettingsScreen from "screens/Settings/SettingsScreen";
 
 const Stack = createNativeStackNavigator<StackNavigatorProps>();
 
 const StackNavigator: React.FC<any> = () => {
   return (
-    <Stack.Navigator
-      initialRouteName="InitialScreen"
-      screenOptions={{ headerShown: false, animation: "fade" }}
-    >
-      <Stack.Screen component={InitializationScreen} name="InitialScreen" />
-      <Stack.Screen component={LoginScreen} name="Login" />
-      <Stack.Screen component={RegisterScreen} name="Register" />
-      <Stack.Screen component={ForgotPasswordScreen} name="ForgotPassword" />
-      <Stack.Screen component={OTPVerificationScreen} name="OTPVerification" />
-      <Stack.Screen component={TabNavigator} name="App" />
+    <Stack.Navigator initialRouteName="InitialScreen">
+      <Stack.Group screenOptions={{ headerShown: false, animation: "fade" }}>
+        <Stack.Screen component={InitializationScreen} name="InitialScreen" />
+        <Stack.Screen component={LoginScreen} name="Login" />
+        <Stack.Screen component={RegisterScreen} name="Register" />
+        <Stack.Screen component={ForgotPasswordScreen} name="ForgotPassword" />
+        <Stack.Screen component={OTPVerificationScreen} name="OTPVerification" />
+        <Stack.Screen component={TabNavigator} name="App" />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: "modal" }}>
+        <Stack.Screen component={SettingsScreen} name="Settings" />
+      </Stack.Group>
     </Stack.Navigator>
   );
 };

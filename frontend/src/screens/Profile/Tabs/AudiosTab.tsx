@@ -13,7 +13,7 @@ const AudiosTab = () => {
   let copy;
 
   if (data) {
-    copy = data.concat(data).concat(data);
+    copy = data;
   }
 
   return (

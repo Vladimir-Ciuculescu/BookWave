@@ -103,7 +103,7 @@ const FavoritesScreen: React.FC<any> = () => {
               link
             />
           </BWView>
-          {title && data.length > 0 && (
+          {title && (
             <BWView row>
               <Chip
                 borderRadius={22}
@@ -156,13 +156,25 @@ const FavoritesScreen: React.FC<any> = () => {
                   width="100%"
                   color={COLORS.MUTED[700]}
                 />
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={data}
-                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={styles.listContainer}
-                />
+                {data.length ? (
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={data}
+                    renderItem={({ item }) => <PlayAudioCard audio={item} />}
+                    keyExtractor={(item, index) => index.toString()}
+                    contentContainerStyle={styles.listContainer}
+                  />
+                ) : (
+                  <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                    <NoResultsFound width="100%" height={250} />
+                    <BWView column alignItems="center" gap={10}>
+                      <Text style={styles.notFoundTitle}>Not found</Text>
+                      <Text style={styles.notFoundDescription}>
+                        Sorry, no results found. Please try again or type anything else
+                      </Text>
+                    </BWView>
+                  </BWView>
+                )}
               </BWView>
             )}
           </View>

@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "redux/store";
 import { UserProfile } from "types/interfaces/users";
 
 interface InitialStateProps {
@@ -31,7 +32,9 @@ const authReducer = createSlice({
 export const setProfileAction = authReducer.actions.setProfile;
 export const setLoggedInAction = authReducer.actions.setLoggedIn;
 
+const rootSelector = (state: RootState) => state;
+
 // ? Selectors
-// export const authSelector = createSelector([rootState], (state) => state.auth);
+export const authSelector = createSelector(rootSelector, (state) => state.auth);
 
 export default authReducer.reducer;

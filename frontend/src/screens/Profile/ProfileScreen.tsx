@@ -1,36 +1,38 @@
 import { SafeAreaView, StyleSheet, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
 import React from "react";
-import { Button, Text, View } from "react-native-ui-lib";
-import { useDispatch } from "react-redux";
-import FavoritesTab from "screens/Profile/Tabs/FavoritesTab";
+import { View } from "react-native-ui-lib";
+import { useSelector } from "react-redux";
 import HistoryTab from "screens/Profile/Tabs/HistoryTab";
-import PlayListTab from "screens/Profile/Tabs/PlayListTab";
 import { COLORS } from "utils/colors";
 import ProfileInfo from "./components/ProfileInfo";
-import BWView from "components/shared/BWView";
 import AudiosTab from "screens/Profile/Tabs/AudiosTab";
+import { authSelector } from "redux/reducers/auth.reducer";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 
 const { width } = Dimensions.get("screen");
 
 const Tab = createMaterialTopTabNavigator();
 
-const ProfileScreen: React.FC<any> = () => {
-  // const navigation = useNavigation<any>();
-  // const dispatch = useDispatch();
+interface ProfileScreenProps {
+  navigation: NavigationProp<StackNavigatorProps>;
+}
 
-  // const logOut = async () => {
-  //   await AsyncStorage.removeItem("token");
-  //   navigation.navigate("Login");
-  // };
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+  const { profile } = useSelector(authSelector);
+
+  const logOut = async () => {
+    await AsyncStorage.removeItem("token");
+    navigation.navigate("Login");
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {/* <Button label="Log out" onPress={logOut} /> */}
       <View style={{ flex: 1, paddingTop: 10, gap: 20, justifyContent: "center", display: "flex" }}>
-        <ProfileInfo />
+        <ProfileInfo profile={profile} />
         <Tab.Navigator
           style={{ width: width, alignSelf: "center" }}
           screenOptions={{
@@ -44,8 +46,7 @@ const ProfileScreen: React.FC<any> = () => {
           }}
         >
           <Tab.Screen name="Audios" component={AudiosTab} />
-          {/* <Tab.Screen name="PlayList" component={PlayListTab} />
-          <Tab.Screen name="Favorites" component={FavoritesTab} /> */}
+
           <Tab.Screen name="History" component={HistoryTab} />
         </Tab.Navigator>
       </View>

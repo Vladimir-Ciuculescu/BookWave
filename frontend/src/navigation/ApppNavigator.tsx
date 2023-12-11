@@ -9,6 +9,8 @@ const NavigatorTheme = {
   colors: {
     ...DefaultTheme.colors,
     background: COLORS.DARK[50],
+    card: COLORS.DARK[200],
+    text: COLORS.MUTED[50],
   },
 };
 

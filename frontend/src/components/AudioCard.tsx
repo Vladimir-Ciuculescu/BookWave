@@ -4,7 +4,6 @@ import BWView from "./shared/BWView";
 import { COLORS } from "utils/colors";
 import BWImage from "./shared/BWImage";
 import { AudioFile } from "types/interfaces/audios";
-import { FontAwesome } from "@expo/vector-icons";
 
 interface AudioCard {
   audio: AudioFile;

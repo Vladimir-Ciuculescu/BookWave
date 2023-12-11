@@ -1,39 +1,61 @@
 import { Dimensions } from "react-native";
 import BWView from "components/shared/BWView";
-import { Text } from "react-native-ui-lib";
+import { Button, Text } from "react-native-ui-lib";
 import BWImage from "components/shared/BWImage";
 import { COLORS } from "utils/colors";
+import { UserProfile } from "types/interfaces/users";
+import BWIconButton from "components/shared/BWIconButton";
+import { Ionicons } from "@expo/vector-icons";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 
 const { width } = Dimensions.get("screen");
 
-const ProfileInfo: React.FC<any> = () => {
+interface ProfileInfoProps {
+  profile: UserProfile | null;
+}
+
+const ProfileInfo: React.FC<ProfileInfoProps> = ({ profile }) => {
+  const navigation = useNavigation<NavigationProp<StackNavigatorProps>>();
+
+  const openSettings = () => {
+    navigation.navigate("Settings", { profile: profile! });
+  };
+
   return (
     <BWView column style={{ width: width, paddingHorizontal: 20 }} gap={30}>
-      <BWView row alignItems="center" gap={20}>
-        <BWImage
-          placeholder
-          iconName="user"
-          iconSize={50}
-          style={{ width: 80, height: 80, borderRadius: 50 }}
-        />
-        <BWView column gap={5}>
-          <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[50], fontSize: 26 }}>
-            Vladi Ciuculescu
-          </Text>
-          <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[700], fontSize: 14 }}>
-            vladi@gmail.com
-          </Text>
+      <BWView justifyContent="space-between" row>
+        <BWView alignItems="center" gap={20}>
+          <BWImage
+            placeholder
+            iconName="user"
+            iconSize={50}
+            style={{ width: 80, height: 80, borderRadius: 50 }}
+          />
+          <BWView column gap={5}>
+            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[50], fontSize: 26 }}>
+              {profile!.name}
+            </Text>
+            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[700], fontSize: 14 }}>
+              {profile!.email}
+            </Text>
+          </BWView>
         </BWView>
+        <BWIconButton
+          onPress={openSettings}
+          link
+          icon={() => <Ionicons name="settings-outline" size={24} color={COLORS.MUTED[50]} />}
+        />
       </BWView>
       <BWView row justifyContent="space-between">
         <Text style={{ color: COLORS.MUTED[50], fontSize: 16, fontFamily: "MinomuBold" }}>
-          128{" "}
+          {profile!.followers}{" "}
           <Text style={{ color: COLORS.DARK[300], fontFamily: "Minomu", fontSize: 14 }}>
             Followers
           </Text>
         </Text>
         <Text style={{ color: COLORS.MUTED[50], fontSize: 16, fontFamily: "MinomuBold" }}>
-          5024{" "}
+          {profile!.followings}{" "}
           <Text style={{ color: COLORS.DARK[300], fontFamily: "Minomu", fontSize: 14 }}>
             Followings
           </Text>
