@@ -31,6 +31,8 @@ const BWFileSelector: React.FC<BWFileSelectorProps> = ({
       if (result.assets) {
         const [file] = result.assets;
 
+        console.log(222, file);
+
         setFieldValue(name, file);
       }
     } catch (error) {

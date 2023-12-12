@@ -25,5 +25,5 @@ export const newPlayListSchema = Yup.object().shape({
 });
 
 export const updateProfileSchema = Yup.object().shape({
-  title: Yup.string().required("Name is required !"),
+  name: Yup.string().required("Name is required !"),
 });

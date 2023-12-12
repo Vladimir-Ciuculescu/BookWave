@@ -27,7 +27,8 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ profile }) => {
       <BWView justifyContent="space-between" row>
         <BWView alignItems="center" gap={20}>
           <BWImage
-            placeholder
+            src={profile?.avatar!}
+            placeholder={!profile?.avatar}
             iconName="user"
             iconSize={50}
             style={{ width: 80, height: 80, borderRadius: 50 }}

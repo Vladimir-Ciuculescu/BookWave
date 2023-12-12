@@ -48,7 +48,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const goToHome = () => {
-    navigation.navigate("App");
+    // navigation.navigate("App");
+    navigation.navigate("App", { screen: "Home" });
   };
 
   const handleLogin = async (values: LoginData) => {
@@ -56,7 +57,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const userInfo = await UserService.loginApi(values);
 
       await AsyncStorage.setItem("token", userInfo.token);
-      dispatch(setProfileAction(userInfo.user));
+      dispatch(setProfileAction({ ...userInfo.user, avatar: userInfo.user.avatar.url }));
+
       dispatch(setLoggedInAction(true));
       goToHome();
     } catch (error: any) {

@@ -9,13 +9,21 @@ interface BWSubmitButtonProps {
   style?: ViewStyle | ViewStyle[];
   loading?: boolean;
   full?: boolean;
+  disabled?: boolean;
 }
 
-const BWSubmitButton: React.FC<BWSubmitButtonProps> = ({ title, style, loading, full }) => {
+const BWSubmitButton: React.FC<BWSubmitButtonProps> = ({
+  title,
+  style,
+  loading,
+  full,
+  disabled,
+}) => {
   const { handleSubmit, resetForm, isValid, validationSchema, touched } = useFormikContext();
 
   return (
     <BWButton
+      disabled={disabled || false}
       title={title}
       onPress={handleSubmit}
       //@ts-ignore

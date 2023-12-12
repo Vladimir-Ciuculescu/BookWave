@@ -15,6 +15,7 @@ interface BWInputProps extends TextInputProps {
   name: string;
   secureTextEntry?: boolean;
   autoCapitalize?: TextInputProps["autoCapitalize"];
+  keyboardAppearance?: TextInputProps["keyboardAppearance"];
   rightIcon?: any;
   placeholderTextColor?: string;
   label?: string;
@@ -31,6 +32,7 @@ const BWInput: React.FC<BWInputProps> = (props) => {
     multiline,
     numberOfLines,
     autoCapitalize,
+    keyboardAppearance,
     style,
     inputStyle,
     enablerError,
@@ -43,6 +45,8 @@ const BWInput: React.FC<BWInputProps> = (props) => {
 
   const errorMessage = errors[name];
   const isTouched = touched[name];
+
+  console.log(errorMessage, isTouched);
 
   // ? Hooks
   const xOffSet = useSharedValue(0);
@@ -71,6 +75,7 @@ const BWInput: React.FC<BWInputProps> = (props) => {
     <Animated.View style={[animatedStyle, styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextField
+        keyboardAppearance={keyboardAppearance || "light"}
         placeholder={placeholder}
         placeholderTextColor={COLORS.MUTED[500]}
         autoCapitalize={autoCapitalize || "sentences"}

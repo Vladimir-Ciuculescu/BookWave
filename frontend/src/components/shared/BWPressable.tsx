@@ -1,16 +1,18 @@
 import { ReactNode } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, ViewStyle } from "react-native";
 
 interface BWPressableProps {
   children: ReactNode;
-  onPress: Function;
+  style: ViewStyle | ViewStyle[];
+  onPress: () => void;
 }
 
-const BWPressable: React.FC<BWPressableProps> = ({ children, onPress }) => {
+const BWPressable: React.FC<BWPressableProps> = ({ children, onPress, style }) => {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}
+      // style={({ pressed }) => (pressed ?  styles.pressed : styles.unpressed)}
+      style={({ pressed }) => [pressed ? styles.pressed : styles.unpressed, style]}
     >
       {children}
     </Pressable>

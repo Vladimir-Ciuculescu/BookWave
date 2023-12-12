@@ -7,6 +7,6 @@ export type StackNavigatorProps = {
   OTPVerification: { userInfo: any };
 
   Settings: { profile: UserProfile };
-  App: undefined;
+  App: { screen: string } | undefined;
   InitialScreen: undefined;
 };

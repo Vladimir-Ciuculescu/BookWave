@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
-import { View } from "react-native-ui-lib";
+import { Button, View } from "react-native-ui-lib";
 import { useSelector } from "react-redux";
 import HistoryTab from "screens/Profile/Tabs/HistoryTab";
 import { COLORS } from "utils/colors";
@@ -31,7 +31,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {/* <Button label="Log out" onPress={logOut} /> */}
-      <View style={{ flex: 1, paddingTop: 10, gap: 20, justifyContent: "center", display: "flex" }}>
+      <View style={{ flex: 1, paddingTop: 30, gap: 20, justifyContent: "center", display: "flex" }}>
         <ProfileInfo profile={profile} />
         <Tab.Navigator
           style={{ width: width, alignSelf: "center" }}

@@ -85,6 +85,7 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
                 color={COLORS.DARK[300]}
               />
               <BWInput
+                keyboardAppearance="dark"
                 placeholder="Title"
                 style={{ width: "100%" }}
                 inputStyle={{ backgroundColor: COLORS.DARK[300] }}

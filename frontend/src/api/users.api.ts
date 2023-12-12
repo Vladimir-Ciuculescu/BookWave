@@ -65,6 +65,18 @@ const forgotPasswordApi = async (email: string) => {
   }
 };
 
+const updateProfileApi = async (formData: FormData) => {
+  try {
+    await axios.post(`${apiUrl}/users/update-profile`, formData, {
+      headers: {
+        Authorization: `Bearer=${await getToken()}`,
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const UserService = {
   registerApi,
   loginApi,
@@ -72,6 +84,7 @@ const UserService = {
   sendVerificationTokenApi,
   resendVerificationTokenApi,
   forgotPasswordApi,
+  updateProfileApi,
 };
 
 export default UserService;

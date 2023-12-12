@@ -207,7 +207,7 @@ const UploadAudioScreen: React.FC<any> = () => {
                       <Text style={styles.errorMessage}>{errors.audio.uri}</Text>
                     )}
 
-                    <BWInput enablerError name="title" label="Title" />
+                    <BWInput keyboardAppearance="dark" enablerError name="title" label="Title" />
 
                     <BWButton
                       title="Category"
@@ -234,6 +234,7 @@ const UploadAudioScreen: React.FC<any> = () => {
                       <Text style={styles.errorMessage}>{errors.category}</Text>
                     )}
                     <BWInput
+                      keyboardAppearance="dark"
                       enablerError
                       name="description"
                       label="Description"
