@@ -35,6 +35,8 @@ export const isAuthenticatedMiddleware: RequestHandler = async (req: Request, re
       followings: user.followings.length,
     };
 
+    console.log(1111, token);
+
     req.token = token;
 
     next();

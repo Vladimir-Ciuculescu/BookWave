@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
@@ -17,7 +17,6 @@ import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import UserService from "api/users.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,8 +35,17 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const formRef = useRef<any>(null);
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    navigation.addListener("blur", () => {
+      if (formRef.current) {
+        formRef.current.resetForm();
+      }
+    });
+  }, [navigation]);
 
   const goToRegister = () => {
     navigation.navigate("Register");
@@ -48,7 +56,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   const goToHome = () => {
-    // navigation.navigate("App");
     navigation.navigate("App", { screen: "Home" });
   };
 
@@ -82,6 +89,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 initialValues={initialValues}
                 onSubmit={handleLogin}
                 validationSchema={loginSchema}
+                innerRef={formRef}
               >
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>

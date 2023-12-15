@@ -6,3 +6,7 @@ export interface SendVerificationEmailRequest {
 export interface ResendVerificationEmailRequest {
   userId: string;
 }
+
+export interface LogOutRequest {
+  fromAll: "yes" | "no";
+}

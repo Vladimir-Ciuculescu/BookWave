@@ -20,7 +20,7 @@ import BWSubmitButton from "components/shared/BWSubmitButton";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import UserService from "api/users.api";
-import { setProfileAction } from "redux/reducers/auth.reducer";
+import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import Section from "./components/Section";
 import Action from "./components/Action";
 
@@ -68,12 +68,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     let result: ImagePicker.ImagePickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
+      // allowsEditing: true,
+
       aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      console.log("picture object", result.assets[0]);
       setFieldValue("avatar", result.assets![0].uri);
     }
   };
@@ -110,17 +111,33 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     setLoading(false);
   };
 
-  const openLogOutPopup = () => {
-    Alert.alert("Log out", "Are you sure you want to log out ?", [
-      { text: "Yes", style: "destructive", onPress: () => logOut() },
-      { text: "No" },
-    ]);
+  const openLogOutPopUp = (fromAll: "yes" | "no") => {
+    Alert.alert(
+      "Log out",
+      `Are you sure you want to log out ${fromAll === "yes" ? "from all devices" : ""} ?`,
+      [{ text: "Yes", style: "destructive", onPress: () => logOut(fromAll) }, { text: "No" }],
+    );
   };
 
-  const logOut = async () => {
+  const logOut = async (fromAll: "yes" | "no") => {
+    await UserService.logOutApi({ fromAll });
     await AsyncStorage.removeItem("token");
-    navigation.goBack();
+
+    // navigation.popToTop();
+    navigation.pop();
     navigation.navigate("Login");
+    dispatch(
+      setProfileAction({
+        id: "",
+        name: "",
+        email: "",
+        verified: false,
+        avatar: "",
+        followers: 0,
+        followings: 0,
+      }),
+    );
+    dispatch(setLoggedInAction(false));
   };
 
   return (
@@ -195,12 +212,12 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
               content={
                 <BWView column gap={25}>
                   <Action
-                    onPress={() => {}}
+                    onPress={() => openLogOutPopUp("yes")}
                     title="Logout from all devices"
                     icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
                   />
                   <Action
-                    onPress={openLogOutPopup}
+                    onPress={() => openLogOutPopUp("no")}
                     title="Logout"
                     icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
                   />

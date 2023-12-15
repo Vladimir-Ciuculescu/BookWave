@@ -2,7 +2,10 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import { LoginData } from "screens/Login/LoginScreen";
 import { RegisterData } from "screens/Register/RegisterScreen";
-import { SendVerificationEmailRequest } from "types/interfaces/requests/auth-requests.interfaces";
+import {
+  LogOutRequest,
+  SendVerificationEmailRequest,
+} from "types/interfaces/requests/auth-requests.interfaces";
 
 const registerApi = async (payload: RegisterData) => {
   try {
@@ -77,6 +80,17 @@ const updateProfileApi = async (formData: FormData) => {
   }
 };
 
+const logOutApi = async (data: LogOutRequest) => {
+  try {
+    await axios.post(`${apiUrl}/users/log-out`, null, {
+      params: data,
+      headers: { Authorization: `Bearer=${await getToken()}` },
+    });
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const UserService = {
   registerApi,
   loginApi,
@@ -85,6 +99,7 @@ const UserService = {
   resendVerificationTokenApi,
   forgotPasswordApi,
   updateProfileApi,
+  logOutApi,
 };
 
 export default UserService;

@@ -46,8 +46,6 @@ const BWInput: React.FC<BWInputProps> = (props) => {
   const errorMessage = errors[name];
   const isTouched = touched[name];
 
-  console.log(errorMessage, isTouched);
-
   // ? Hooks
   const xOffSet = useSharedValue(0);
 

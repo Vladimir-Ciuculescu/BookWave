@@ -19,7 +19,7 @@ const authReducer = createSlice({
   name: "auth",
   initialState: initialState,
   reducers: {
-    setProfile: (state, action: PayloadAction<UserProfile>) => {
+    setProfile: (state, action: PayloadAction<UserProfile | null>) => {
       state.profile = action.payload;
     },
     setLoggedIn: (state, action: PayloadAction<boolean>) => {

@@ -7,11 +7,23 @@ interface BWFormProps {
   children: ReactNode;
   onSubmit: (values: any, formikHelpers: FormikHelpers<any>) => void;
   validationSchema: any;
+  innerRef?: any;
 }
 
-const BWForm: React.FC<BWFormProps> = ({ initialValues, onSubmit, children, validationSchema }) => {
+const BWForm: React.FC<BWFormProps> = ({
+  initialValues,
+  onSubmit,
+  children,
+  validationSchema,
+  innerRef,
+}) => {
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+    <Formik
+      innerRef={innerRef}
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={validationSchema}
+    >
       {children}
     </Formik>
   );

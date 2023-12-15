@@ -381,6 +381,7 @@ const updateProfile = async (req: any, res: Response) => {
 const logOut = async (req: Request, res: Response) => {
   const { fromAll } = req.query;
   const token = req.token;
+  console.log();
 
   try {
     const user = await UserModel.findById(req.user.id);
@@ -391,6 +392,8 @@ const logOut = async (req: Request, res: Response) => {
 
     let tokens;
     let message;
+
+    console.log(fromAll);
 
     if (fromAll === "yes") {
       tokens = [];
