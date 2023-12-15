@@ -23,6 +23,7 @@ import UserService from "api/users.api";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import Section from "./components/Section";
 import Action from "./components/Action";
+import { Audio } from "expo-av";
 
 interface ProfileData {
   name: string;
@@ -140,6 +141,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     dispatch(setLoggedInAction(false));
   };
 
+  const playSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("../../../assets/audios/once-in-paris-168895.mp3"),
+    );
+
+    await sound.playAsync();
+  };
+
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, flexDirection: "column", paddingTop: 30, paddingHorizontal: 20 }}>
@@ -225,6 +234,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
               }
             />
           </BWView>
+          <BWButton onPress={playSound} title="Play sound" />
         </View>
       </View>
     </TouchableWithoutFeedback>

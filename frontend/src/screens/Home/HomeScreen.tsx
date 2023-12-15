@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { COLORS } from "utils/colors";
@@ -21,6 +21,8 @@ import { StatusBar } from "expo-status-bar";
 import { AudioFile } from "types/interfaces/audios";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
 import FavoriteService from "api/favorites.api";
+import TrackPlayer from "react-native-track-player";
+import { Audio } from "expo-av";
 
 interface Option {
   label: string;
@@ -33,10 +35,29 @@ const HomeScreen: React.FC<any> = () => {
   const [playlistsBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
   const [newPlayListBottomSheet, toggleNewPlayListBottomSheet] = useState<boolean>(false);
   const [selectedAudio, setSelectedAudio] = useState<AudioFile | undefined>();
+  const [sound, setSound] = useState<Audio.Sound>();
   const dispatch = useDispatch();
 
   const latestAudios = useFetchLatestAudios();
   const recommendedAudios = useFetchRecommendedAudios();
+
+  // ! Installed react-native-track-player but looks like smth for bare react native
+  // ! Currently using expo-av package for playing audios
+  // useEffect(() => {
+  //   const setupPlayer = async () => {
+  //     await TrackPlayer.setupPlayer();
+  //   };
+
+  //   setupPlayer();
+  // }, []);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   const openOptionsBottomSheet = (audio: AudioFile) => {
     toggleOptionsBottomSheet(true);
@@ -80,6 +101,13 @@ const HomeScreen: React.FC<any> = () => {
   const openNewPlayListBottomSheet = () => {
     togglePlaylistsBottomSheet(false);
     toggleNewPlayListBottomSheet(true);
+  };
+
+  const playAudio = async (item: any) => {
+    const { sound } = await Audio.Sound.createAsync({ uri: item.file });
+
+    setSound(sound);
+    await sound.playAsync();
   };
 
   const options: Option[] = [
@@ -148,6 +176,7 @@ const HomeScreen: React.FC<any> = () => {
                     <AudioCard
                       audio={upload}
                       key={upload.id}
+                      onPress={() => playAudio(upload)}
                       onLongPress={() => openOptionsBottomSheet(upload)}
                     />
                   ))}
