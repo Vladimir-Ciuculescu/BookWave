@@ -21,7 +21,7 @@ import { categories } from "consts/categories";
 import { Category } from "types/enums/categories.enum";
 import _ from "lodash";
 import Categories from "./Categories";
-import NoResultsFound from "../../../assets/illustrations/no_results_found.svg";
+import { NoResultsFound } from "../../../assets/illustrations";
 
 const FavoritesScreen: React.FC<any> = () => {
   const LIMIT = 10;

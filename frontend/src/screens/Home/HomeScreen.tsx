@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, StyleSheet, Pressable } from "react-native";
-import { SafeAreaView } from "react-native";
+import { ScrollView, Text, StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { COLORS } from "utils/colors";
 import BWView from "components/shared/BWView";
 import BWButton from "components/shared/BWButton";
@@ -14,15 +13,24 @@ import { FontAwesome } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import PlayLists from "screens/Home/components/PlayLists";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import { StatusBar } from "expo-status-bar";
 import { AudioFile } from "types/interfaces/audios";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
 import FavoriteService from "api/favorites.api";
-import TrackPlayer from "react-native-track-player";
-import { Audio } from "expo-av";
+import { Audio, AVPlaybackStatus, AVPlaybackStatusSuccess } from "expo-av";
+import {
+  playerSelector,
+  setAudioAction,
+  setDidFinishAction,
+  setDurationAction,
+  setIsPlayingAction,
+  setProgressAction,
+  setTrackAction,
+} from "redux/reducers/player.reducer";
+import { ActionSheet } from "react-native-ui-lib";
 
 interface Option {
   label: string;
@@ -32,32 +40,18 @@ interface Option {
 
 const HomeScreen: React.FC<any> = () => {
   const [optionsBottomSheet, toggleOptionsBottomSheet] = useState<boolean>(false);
+  // const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playlistsBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
   const [newPlayListBottomSheet, toggleNewPlayListBottomSheet] = useState<boolean>(false);
   const [selectedAudio, setSelectedAudio] = useState<AudioFile | undefined>();
-  const [sound, setSound] = useState<Audio.Sound>();
+  // const [audio, setAudio] = useState<Audio.Sound>();
+  // const [currentAudio, setCurrentAudio] = useState(null);
+  const { track, audio, isPlaying } = useSelector(playerSelector);
+
   const dispatch = useDispatch();
 
   const latestAudios = useFetchLatestAudios();
   const recommendedAudios = useFetchRecommendedAudios();
-
-  // ! Installed react-native-track-player but looks like smth for bare react native
-  // ! Currently using expo-av package for playing audios
-  // useEffect(() => {
-  //   const setupPlayer = async () => {
-  //     await TrackPlayer.setupPlayer();
-  //   };
-
-  //   setupPlayer();
-  // }, []);
-
-  useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync();
-        }
-      : undefined;
-  }, [sound]);
 
   const openOptionsBottomSheet = (audio: AudioFile) => {
     toggleOptionsBottomSheet(true);
@@ -104,10 +98,63 @@ const HomeScreen: React.FC<any> = () => {
   };
 
   const playAudio = async (item: any) => {
-    const { sound } = await Audio.Sound.createAsync({ uri: item.file });
+    try {
+      if (track) {
+        if (item !== audio) {
+          const { sound, status }: { sound: Audio.Sound; status: any } =
+            await Audio.Sound.createAsync(
+              { uri: item.file },
+              { shouldPlay: true },
+              (status: any) => {
+                dispatch(setProgressAction(status.positionMillis));
+                if (status.didJustFinish) {
+                  dispatch(setIsPlayingAction(false));
+                  dispatch(setDidFinishAction(true));
+                }
+              },
+            );
 
-    setSound(sound);
-    await sound.playAsync();
+          dispatch(setDurationAction(status.durationMillis));
+          dispatch(setTrackAction(sound as any));
+          dispatch(setAudioAction(item));
+          dispatch(setIsPlayingAction(true));
+
+          return;
+        }
+
+        if (isPlaying) {
+          await track.pauseAsync();
+        } else {
+          await track.playAsync();
+        }
+
+        dispatch(setIsPlayingAction(!isPlaying));
+
+        return;
+      }
+
+      const { sound, status }: { sound: Audio.Sound; status: any } = await Audio.Sound.createAsync(
+        { uri: item.file },
+        { shouldPlay: true },
+        (status: any) => {
+          dispatch(setProgressAction(status.positionMillis));
+          if (status.didJustFinish) {
+            dispatch(setIsPlayingAction(false));
+            dispatch(setDidFinishAction(true));
+          }
+        },
+      );
+      dispatch(setDurationAction(status.durationMillis));
+
+      dispatch(setIsPlayingAction(true));
+
+      dispatch(setTrackAction(sound as any));
+      dispatch(setAudioAction(item));
+    } catch (error) {
+      dispatch(
+        setToastMessageAction({ message: "Could not play audio, try again", type: "error" }),
+      );
+    }
   };
 
   const options: Option[] = [
@@ -150,8 +197,10 @@ const HomeScreen: React.FC<any> = () => {
                 : latestAudios.data.uploads.map((upload: AudioFile) => {
                     return (
                       <AudioCard
+                        animation={isPlaying && audio && audio.id === upload.id}
                         audio={upload}
                         key={upload.id}
+                        onPress={() => playAudio(upload)}
                         onLongPress={() => openOptionsBottomSheet(upload)}
                       />
                     );
@@ -174,6 +223,7 @@ const HomeScreen: React.FC<any> = () => {
                   })
                 : recommendedAudios.data.audios.map((upload: AudioFile) => (
                     <AudioCard
+                      animation={isPlaying && audio && audio.id === upload.id}
                       audio={upload}
                       key={upload.id}
                       onPress={() => playAudio(upload)}

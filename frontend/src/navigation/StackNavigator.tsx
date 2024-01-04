@@ -7,6 +7,7 @@ import TabNavigator from "./TabNavigator";
 import InitializationScreen from "screens/InitializationScreen";
 import RegisterScreen from "screens/Register/RegisterScreen";
 import SettingsScreen from "screens/Settings/SettingsScreen";
+import { Text, View } from "react-native-ui-lib";
 
 const Stack = createNativeStackNavigator<StackNavigatorProps>();
 

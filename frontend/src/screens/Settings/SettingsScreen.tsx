@@ -1,7 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BWIconButton from "components/shared/BWIconButton";
 import { Text } from "react-native-ui-lib";
@@ -17,13 +16,14 @@ import BWForm from "components/shared/BWForm";
 import { updateProfileSchema } from "yup/app.schemas";
 import BWInput from "components/shared/BWInput";
 import BWSubmitButton from "components/shared/BWSubmitButton";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import UserService from "api/users.api";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import Section from "./components/Section";
 import Action from "./components/Action";
 import { Audio } from "expo-av";
+import { playerSelector } from "redux/reducers/player.reducer";
 
 interface ProfileData {
   name: string;
@@ -39,6 +39,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
   const {
     params: { profile },
   } = route;
+
+  const { track } = useSelector(playerSelector);
 
   const initialValues: ProfileData = {
     name: profile.name,
@@ -123,8 +125,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
   const logOut = async (fromAll: "yes" | "no") => {
     await UserService.logOutApi({ fromAll });
     await AsyncStorage.removeItem("token");
-
-    // navigation.popToTop();
+    await track?.unloadAsync();
     navigation.pop();
     navigation.navigate("Login");
     dispatch(
