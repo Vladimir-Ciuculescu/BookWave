@@ -10,8 +10,6 @@ const generatePlaylists = async () => {
       { $group: { _id: "$category", audios: { $push: "$$ROOT._id" } } },
     ]);
 
-    console.log(audios);
-
     audios.map(async (item) => {
       await AutoPlayListModel.updateOne({ title: item._id }, { $set: { items: item.audios } }, { upsert: true });
     });

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, ViewStyle } from "react-native";
 
 interface BWPressableProps {
   children: ReactNode;
-  style: ViewStyle | ViewStyle[];
+  style?: ViewStyle | ViewStyle[];
   onPress: () => void;
 }
 

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native-ui-lib";
 import { StyleSheet } from "react-native";
-import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import { MINI_PLAYER_HEIGHT, TAB_BAR_HEIGHT } from "consts/dimensions";
 import { COLORS } from "utils/colors";
 import BWView from "./shared/BWView";
 import { Dimensions } from "react-native";
@@ -8,14 +8,27 @@ import BWImage from "./shared/BWImage";
 import { useDispatch, useSelector } from "react-redux";
 import {
   playerSelector,
+  setAudioAction,
   setDidFinishAction,
   setIsPlayingAction,
+  setTrackAction,
   setVisibileModalPlayerAction,
 } from "redux/reducers/player.reducer";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
 import BWIconButton from "./shared/BWIconButton";
 import { mapRange } from "utils/math";
 import BWPressable from "./shared/BWPressable";
+import Animated, {
+  FadeInDown,
+  FadeInLeft,
+  FadeInRight,
+  FadeOutDown,
+  FadeOutRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { useEffect } from "react";
 
 const { width } = Dimensions.get("window");
 
@@ -43,8 +56,14 @@ const MiniPlayer: React.FC<any> = () => {
     dispatch(setVisibileModalPlayerAction(true));
   };
 
+  const unloadAudio = async () => {
+    await track?.unloadAsync();
+    dispatch(setTrackAction(undefined));
+    dispatch(setAudioAction(undefined));
+  };
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container]} entering={FadeInLeft} exiting={FadeOutRight}>
       <View
         style={[
           {
@@ -59,7 +78,7 @@ const MiniPlayer: React.FC<any> = () => {
           styles.progress,
         ]}
       />
-      <BWPressable style={{}} onPress={openAudioPlayer}>
+      <BWPressable onPress={openAudioPlayer}>
         <BWView row justifyContent="space-between" style={styles.innerContainer}>
           <BWView row alignItems="center" gap={15}>
             <BWImage
@@ -70,15 +89,14 @@ const MiniPlayer: React.FC<any> = () => {
               style={styles.poster}
             />
             <BWView column justifyContent="space-between" gap={5}>
-              <Text style={{ color: COLORS.WARNING[500], fontFamily: "MinomuBold" }}>
-                {audio!.title}
-              </Text>
-              <Text style={{ color: "white", fontFamily: "Minomu" }}>{audio!.owner.name}</Text>
+              <Text style={styles.title}>{audio!.title}</Text>
+              <Text style={styles.owner}>{audio!.owner.name}</Text>
             </BWView>
           </BWView>
-          <BWView row alignItems="center" gap={20}>
+
+          <BWView row alignItems="center" gap={10} style={{ height: "100%" }}>
             <BWIconButton
-              link
+              style={styles.actionBtn}
               icon={() =>
                 isPlaying ? (
                   <Ionicons name="pause" size={24} color={COLORS.WARNING[500]} />
@@ -89,14 +107,14 @@ const MiniPlayer: React.FC<any> = () => {
               onPress={togglePlaying}
             />
             <BWIconButton
-              link
+              style={styles.actionBtn}
               icon={() => <AntDesign name="close" size={24} color={COLORS.WARNING[500]} />}
-              onPress={() => {}}
+              onPress={unloadAudio}
             />
           </BWView>
         </BWView>
       </BWPressable>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -108,9 +126,10 @@ const styles = StyleSheet.create({
     bottom: TAB_BAR_HEIGHT - 2,
     left: 0,
     right: 0,
-    height: 70,
+    height: MINI_PLAYER_HEIGHT,
     width: width,
     backgroundColor: COLORS.MUTED[800],
+    padding: 0,
     justifyContent: "center",
     zIndex: 1,
     borderBottomColor: COLORS.MUTED[600],
@@ -118,8 +137,8 @@ const styles = StyleSheet.create({
   },
 
   innerContainer: {
-    paddingLeft: 10,
-    paddingRight: 20,
+    paddingHorizontal: 10,
+    height: "100%",
   },
 
   progress: {
@@ -135,5 +154,22 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 5,
+  },
+
+  title: {
+    color: COLORS.WARNING[500],
+    fontFamily: "MinomuBold",
+  },
+
+  owner: {
+    color: "white",
+    fontFamily: "Minomu",
+  },
+
+  actionBtn: {
+    height: "100%",
+    width: MINI_PLAYER_HEIGHT - 10,
+    borderRadius: 0,
+    backgroundColor: "transparent",
   },
 });

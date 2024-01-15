@@ -1,5 +1,5 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { Audio } from "expo-av";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "redux/store";
 import { AudioFile } from "types/interfaces/audios";
 import type { PayloadAction } from "@reduxjs/toolkit";
@@ -12,6 +12,8 @@ interface InitialStateProps {
   duration: number;
   didFinish: boolean;
   visibleModalPlayer: boolean;
+  list: AudioFile[];
+  isFavorite: boolean;
 }
 
 // ? Initial State
@@ -23,6 +25,8 @@ const initialState: InitialStateProps = {
   duration: 0,
   didFinish: false,
   visibleModalPlayer: false,
+  list: [],
+  isFavorite: false,
 };
 
 // ? Reducer
@@ -30,10 +34,10 @@ const playerReducer = createSlice({
   name: "player",
   initialState: initialState,
   reducers: {
-    setTrack: (state, action: any) => {
+    setTrack: (state, action: PayloadAction<any>) => {
       state.track = action.payload;
     },
-    setAudio: (state, action: PayloadAction<AudioFile>) => {
+    setAudio: (state, action: PayloadAction<AudioFile | undefined>) => {
       state.audio = action.payload;
     },
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
@@ -51,6 +55,12 @@ const playerReducer = createSlice({
     setVisibileModalPlayer: (state, action: PayloadAction<boolean>) => {
       state.visibleModalPlayer = action.payload;
     },
+    setAudiosList: (state, action: PayloadAction<AudioFile[]>) => {
+      state.list = action.payload;
+    },
+    setIsFavorite: (state, action: PayloadAction<boolean>) => {
+      state.isFavorite = action.payload;
+    },
   },
 });
 
@@ -62,6 +72,8 @@ export const setDurationAction = playerReducer.actions.setDuration;
 export const setProgressAction = playerReducer.actions.setProgress;
 export const setDidFinishAction = playerReducer.actions.setDidFinish;
 export const setVisibileModalPlayerAction = playerReducer.actions.setVisibileModalPlayer;
+export const setAudiosListAction = playerReducer.actions.setAudiosList;
+export const setIsFavoriteAction = playerReducer.actions.setIsFavorite;
 
 const rootSelector = (state: RootState) => state;
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScrollView, Text, StyleSheet, Pressable, SafeAreaView } from "react-native";
 import { COLORS } from "utils/colors";
 import BWView from "components/shared/BWView";
@@ -20,17 +20,13 @@ import { StatusBar } from "expo-status-bar";
 import { AudioFile } from "types/interfaces/audios";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
 import FavoriteService from "api/favorites.api";
-import { Audio, AVPlaybackStatus, AVPlaybackStatusSuccess } from "expo-av";
 import {
   playerSelector,
-  setAudioAction,
-  setDidFinishAction,
-  setDurationAction,
+  setAudiosListAction,
+  setIsFavoriteAction,
   setIsPlayingAction,
-  setProgressAction,
-  setTrackAction,
 } from "redux/reducers/player.reducer";
-import { ActionSheet } from "react-native-ui-lib";
+import { loadAudio } from "utils/audio";
 
 interface Option {
   label: string;
@@ -40,12 +36,10 @@ interface Option {
 
 const HomeScreen: React.FC<any> = () => {
   const [optionsBottomSheet, toggleOptionsBottomSheet] = useState<boolean>(false);
-  // const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playlistsBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
   const [newPlayListBottomSheet, toggleNewPlayListBottomSheet] = useState<boolean>(false);
   const [selectedAudio, setSelectedAudio] = useState<AudioFile | undefined>();
-  // const [audio, setAudio] = useState<Audio.Sound>();
-  // const [currentAudio, setCurrentAudio] = useState(null);
+
   const { track, audio, isPlaying } = useSelector(playerSelector);
 
   const dispatch = useDispatch();
@@ -97,59 +91,25 @@ const HomeScreen: React.FC<any> = () => {
     toggleNewPlayListBottomSheet(true);
   };
 
-  const playAudio = async (item: any) => {
+  const playAudio = async (item: AudioFile, list: AudioFile[]) => {
     try {
-      if (track) {
-        if (item !== audio) {
-          const { sound, status }: { sound: Audio.Sound; status: any } =
-            await Audio.Sound.createAsync(
-              { uri: item.file },
-              { shouldPlay: true },
-              (status: any) => {
-                dispatch(setProgressAction(status.positionMillis));
-                if (status.didJustFinish) {
-                  dispatch(setIsPlayingAction(false));
-                  dispatch(setDidFinishAction(true));
-                }
-              },
-            );
+      dispatch(setAudiosListAction(list));
 
-          dispatch(setDurationAction(status.durationMillis));
-          dispatch(setTrackAction(sound as any));
-          dispatch(setAudioAction(item));
-          dispatch(setIsPlayingAction(true));
-
-          return;
-        }
-
-        if (isPlaying) {
-          await track.pauseAsync();
-        } else {
-          await track.playAsync();
-        }
-
-        dispatch(setIsPlayingAction(!isPlaying));
-
+      if (!track || (track && item !== audio)) {
+        await loadAudio(dispatch, item);
+        //Get if the current loaded audio is in the favorites list or not !
+        const { response } = await FavoriteService.getIsFavoriteApi(item.id);
+        dispatch(setIsFavoriteAction(response));
         return;
       }
 
-      const { sound, status }: { sound: Audio.Sound; status: any } = await Audio.Sound.createAsync(
-        { uri: item.file },
-        { shouldPlay: true },
-        (status: any) => {
-          dispatch(setProgressAction(status.positionMillis));
-          if (status.didJustFinish) {
-            dispatch(setIsPlayingAction(false));
-            dispatch(setDidFinishAction(true));
-          }
-        },
-      );
-      dispatch(setDurationAction(status.durationMillis));
+      if (isPlaying) {
+        await track.pauseAsync();
+      } else {
+        await track.playAsync();
+      }
 
-      dispatch(setIsPlayingAction(true));
-
-      dispatch(setTrackAction(sound as any));
-      dispatch(setAudioAction(item));
+      dispatch(setIsPlayingAction(!isPlaying));
     } catch (error) {
       dispatch(
         setToastMessageAction({ message: "Could not play audio, try again", type: "error" }),
@@ -200,7 +160,7 @@ const HomeScreen: React.FC<any> = () => {
                         animation={isPlaying && audio && audio.id === upload.id}
                         audio={upload}
                         key={upload.id}
-                        onPress={() => playAudio(upload)}
+                        onPress={() => playAudio(upload, latestAudios.data.uploads)}
                         onLongPress={() => openOptionsBottomSheet(upload)}
                       />
                     );
@@ -226,7 +186,7 @@ const HomeScreen: React.FC<any> = () => {
                       animation={isPlaying && audio && audio.id === upload.id}
                       audio={upload}
                       key={upload.id}
-                      onPress={() => playAudio(upload)}
+                      onPress={() => playAudio(upload, recommendedAudios.data.audios)}
                       onLongPress={() => openOptionsBottomSheet(upload)}
                     />
                   ))}

@@ -393,7 +393,6 @@ const logOut = async (req: Request, res: Response) => {
     let tokens;
     let message;
 
-    console.log(fromAll);
 
     if (fromAll === "yes") {
       tokens = [];

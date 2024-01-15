@@ -13,7 +13,6 @@ import {
 const createPlayList = async (req: AddPlayListRequest, res: Response) => {
   const { title, audioId, visibility } = req.body;
 
-  console.log(111, req.body);
   const ownerId = req.user.id as Schema.Types.ObjectId;
 
   try {

@@ -382,7 +382,6 @@ const getPlaylistAudios = async (req: GetPlaylistAudios, res: Response) => {
     const [audios] = await PlayListModel.aggregate(aggregation);
 
     if (!audios) {
-      console.log("Nada");
       const [audios] = await AutoPlayListModel.aggregate(aggregation);
 
       if (!audios) {
@@ -448,7 +447,6 @@ const getPrivatePlaylistAudios = async (req: GetPlaylistAudios, res: Response) =
     const [audios] = await PlayListModel.aggregate(aggregation);
 
     if (!audios) {
-      console.log("Nada");
       const [audios] = await AutoPlayListModel.aggregate(aggregation);
 
       if (!audios) {

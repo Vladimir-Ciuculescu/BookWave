@@ -18,6 +18,10 @@ export const mapRange = (options: MapRangeOptions) => {
 };
 
 export const formatToClock = (milliseconds: number) => {
+  if (!milliseconds) {
+    return "00:00";
+  }
+
   const totalSeconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
