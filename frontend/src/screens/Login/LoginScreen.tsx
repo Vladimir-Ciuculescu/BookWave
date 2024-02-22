@@ -64,7 +64,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const userInfo = await UserService.loginApi(values);
 
       await AsyncStorage.setItem("token", userInfo.token);
-      dispatch(setProfileAction({ ...userInfo.user, avatar: userInfo.user.avatar.url }));
+
+      let profileData = {
+        ...userInfo.user,
+        avatar: userInfo.user.avatar ? userInfo.user.avatar.url : "",
+      };
+
+      dispatch(setProfileAction(profileData));
 
       dispatch(setLoggedInAction(true));
       goToHome();
