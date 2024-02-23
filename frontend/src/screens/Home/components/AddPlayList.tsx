@@ -1,20 +1,20 @@
+import PlayListService from "api/playlists.api";
 import { StyleSheet } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { RadioButton, RadioGroup, Text } from "react-native-ui-lib";
-import BWView from "../../../components/shared/BWView";
+import { useDispatch } from "react-redux";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { Visibilites } from "types/enums/visibilites.enum";
+import { AudioFile } from "types/interfaces/audios";
+import { AddPlayListRequest } from "types/interfaces/requests/playlists-requests.interfaces";
 import { COLORS } from "utils/colors";
+import { newPlayListSchema } from "yup/app.schemas";
+import BWButton from "../../../components/shared/BWButton";
 import BWDivider from "../../../components/shared/BWDivider";
 import BWForm from "../../../components/shared/BWForm";
 import BWInput from "../../../components/shared/BWInput";
-import { newPlayListSchema } from "yup/app.schemas";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BWButton from "../../../components/shared/BWButton";
-import { Visibilites } from "types/enums/visibilites.enum";
 import BWSubmitButton from "../../../components/shared/BWSubmitButton";
-import PlayListService from "api/playlists.api";
-import { useDispatch } from "react-redux";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import { AudioFile } from "types/interfaces/audios";
-import { AddPlayListRequest } from "types/interfaces/requests/playlists-requests.interfaces";
+import BWView from "../../../components/shared/BWView";
 
 export interface NewPlayListData {
   title: string;

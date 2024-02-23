@@ -1,11 +1,11 @@
-import { LogBox } from "react-native";
-import { Provider } from "react-redux";
-import { useFonts } from "expo-font";
-import store from "redux/store";
-import AppNavigator from "navigation/ApppNavigator";
-import { QueryClientProvider, QueryClient } from "react-query";
-import { useEffect } from "react";
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
+import { useFonts } from "expo-font";
+import AppNavigator from "navigation/ApppNavigator";
+import { useEffect } from "react";
+import { LogBox } from "react-native";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { Provider } from "react-redux";
+import store from "redux/store";
 
 LogBox.ignoreLogs([
   "Sending `onAnimatedValueUpdate` with no listeners registered.",
