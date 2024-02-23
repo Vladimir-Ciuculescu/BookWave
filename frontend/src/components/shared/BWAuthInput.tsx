@@ -1,13 +1,12 @@
 import { useFormikContext } from "formik";
 import React, { useEffect } from "react";
-import { TextInputProps, StyleSheet } from "react-native";
+import { StyleSheet, TextInputProps } from "react-native";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSequence,
-  withTiming,
   withSpring,
-  FadeInUp,
+  withTiming,
 } from "react-native-reanimated";
 import { TextField, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";

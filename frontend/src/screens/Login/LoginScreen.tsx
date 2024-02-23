@@ -1,22 +1,23 @@
-import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from "react-native";
-import { Text, View } from "react-native-ui-lib";
-import { COLORS } from "utils/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp } from "@react-navigation/native";
+import UserService from "api/users.api";
 import BWAuthInput from "components/shared/BWAuthInput";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
+import BWButton from "components/shared/BWButton";
+import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import BWForm from "components/shared/BWForm";
 import BWSubmitButton from "components/shared/BWSubmitButton";
-import { NavigationProp } from "@react-navigation/native";
-import BWButton from "components/shared/BWButton";
-import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import { StatusBar } from "expo-status-bar";
-import BWFadeInContainer from "components/shared/BWFadeInContainer";
-import { loginSchema } from "yup/auth.schemas";
-import { StackNavigatorProps } from "types/interfaces/navigation";
+import { FormikProps, FormikValues } from "formik";
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, Keyboard, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Text, View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
-import UserService from "api/users.api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
+import { loginSchema } from "yup/auth.schemas";
 
 const { width, height } = Dimensions.get("window");
 
@@ -35,17 +36,26 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const formRef = useRef<any>(null);
+  const formRef = useRef<FormikProps<FormikValues>>(null);
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    navigation.addListener("blur", () => {
-      if (formRef.current) {
-        formRef.current.resetForm();
-      }
+    const unsubscribe = navigation.addListener("blur", () => {
+      setTimeout(() => {
+        clearErrors();
+      }, 100);
     });
+
+    return unsubscribe;
   }, [navigation]);
+
+  const clearErrors = () => {
+    if (formRef && formRef.current) {
+      setErrorMessage("");
+      formRef.current.resetForm();
+    }
+  };
 
   const goToRegister = () => {
     navigation.navigate("Register");

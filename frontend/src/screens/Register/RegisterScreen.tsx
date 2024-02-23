@@ -1,27 +1,28 @@
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Pressable,
-} from "react-native";
-import { Text, View } from "react-native-ui-lib";
-import { COLORS } from "utils/colors";
-import BWAuthInput from "components/shared/BWAuthInput";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BWForm from "components/shared/BWForm";
-import BWSubmitButton from "components/shared/BWSubmitButton";
 import { Feather } from "@expo/vector-icons";
 import { NavigationProp } from "@react-navigation/native";
-import BWButton from "components/shared/BWButton";
-import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
-import { StatusBar } from "expo-status-bar";
-import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import UserService from "api/users.api";
-import { registerSchema } from "yup/auth.schemas";
-import { StackNavigatorProps } from "types/interfaces/navigation";
+import BWAuthInput from "components/shared/BWAuthInput";
+import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
 import BWBackButton from "components/shared/BWBackButton";
+import BWButton from "components/shared/BWButton";
+import BWFadeInContainer from "components/shared/BWFadeInContainer";
+import BWForm from "components/shared/BWForm";
+import BWSubmitButton from "components/shared/BWSubmitButton";
+import { StatusBar } from "expo-status-bar";
+import { FormikProps, FormikValues } from "formik";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  Keyboard,
+  Pressable,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Text, View } from "react-native-ui-lib";
+import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
+import { registerSchema } from "yup/auth.schemas";
 
 const { width, height } = Dimensions.get("window");
 
@@ -42,9 +43,27 @@ interface RegisterScreenProps {
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+  const formRef = useRef<FormikProps<FormikValues>>(null);
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      setTimeout(() => {
+        clearErrors();
+      }, 100);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const clearErrors = () => {
+    if (formRef && formRef.current) {
+      setErrorMessage("");
+      formRef.current.resetForm();
+    }
+  };
 
   const goToForgotPassword = () => {
     navigation.navigate("ForgotPassword");
@@ -87,6 +106,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
                 initialValues={initialValues}
                 onSubmit={handleRegister}
                 validationSchema={registerSchema}
+                innerRef={formRef}
               >
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
