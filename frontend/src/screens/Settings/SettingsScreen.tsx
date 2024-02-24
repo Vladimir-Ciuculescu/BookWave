@@ -1,29 +1,28 @@
-import { useLayoutEffect, useState } from "react";
-import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import BWIconButton from "components/shared/BWIconButton";
-import { Text } from "react-native-ui-lib";
-import { StackNavigatorProps } from "types/interfaces/navigation";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { COLORS } from "utils/colors";
-import BWView from "components/shared/BWView";
-import BWImage from "components/shared/BWImage";
-import BWButton from "components/shared/BWButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import UserService from "api/users.api";
+import BWButton from "components/shared/BWButton";
 import BWForm from "components/shared/BWForm";
-import { updateProfileSchema } from "yup/app.schemas";
+import BWIconButton from "components/shared/BWIconButton";
+import BWImage from "components/shared/BWImage";
 import BWInput from "components/shared/BWInput";
 import BWSubmitButton from "components/shared/BWSubmitButton";
+import BWView from "components/shared/BWView";
+import * as ImagePicker from "expo-image-picker";
+import { useLayoutEffect, useState } from "react";
+import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { Text } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import UserService from "api/users.api";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
-import Section from "./components/Section";
-import Action from "./components/Action";
-import { Audio } from "expo-av";
 import { playerSelector } from "redux/reducers/player.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
+import { updateProfileSchema } from "yup/app.schemas";
+import Action from "./components/Action";
+import Section from "./components/Section";
 
 interface ProfileData {
   name: string;
@@ -142,14 +141,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     dispatch(setLoggedInAction(false));
   };
 
-  const playSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require("../../../assets/audios/once-in-paris-168895.mp3"),
-    );
-
-    await sound.playAsync();
-  };
-
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, flexDirection: "column", paddingTop: 30, paddingHorizontal: 20 }}>
@@ -235,7 +226,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
               }
             />
           </BWView>
-          <BWButton onPress={playSound} title="Play sound" />
         </View>
       </View>
     </TouchableWithoutFeedback>

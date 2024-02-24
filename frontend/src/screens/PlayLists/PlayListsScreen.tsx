@@ -1,27 +1,28 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { SafeAreaView, View, Keyboard, Pressable, ActivityIndicator } from "react-native";
-import { StyleSheet, FlatList } from "react-native";
-import {
-  Button,
-  FloatingButton,
-  FloatingButtonLayouts,
-  Text,
-  TextField,
-  TextFieldRef,
-} from "react-native-ui-lib";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BWView from "components/shared/BWView";
-import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
-import { COLORS } from "utils/colors";
-import BWIconButton from "components/shared/BWIconButton";
-import { Feather, Ionicons, AntDesign } from "@expo/vector-icons";
-import BWDivider from "components/shared/BWDivider";
-import PlayListCard from "./PlayListCard";
-import { TAB_BAR_HEIGHT } from "consts/dimensions";
-import _ from "lodash";
-import { NoResultsFound } from "../../../assets/illustrations";
+import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import BWBottomSheet from "components/shared/BWBottomSheet";
+import BWDivider from "components/shared/BWDivider";
+import BWIconButton from "components/shared/BWIconButton";
+import BWView from "components/shared/BWView";
+import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import { StatusBar } from "expo-status-bar";
+import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
+import _ from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Keyboard,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Text, TextField, TextFieldRef } from "react-native-ui-lib";
 import AddPlayList from "screens/Home/components/AddPlayList";
+import { COLORS } from "utils/colors";
+import { NoResultsFound } from "../../../assets/illustrations";
+import PlayListCard from "./PlayListCard";
 
 const PlayListsScreen: React.FC<any> = () => {
   const [searchMode, setSearchMode] = useState<boolean>(false);
@@ -55,6 +56,7 @@ const PlayListsScreen: React.FC<any> = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar style="light" />
         {searchMode ? (
           <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
             <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
