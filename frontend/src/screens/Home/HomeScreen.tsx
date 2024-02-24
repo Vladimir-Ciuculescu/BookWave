@@ -1,32 +1,31 @@
-import React, { useState } from "react";
-import { ScrollView, Text, StyleSheet, Pressable, SafeAreaView } from "react-native";
-import { COLORS } from "utils/colors";
-import BWView from "components/shared/BWView";
-import BWButton from "components/shared/BWButton";
-import AudioCard from "components/AudioCard";
-import { Skeleton } from "moti/skeleton";
-import BWBottomSheet from "components/shared/BWBottomSheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BWImage from "components/shared/BWImage";
-import BWDivider from "components/shared/BWDivider";
-import { FontAwesome } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import { useDispatch, useSelector } from "react-redux";
-import PlayLists from "screens/Home/components/PlayLists";
-import AddPlayList from "screens/Home/components/AddPlayList";
-import { StatusBar } from "expo-status-bar";
-import { AudioFile } from "types/interfaces/audios";
-import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
+import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import FavoriteService from "api/favorites.api";
+import AudioCard from "components/AudioCard";
+import BWBottomSheet from "components/shared/BWBottomSheet";
+import BWButton from "components/shared/BWButton";
+import BWDivider from "components/shared/BWDivider";
+import BWImage from "components/shared/BWImage";
+import BWView from "components/shared/BWView";
+import { StatusBar } from "expo-status-bar";
+import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
+import { Skeleton } from "moti/skeleton";
+import React, { useState } from "react";
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useDispatch, useSelector } from "react-redux";
 import {
   playerSelector,
   setAudiosListAction,
   setIsFavoriteAction,
   setIsPlayingAction,
 } from "redux/reducers/player.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import AddPlayList from "screens/Home/components/AddPlayList";
+import PlayLists from "screens/Home/components/PlayLists";
+import { AudioFile } from "types/interfaces/audios";
 import { loadAudio } from "utils/audio";
+import { COLORS } from "utils/colors";
+import { NoData } from "../../../assets/illustrations";
 
 interface Option {
   label: string;
@@ -135,6 +134,94 @@ const HomeScreen: React.FC<any> = () => {
     },
   ];
 
+  const renderLatestUploads = () => {
+    if (latestAudios.isLoading) {
+      return Array.of(5).map((_, index) => (
+        <Skeleton colorMode="dark" width={140} height={140} key={index} />
+      ));
+    } else {
+      return (
+        <ScrollView
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          contentContainerStyle={[
+            styles.list,
+            !latestAudios.data.uploads.length ? { width: "100%" } : null,
+          ]}
+        >
+          {!latestAudios.data.uploads.length ? (
+            <BWView
+              column
+              alignItems="center"
+              justifyContent="center"
+              style={styles.noDataContainer}
+              gap={25}
+            >
+              <NoData width="100%" height={200} />
+              <Text style={styles.notFoundTitle}>No uploads found</Text>
+            </BWView>
+          ) : (
+            latestAudios.data.uploads.map((upload: AudioFile) => {
+              return (
+                <AudioCard
+                  animation={isPlaying && audio && audio.id === upload.id}
+                  audio={upload}
+                  key={upload.id}
+                  onPress={() => playAudio(upload, latestAudios.data.uploads)}
+                  onLongPress={() => openOptionsBottomSheet(upload)}
+                />
+              );
+            })
+          )}
+        </ScrollView>
+      );
+    }
+  };
+
+  const renderRecommendedUploads = () => {
+    if (recommendedAudios.isLoading) {
+      return Array.of(5).map((_, index) => (
+        <Skeleton colorMode="dark" width={140} height={140} key={index} />
+      ));
+    } else {
+      return (
+        <ScrollView
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          contentContainerStyle={[
+            styles.list,
+            !recommendedAudios.data.audios.length ? { width: "100%" } : null,
+          ]}
+        >
+          {!recommendedAudios.data.audios.length ? (
+            <BWView
+              column
+              alignItems="center"
+              justifyContent="center"
+              style={styles.noDataContainer}
+              gap={25}
+            >
+              <NoData width="100%" height={200} />
+              <Text style={styles.notFoundTitle}>No uploads found</Text>
+            </BWView>
+          ) : (
+            recommendedAudios.data.audios.map((upload: AudioFile) => {
+              return (
+                <AudioCard
+                  animation={isPlaying && audio && audio.id === upload.id}
+                  audio={upload}
+                  key={upload.id}
+                  onPress={() => playAudio(upload, recommendedAudios.data.audios)}
+                  onLongPress={() => openOptionsBottomSheet(upload)}
+                />
+              );
+            })
+          )}
+        </ScrollView>
+      );
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -145,34 +232,15 @@ const HomeScreen: React.FC<any> = () => {
               <Text style={styles.sectionTitle}>Latest Uploads</Text>
               <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
-            <ScrollView
-              showsHorizontalScrollIndicator={false}
-              horizontal
-              contentContainerStyle={styles.list}
-            >
-              {latestAudios.isLoading
-                ? Array.of(5).map((_, index) => {
-                    return <Skeleton colorMode="dark" width={150} key={index} />;
-                  })
-                : latestAudios.data.uploads.map((upload: AudioFile) => {
-                    return (
-                      <AudioCard
-                        animation={isPlaying && audio && audio.id === upload.id}
-                        audio={upload}
-                        key={upload.id}
-                        onPress={() => playAudio(upload, latestAudios.data.uploads)}
-                        onLongPress={() => openOptionsBottomSheet(upload)}
-                      />
-                    );
-                  })}
-            </ScrollView>
+
+            {renderLatestUploads()}
           </BWView>
           <BWView column gap={25}>
             <BWView row justifyContent="space-between">
               <Text style={styles.sectionTitle}>Recommended Uploads</Text>
               <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
-            <ScrollView
+            {/* <ScrollView
               showsHorizontalScrollIndicator={false}
               horizontal
               contentContainerStyle={styles.list}
@@ -190,7 +258,8 @@ const HomeScreen: React.FC<any> = () => {
                       onLongPress={() => openOptionsBottomSheet(upload)}
                     />
                   ))}
-            </ScrollView>
+            </ScrollView> */}
+            {renderRecommendedUploads()}
           </BWView>
         </BWView>
         <BWBottomSheet
@@ -284,6 +353,7 @@ const styles = StyleSheet.create({
   list: {
     gap: 15,
     paddingHorizontal: 20,
+    //width: "100%",
   },
 
   audioImage: {
@@ -301,5 +371,17 @@ const styles = StyleSheet.create({
 
   unpressed: {
     opacity: 1,
+  },
+
+  noDataContainer: {
+    display: "flex",
+    width: "100%",
+  },
+
+  notFoundTitle: {
+    fontFamily: "MinomuBold",
+    fontSize: 22,
+    color: COLORS.MUTED[50],
+    textAlign: "center",
   },
 });
