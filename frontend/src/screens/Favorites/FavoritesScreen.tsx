@@ -1,27 +1,28 @@
+import { AntDesign, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
+import PlayAudioCard from "components/PlayAudioCard";
+import BWDivider from "components/shared/BWDivider";
+import BWIconButton from "components/shared/BWIconButton";
+import BWView from "components/shared/BWView";
+import { categories } from "consts/categories";
+import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import { StatusBar } from "expo-status-bar";
+import { useFetchFavorites } from "hooks/favorites.queries";
+import _ from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  SafeAreaView,
+  ActivityIndicator,
   FlatList,
-  StyleSheet,
-  ScrollView,
   Keyboard,
   Pressable,
-  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
-import BWView from "components/shared/BWView";
-import { COLORS } from "utils/colors";
-import { FontAwesome, Feather, Ionicons, AntDesign } from "@expo/vector-icons";
-import BWIconButton from "components/shared/BWIconButton";
-import { useFetchFavorites } from "hooks/favorites.queries";
-import BWDivider from "components/shared/BWDivider";
-import { TAB_BAR_HEIGHT } from "consts/dimensions";
-import PlayAudioCard from "components/PlayAudioCard";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { categories } from "consts/categories";
 import { Category } from "types/enums/categories.enum";
-import _ from "lodash";
-import Categories from "./Categories";
+import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
+import Categories from "./Categories";
 
 const FavoritesScreen: React.FC<any> = () => {
   const LIMIT = 10;
@@ -90,6 +91,7 @@ const FavoritesScreen: React.FC<any> = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+      <StatusBar style="light" />
       {!searchMode ? (
         <BWView column gap={24} style={styles.viewContainer}>
           <BWView row justifyContent="space-between">
