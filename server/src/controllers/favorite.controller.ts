@@ -1,7 +1,7 @@
-import { Response, Request } from "express";
-import AudioModel, { AudioDocument } from "models/audio.model";
+import { Request, Response } from "express";
+import AudioModel from "models/audio.model";
 import FavoriteModel, { FavoriteDocument } from "models/favorite.model";
-import { ObjectId, PipelineStage, isValidObjectId } from "mongoose";
+import { PipelineStage, isValidObjectId } from "mongoose";
 import { ToggleFavoriteAudioRequest } from "types/requests/audio.requests";
 import { GetFavoritesRequest } from "types/requests/favorite.request";
 
@@ -126,10 +126,6 @@ const getIsFavorite = async (req: Request, res: Response) => {
     }
 
     const favorite = await FavoriteModel.findOne({ owner: userId, items: audioId });
-
-    // if (!favorite) {
-    //   return res.status(422).json({ error: "Audio favorite file does not exist !" });
-    // }
 
     return res.status(200).json({ response: favorite ? true : false });
   } catch (error) {

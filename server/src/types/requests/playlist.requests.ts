@@ -49,3 +49,10 @@ export interface GetPlaylistAudios extends Request {
     pageNumber: string;
   };
 }
+
+export interface getIsExistentInPlaylistRequest extends Request {
+  query: {
+    audioId: string;
+    playlistId: string;
+  };
+}

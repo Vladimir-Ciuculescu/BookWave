@@ -13,6 +13,16 @@ export interface UpdatePlayListRequest {
   visibility: Visibilites;
 }
 
+export interface RemoveFromPlaylistRequest {
+  playlistId: string;
+  audioId: string;
+}
+
 export interface GetPlaylistsRequest {
   title: string;
+}
+
+export interface getIsExistentInPlaylistRequest {
+  audioId: string;
+  playlistId: string;
 }

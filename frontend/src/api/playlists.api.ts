@@ -3,7 +3,9 @@ import axios from "axios";
 import {
   AddPlayListRequest,
   GetPlaylistsRequest,
+  RemoveFromPlaylistRequest,
   UpdatePlayListRequest,
+  getIsExistentInPlaylistRequest,
 } from "types/interfaces/requests/playlists-requests.interfaces";
 
 const getPlayListsByProfileApi = async (payload: GetPlaylistsRequest) => {
@@ -44,10 +46,47 @@ const updatePlayListApi = async (payload: UpdatePlayListRequest) => {
   }
 };
 
+const removeFromPlaylist = async (payload: RemoveFromPlaylistRequest) => {
+  const { playlistId, audioId } = payload;
+  try {
+    await axios.delete(
+      `${apiUrl}/playlist/delete?playlistId=${playlistId}&audioId=${audioId}&all=no`,
+      {
+        headers: {
+          Authorization: `Bearer=${await getToken()}`,
+        },
+      },
+    );
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+const getIsExistentInPlaylist = async (payload: getIsExistentInPlaylistRequest) => {
+  const { playlistId, audioId } = payload;
+
+  try {
+    const { data } = await axios.get(
+      `${apiUrl}/playlist/is-in-playlist?playlistId=${playlistId}&audioId=${audioId}`,
+      {
+        headers: {
+          Authorization: `Bearer=${await getToken()}`,
+        },
+      },
+    );
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const PlayListService = {
   getPlayListsByProfileApi,
   addPlayListApi,
   updatePlayListApi,
+  removeFromPlaylist,
+  getIsExistentInPlaylist,
 };
 
 export default PlayListService;

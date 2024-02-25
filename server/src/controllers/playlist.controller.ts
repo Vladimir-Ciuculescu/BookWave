@@ -8,6 +8,7 @@ import {
   GetPlaylistsRequest,
   RemovePlayListRequest,
   UpdatePlayListRequest,
+  getIsExistentInPlaylistRequest,
 } from "types/requests/playlist.requests";
 
 const createPlayList = async (req: AddPlayListRequest, res: Response) => {
@@ -118,6 +119,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           title: "$title",
           visibility: "$visibility",
           updatedAt: "$updatedAt",
+          createdAt: "$createdAt",
         },
       },
       { $unwind: { path: "$audio", preserveNullAndEmptyArrays: true } },
@@ -128,6 +130,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           title: { $first: "$title" },
           visibility: { $first: "$visibility" },
           updatedAt: { $first: "$updatedAt" },
+          createdAt: { $first: "$createdAt" },
           audios: { $push: { $ifNull: [{ $arrayElemAt: ["$audio", 0] }, null] } },
         },
       },
@@ -156,9 +159,10 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
             },
           },
           updatedAt: 1,
+          createdAt: 1,
         },
       },
-      { $sort: { updatedAt: -1 } },
+      { $sort: { createdAt: 1 } },
     ];
 
     if (title) {
@@ -213,12 +217,30 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
   }
 };
 
+const getIsExistentInPlaylist = async (req: getIsExistentInPlaylistRequest, res: Response) => {
+  const { playlistId, audioId } = req.query;
+
+  try {
+    if (!isValidObjectId(audioId)) {
+      return res.status(422).json({ error: "Audio id is not valid !" });
+    }
+
+    const existsInPlayList = await PlayListModel.findOne({ _id: playlistId, items: audioId });
+
+    return res.status(200).json(existsInPlayList ? true : false);
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const PlaylistController = {
   createPlayList,
   updatePlayList,
   removePlayList,
   getPlaylistsByUser,
   getPlayListAudios,
+  getIsExistentInPlaylist,
 };
 
 export default PlaylistController;
