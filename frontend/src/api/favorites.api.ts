@@ -33,15 +33,11 @@ export const toggleFavoriteAudioApi = async (audioId: string) => {
 
 export const getIsFavoriteApi = async (audioId: string) => {
   try {
-    const { data } = await axios.get(
-      `${apiUrl}/favorites/is-favorite?audioId=${audioId}`,
-      {
-        headers: {
-          Authorization: `Bearer=${await getToken()}`,
-        },
+    const { data } = await axios.get(`${apiUrl}/favorites/is-favorite?audioId=${audioId}`, {
+      headers: {
+        Authorization: `Bearer=${await getToken()}`,
       },
-      // { params: { audioId } },
-    );
+    });
 
     return data;
   } catch (error: any) {

@@ -1,56 +1,94 @@
-import { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet } from "react-native";
-import { Text, Checkbox } from "react-native-ui-lib";
-import BWView from "../../../components/shared/BWView";
-import BWButton from "../../../components/shared/BWButton";
-import { AntDesign } from "@expo/vector-icons";
-import { COLORS } from "utils/colors";
-import BWDivider from "../../../components/shared/BWDivider";
-import { PlayList } from "types/interfaces/playlists";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { Visibilites } from "types/enums/visibilites.enum";
-import BWPressable from "../../../components/shared/BWPressable";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import PlayListService from "api/playlists.api";
+import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
+import _ from "lodash";
+import { Skeleton } from "moti/skeleton";
+import { useEffect, useState } from "react";
+import { FlatList, StyleSheet } from "react-native";
+import { Checkbox, Text } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { Visibilites } from "types/enums/visibilites.enum";
 import { AudioFile } from "types/interfaces/audios";
-import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
+import { PlayList } from "types/interfaces/playlists";
+import { COLORS } from "utils/colors";
+import BWButton from "../../../components/shared/BWButton";
+import BWDivider from "../../../components/shared/BWDivider";
+import BWPressable from "../../../components/shared/BWPressable";
+import BWView from "../../../components/shared/BWView";
+
+interface PlaylistStatus {
+  playlistId: string;
+  audioId: string;
+  alreadyInPlaylist: boolean;
+  title: string;
+  visibility: Visibilites;
+}
 
 interface PlayListItemProps {
   playlist: PlayList;
-  onSelect: (e: PlayList) => void;
-  selectedPlayList: PlayList | undefined;
+  onToggle: (e: any) => void;
   audio: AudioFile;
+  onGetPlayListStatus: (e: PlaylistStatus) => void;
 }
 
 const PlayListItem: React.FC<PlayListItemProps> = ({
   playlist,
-  onSelect,
-  selectedPlayList,
+  onToggle,
   audio,
+  onGetPlayListStatus,
 }) => {
-  const isChecked = () => {
-    if (!selectedPlayList) {
-      return playlist.audios.includes(audio.id);
-    } else {
-      return selectedPlayList === playlist;
-    }
+  const [alreadyInPlaylist, setAlreadyInPlaylist] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkIfAlreadyInPlaylist = async () => {
+      const payload = {
+        audioId: audio.id,
+        playlistId: playlist._id,
+        title: playlist.title,
+        visibility: playlist.visibility,
+      };
+
+      const alreadyInPlaylist = await PlayListService.getIsExistentInPlaylist(payload);
+
+      onGetPlayListStatus({ ...payload, alreadyInPlaylist });
+
+      setAlreadyInPlaylist(alreadyInPlaylist);
+    };
+
+    setLoading(true);
+
+    checkIfAlreadyInPlaylist();
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [playlist]);
+
+  const togglePlaylistStatus = () => {
+    onToggle(playlist._id);
+    setAlreadyInPlaylist((prevVlaue) => !prevVlaue);
   };
 
-  const checked = isChecked();
-
   return (
-    <BWPressable onPress={() => onSelect(playlist)}>
+    <BWPressable onPress={togglePlaylistStatus}>
       <BWView row alignItems="center" justifyContent="space-between">
         <BWView row gap={20}>
-          <Checkbox
-            //value={selectedPlayList === playlist}
-            // value={playlist.items.includes(audio.id) || selectedPlayList === playlist}
-            value={checked}
-            onValueChange={() => onSelect(playlist)}
-            color={COLORS.WARNING[500]}
-            style={{ borderColor: COLORS.WARNING[500] }}
-          />
+          {loading ? (
+            <Skeleton
+              width={23}
+              height={23}
+              colors={[COLORS.MUTED[800], COLORS.MUTED[700], COLORS.MUTED[500]]}
+            />
+          ) : (
+            <Checkbox
+              value={alreadyInPlaylist}
+              onValueChange={togglePlaylistStatus}
+              color={COLORS.WARNING[500]}
+              style={{ borderColor: COLORS.WARNING[500] }}
+            />
+          )}
           <Text style={styles.playlistTitle}>{playlist.title}</Text>
         </BWView>
 
@@ -73,42 +111,77 @@ interface PlayListsProps {
 const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) => {
   const { data, isLoading } = useFetchPlaylistsByProfile();
 
-  const [selectedPlayList, setSelectedPlayList] = useState<PlayList | undefined>();
-  const dispath = useDispatch();
+  const [playlistsStatuses, setPlaylistStatuses] = useState<PlaylistStatus[]>([]);
+  const [initalPlaylistStatuses, setInitialPlaylistStatuses] = useState<PlaylistStatus[]>([]);
 
-  const handlePlayList = (playlist: PlayList) => {
-    setSelectedPlayList(playlist);
+  const dispatch = useDispatch();
+
+  const getPlaylistStatus = (e: any) => {
+    setPlaylistStatuses((prevValue) => [...prevValue, e]);
+    setInitialPlaylistStatuses((prevValue) => [...prevValue, e]);
   };
 
-  const handleSaveToPlaylist = async () => {
-    if (selectedPlayList) {
-      const payload = {
-        title: selectedPlayList!.title,
-        id: selectedPlayList!._id,
-        audioId: audio!.id,
-        visibility: selectedPlayList!.visibility,
-      };
+  const toggleOnPlaylist = (playlistId: string) => {
+    setPlaylistStatuses((prevPlaylists) => {
+      const updatedPlaylists = prevPlaylists.map((playlist) => {
+        if (playlist.playlistId === playlistId) {
+          return { ...playlist, alreadyInPlaylist: !playlist.alreadyInPlaylist };
+        }
+        return playlist;
+      });
+      return updatedPlaylists;
+    });
+  };
 
-      try {
-        await PlayListService.updatePlayListApi(payload);
-        dispath(setToastMessageAction({ message: "Audio added to playlist !", type: "success" }));
-        onClose();
-      } catch (error) {
-        dispath(
-          setToastMessageAction({ message: "An error occured, please try again !", type: "error" }),
-        );
-      }
-    } else {
+  const handleAudioToPlaylists = async () => {
+    if (_.isEqual(initalPlaylistStatuses, playlistsStatuses)) {
+      return;
+    }
+
+    try {
+      playlistsStatuses.map(async (playlist, index) => {
+        // ? If status is the same as initial, do nothing
+
+        if (playlist.alreadyInPlaylist === initalPlaylistStatuses[index].alreadyInPlaylist) {
+          return;
+        }
+
+        // ? If audio is already in the playlist, remove it
+        if (playlist.alreadyInPlaylist === false) {
+          const payload = {
+            playlistId: playlist.playlistId,
+            audioId: playlist.audioId,
+          };
+
+          await PlayListService.removeFromPlaylist(payload);
+
+          // ? Otherwise, add it to playlist
+        } else {
+          const payload = {
+            title: playlist.title,
+            id: playlist.playlistId,
+            audioId: playlist.audioId,
+            visibility: playlist.visibility,
+          };
+
+          await PlayListService.updatePlayListApi(payload);
+        }
+      });
+
+      dispatch(setToastMessageAction({ message: "Playlists updated", type: "success" }));
+
       onClose();
+    } catch (error) {
+      dispatch(
+        setToastMessageAction({ message: "An error occured, please try again !", type: "error" }),
+      );
     }
   };
 
   return (
     <BWView column gap={20} style={{ flex: 1 }}>
       <BWView row justifyContent="space-between">
-        <Text style={{ fontSize: 16, color: COLORS.MUTED[50], fontFamily: "Minomu" }}>
-          Save audio to...
-        </Text>
+        <Text style={styles.saveText}>Save audio to...</Text>
         <BWButton
           onPress={onNewPlayList}
           link
@@ -119,37 +192,27 @@ const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) 
       </BWView>
       <BWDivider width="100%" thickness={2} color={COLORS.DARK[300]} orientation="horizontal" />
       <BWView style={{ height: "60%" }}>
-        {data && (
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={data}
-            contentContainerStyle={{ gap: 30 }}
-            keyExtractor={(item: PlayList) => item._id}
-            renderItem={({ item }) => (
-              <PlayListItem
-                audio={audio!}
-                selectedPlayList={selectedPlayList}
-                onSelect={handlePlayList}
-                playlist={item}
-              />
-            )}
-          />
-        )}
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={data}
+          contentContainerStyle={{ gap: 30 }}
+          keyExtractor={(item: PlayList) => item._id}
+          renderItem={({ item }) => (
+            <PlayListItem
+              onGetPlayListStatus={getPlaylistStatus}
+              audio={audio!}
+              onToggle={toggleOnPlaylist}
+              playlist={item}
+            />
+          )}
+        />
       </BWView>
       <BWDivider width="100%" thickness={2} color={COLORS.DARK[300]} orientation="horizontal" />
       <BWButton
-        onPress={handleSaveToPlaylist}
-        style={{
-          justifyContent: "flex-start",
-          height: 40,
-          paddingHorizontal: 20,
-        }}
+        onPress={handleAudioToPlaylists}
+        style={styles.saveBtn}
         link
-        labelStyle={{
-          fontSize: 16,
-          color: COLORS.MUTED[50],
-          fontFamily: "Minomu",
-        }}
+        labelStyle={styles.saveBtnLabel}
         title="Done"
         iconSource={() => <AntDesign name="check" size={24} color={COLORS.MUTED[50]} />}
       />
@@ -161,6 +224,24 @@ export default PlayLists;
 
 const styles = StyleSheet.create({
   playlistTitle: {
+    fontSize: 16,
+    color: COLORS.MUTED[50],
+    fontFamily: "Minomu",
+  },
+
+  saveText: {
+    fontSize: 16,
+    color: COLORS.MUTED[50],
+    fontFamily: "Minomu",
+  },
+
+  saveBtn: {
+    justifyContent: "flex-start",
+    height: 40,
+    paddingHorizontal: 20,
+  },
+
+  saveBtnLabel: {
     fontSize: 16,
     color: COLORS.MUTED[50],
     fontFamily: "Minomu",

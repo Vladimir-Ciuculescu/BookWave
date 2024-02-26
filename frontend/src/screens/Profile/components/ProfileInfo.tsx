@@ -1,13 +1,13 @@
-import { Dimensions } from "react-native";
-import BWView from "components/shared/BWView";
-import { Button, Text } from "react-native-ui-lib";
-import BWImage from "components/shared/BWImage";
-import { COLORS } from "utils/colors";
-import { UserProfile } from "types/interfaces/users";
-import BWIconButton from "components/shared/BWIconButton";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import BWIconButton from "components/shared/BWIconButton";
+import BWImage from "components/shared/BWImage";
+import BWView from "components/shared/BWView";
+import { Dimensions } from "react-native";
+import { Text } from "react-native-ui-lib";
 import { StackNavigatorProps } from "types/interfaces/navigation";
+import { UserProfile } from "types/interfaces/users";
+import { COLORS } from "utils/colors";
 
 const { width } = Dimensions.get("screen");
 
