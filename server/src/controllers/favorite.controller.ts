@@ -127,7 +127,7 @@ const getIsFavorite = async (req: Request, res: Response) => {
 
     const favorite = await FavoriteModel.findOne({ owner: userId, items: audioId });
 
-    return res.status(200).json({ response: favorite ? true : false });
+    return res.status(200).json(favorite ? true : false);
   } catch (error) {
     console.log(error);
     return res.status(422).json({ error });

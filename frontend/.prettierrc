@@ -1,6 +1,6 @@
 {
   "tabWidth": 2,
-  "printWidth": 100,
+  "printWidth": 160,
   "semi": true,
   "bracketSpacing": true,
   "arrowParens": "always"

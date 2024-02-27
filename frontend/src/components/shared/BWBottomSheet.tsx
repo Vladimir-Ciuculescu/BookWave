@@ -1,20 +1,9 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Pressable, StyleSheet, Dimensions, Keyboard } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInDown,
-  SlideOutDown,
-  runOnJS,
-  runOnUI,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
-import { COLORS } from "utils/colors";
 import * as Haptics from "expo-haptics";
+import { ReactNode, useEffect, useState } from "react";
+import { Dimensions, Keyboard, Pressable, StyleSheet } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, runOnJS, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { COLORS } from "utils/colors";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -29,14 +18,7 @@ interface BWBottomSheetProps {
   keyboardOffSet?: number;
 }
 
-const BWBottomSheet: React.FC<BWBottomSheetProps> = ({
-  children,
-  visible,
-  onPressOut,
-  blurBackground,
-  height,
-  keyboardOffSet,
-}) => {
+const BWBottomSheet: React.FC<BWBottomSheetProps> = ({ children, visible, onPressOut, blurBackground, height, keyboardOffSet }) => {
   const getOffsetValue = (units: number) => {
     return (HEIGHT * units * 10) / 100;
   };
@@ -95,12 +77,7 @@ const BWBottomSheet: React.FC<BWBottomSheetProps> = ({
 
   return (
     <>
-      <AnimatedPressable
-        entering={FadeIn}
-        exiting={FadeOut}
-        style={[styles.backdrop, blurBackground && styles.blur]}
-        onPress={onPressOut}
-      ></AnimatedPressable>
+      <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={[styles.backdrop, blurBackground && styles.blur]} onPress={onPressOut}></AnimatedPressable>
       <GestureDetector gesture={bottomSheetGesture}>
         <Animated.View
           exiting={SlideOutDown.duration(500)}
