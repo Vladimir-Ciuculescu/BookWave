@@ -135,6 +135,7 @@ const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) 
 
   const handleAudioToPlaylists = async () => {
     if (_.isEqual(initalPlaylistStatuses, playlistsStatuses)) {
+      onClose();
       return;
     }
 

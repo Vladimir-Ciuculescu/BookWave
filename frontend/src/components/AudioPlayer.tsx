@@ -1,29 +1,23 @@
+import { AntDesign, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import Slider from "@react-native-community/slider";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
 import { ActionSheet, Dialog, PanningProvider, Text, View } from "react-native-ui-lib";
-import {
-  playerSelector,
-  setDidFinishAction,
-  setIsPlayingAction,
-  setVisibileModalPlayerAction,
-} from "redux/reducers/player.reducer";
-import { COLORS } from "utils/colors";
-import BWImage from "./shared/BWImage";
-import BWView from "./shared/BWView";
-import BWDivider from "./shared/BWDivider";
-import { formatToClock } from "utils/math";
-import Slider from "@react-native-community/slider";
-import { AntDesign, MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import BWIconButton from "./shared/BWIconButton";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setDidFinishAction, setIsPlayingAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { loadAudio } from "utils/audio";
+import { COLORS } from "utils/colors";
+import { formatToClock } from "utils/math";
+import BWDivider from "./shared/BWDivider";
+import BWIconButton from "./shared/BWIconButton";
+import BWImage from "./shared/BWImage";
+import BWView from "./shared/BWView";
 
 const { height, width } = Dimensions.get("screen");
 
 const AudioPlayerContent = () => {
-  const { track, audio, progress, duration, isPlaying, didFinish, list, isFavorite } =
-    useSelector(playerSelector);
+  const { track, audio, progress, duration, isPlaying, didFinish, list, isFavorite } = useSelector(playerSelector);
 
   const [progressValue, setProgressValue] = useState(progress);
   const [speedModal, toggleSpeedModal] = useState<boolean>(false);
@@ -49,12 +43,8 @@ const AudioPlayerContent = () => {
   };
 
   const skipTo = async (direction: "backward" | "forwnard") => {
-    await track?.setPositionAsync(
-      direction === "backward" ? progress - 10 * 1000 : progress + 10 * 1000,
-    );
-    setProgressValue((prevValue) =>
-      direction === "backward" ? prevValue - 10 * 1000 : prevValue + 10 * 1000,
-    );
+    await track?.setPositionAsync(direction === "backward" ? progress - 10 * 1000 : progress + 10 * 1000);
+    setProgressValue((prevValue) => (direction === "backward" ? prevValue - 10 * 1000 : prevValue + 10 * 1000));
   };
 
   const findAudioIndex = (list: AudioFile[], audio: AudioFile) => {
@@ -102,26 +92,12 @@ const AudioPlayerContent = () => {
   return (
     <View style={{ backgroundColor: COLORS.MUTED[800], height: "110%", paddingTop: 40 }}>
       <BWView column alignItems="center" gap={16} style={{ paddingHorizontal: 20 }}>
-        <BWImage
-          src={audio?.poster}
-          style={{ width: width * 0.75, height: width * 0.75, borderRadius: 20 }}
-          placeholder={!audio?.poster}
-          iconName="image"
-        />
+        <BWImage src={audio?.poster} style={{ width: width * 0.75, height: width * 0.75, borderRadius: 20 }} placeholder={!audio?.poster} iconName="image" />
         <BWView column alignItems="center" gap={8}>
-          <Text style={{ color: COLORS.MUTED[50], fontSize: 24, fontFamily: "MinomuBold" }}>
-            {audio?.title}
-          </Text>
-          <Text style={{ color: COLORS.MUTED[300], fontSize: 24, fontFamily: "Minomu" }}>
-            {audio?.about}
-          </Text>
+          <Text style={{ color: COLORS.MUTED[50], fontSize: 24, fontFamily: "MinomuBold" }}>{audio?.title}</Text>
+          <Text style={{ color: COLORS.MUTED[300], fontSize: 24, fontFamily: "Minomu" }}>{audio?.about}</Text>
         </BWView>
-        <BWDivider
-          orientation="horizontal"
-          thickness={1.2}
-          width="100%"
-          color={COLORS.MUTED[700]}
-        />
+        <BWDivider orientation="horizontal" thickness={1.2} width="100%" color={COLORS.MUTED[700]} />
         <Slider
           style={{ width: "100%", height: 40 }}
           minimumValue={0}
@@ -145,34 +121,17 @@ const AudioPlayerContent = () => {
             onPress={stepBackWard}
             disabled={isFirstInList}
           />
-          <BWIconButton
-            link
-            icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />}
-            onPress={() => skipTo("backward")}
-          />
+          <BWIconButton link icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => skipTo("backward")} />
           <BWIconButton
             style={{ width: 50, height: 50, backgroundColor: COLORS.WARNING[500], paddingLeft: 4 }}
             icon={() =>
-              isPlaying ? (
-                <Ionicons name="pause" size={24} color={COLORS.MUTED[50]} />
-              ) : (
-                <FontAwesome5 name="play" size={24} color={COLORS.MUTED[50]} />
-              )
+              isPlaying ? <Ionicons name="pause" size={24} color={COLORS.MUTED[50]} /> : <FontAwesome5 name="play" size={24} color={COLORS.MUTED[50]} />
             }
             onPress={toggleIsPlaying}
           />
-          <BWIconButton
-            link
-            icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />}
-            onPress={() => skipTo("forwnard")}
-          />
+          <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => skipTo("forwnard")} />
 
-          <BWIconButton
-            link
-            icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />}
-            onPress={stepForward}
-            disabled={isLastInList}
-          />
+          <BWIconButton link icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />} onPress={stepForward} disabled={isLastInList} />
         </BWView>
         <BWView row gap={50} style={{ marginTop: 30 }}>
           <BWIconButton
