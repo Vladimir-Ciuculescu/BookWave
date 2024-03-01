@@ -9,15 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useFetchFavorites } from "hooks/favorites.queries";
 import _ from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Keyboard,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { ActivityIndicator, FlatList, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
 import { Category } from "types/enums/categories.enum";
 import { COLORS } from "utils/colors";
@@ -76,34 +68,81 @@ const FavoritesScreen: React.FC<any> = () => {
   const toggleCategory = (category: Category) => {
     const isCategorySelected = selectedCategories.includes(category);
 
-    toggleSelectedCategories((oldValues) =>
-      isCategorySelected
-        ? oldValues.filter((item: Category) => category !== item)
-        : [...oldValues, category],
-    );
+    toggleSelectedCategories((oldValues) => (isCategorySelected ? oldValues.filter((item: Category) => category !== item) : [...oldValues, category]));
   };
 
   const removeCategory = (category: Category) => {
-    toggleSelectedCategories((oldValues) =>
-      oldValues.filter((item: Category) => category !== item),
-    );
+    toggleSelectedCategories((oldValues) => oldValues.filter((item: Category) => category !== item));
   };
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
       <StatusBar style="light" />
-      {!searchMode ? (
+      {searchMode ? (
+        <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
+          <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
+            <Pressable onPress={() => toggleSearchMode(false)}>
+              <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
+            </Pressable>
+            <View style={styles.flex}>
+              <TextField
+                keyboardAppearance="dark"
+                returnKeyType="search"
+                onSubmitEditing={() => toggleSearchMode(false)}
+                ref={textRef}
+                value={title}
+                onChangeText={handleTyping}
+                style={styles.searchInput}
+                leadingAccessory={
+                  <View style={styles.leftIcon}>
+                    <Feather name="search" size={22} color={COLORS.MUTED[50]} />
+                  </View>
+                }
+                trailingAccessory={
+                  <View style={styles.rightIcon}>
+                    <BWIconButton onPress={clearSearch} icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />} link />
+                  </View>
+                }
+                placeholder="Search..."
+                placeholderTextColor={COLORS.MUTED[600]}
+              />
+            </View>
+          </BWView>
+          <View style={styles.flex}>
+            <BWView column gap={15}>
+              <Categories selectedCategories={selectedCategories} categories={categories} onToggle={toggleCategory} />
+              {isLoading ? (
+                <View style={{ marginTop: 50 }}>
+                  <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
+                </View>
+              ) : !data.length ? (
+                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                  <NoResultsFound width="100%" height={250} />
+                  <BWView column alignItems="center" gap={10}>
+                    <Text style={styles.notFoundTitle}>Not found</Text>
+                    <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
+                  </BWView>
+                </BWView>
+              ) : (
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  data={data}
+                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
+                />
+              )}
+            </BWView>
+          </View>
+        </View>
+      ) : (
         <BWView column gap={24} style={styles.viewContainer}>
           <BWView row justifyContent="space-between">
             <BWView row alignItems="center" gap={20}>
               <FontAwesome name="music" size={45} color={COLORS.WARNING[500]} />
               <Text style={styles.title}>Favorites</Text>
             </BWView>
-            <BWIconButton
-              onPress={() => toggleSearchMode(true)}
-              icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />}
-              link
-            />
+            <BWIconButton onPress={() => toggleSearchMode(true)} icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />} link />
           </BWView>
           {title && (
             <BWView row>
@@ -152,12 +191,8 @@ const FavoritesScreen: React.FC<any> = () => {
                   <Text style={styles.favoritesCount}>{data.length} favorites</Text>
                   <Text style={styles.test}>Test button</Text>
                 </BWView>
-                <BWDivider
-                  orientation="horizontal"
-                  thickness={1.5}
-                  width="100%"
-                  color={COLORS.MUTED[700]}
-                />
+
+                <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
                 {data.length ? (
                   <FlatList
                     showsVerticalScrollIndicator={false}
@@ -171,9 +206,7 @@ const FavoritesScreen: React.FC<any> = () => {
                     <NoResultsFound width="100%" height={250} />
                     <BWView column alignItems="center" gap={10}>
                       <Text style={styles.notFoundTitle}>Not found</Text>
-                      <Text style={styles.notFoundDescription}>
-                        Sorry, no results found. Please try again or type anything else
-                      </Text>
+                      <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
                     </BWView>
                   </BWView>
                 )}
@@ -181,77 +214,6 @@ const FavoritesScreen: React.FC<any> = () => {
             )}
           </View>
         </BWView>
-      ) : (
-        <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
-          <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
-            <Pressable onPress={() => toggleSearchMode(false)}>
-              <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
-            </Pressable>
-            <View style={styles.flex}>
-              <TextField
-                keyboardAppearance="dark"
-                returnKeyType="search"
-                onSubmitEditing={() => toggleSearchMode(false)}
-                ref={textRef}
-                value={title}
-                onChangeText={handleTyping}
-                style={styles.searchInput}
-                leadingAccessory={
-                  <View style={styles.leftIcon}>
-                    <Feather name="search" size={22} color={COLORS.MUTED[50]} />
-                  </View>
-                }
-                trailingAccessory={
-                  <View style={styles.rightIcon}>
-                    <BWIconButton
-                      onPress={clearSearch}
-                      icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />}
-                      link
-                    />
-                  </View>
-                }
-                placeholder="Search..."
-                placeholderTextColor={COLORS.MUTED[600]}
-              />
-            </View>
-          </BWView>
-          <View style={styles.flex}>
-            <BWView column gap={15}>
-              <Categories
-                selectedCategories={selectedCategories}
-                categories={categories}
-                onToggle={toggleCategory}
-              />
-              {isLoading ? (
-                <View style={{ marginTop: 50 }}>
-                  <ActivityIndicator
-                    color={COLORS.WARNING[500]}
-                    size="large"
-                    style={styles.loadinngSpinner}
-                  />
-                </View>
-              ) : !data.length ? (
-                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
-                  <NoResultsFound width="100%" height={250} />
-                  <BWView column alignItems="center" gap={10}>
-                    <Text style={styles.notFoundTitle}>Not found</Text>
-                    <Text style={styles.notFoundDescription}>
-                      Sorry, no results found. Please try again or type anything else
-                    </Text>
-                  </BWView>
-                </BWView>
-              ) : (
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={data}
-                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
-                />
-              )}
-            </BWView>
-          </View>
-        </View>
       )}
     </SafeAreaView>
   );

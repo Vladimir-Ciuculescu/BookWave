@@ -1,56 +1,148 @@
-import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import BWBottomSheet from "components/shared/BWBottomSheet";
 import BWDivider from "components/shared/BWDivider";
 import BWIconButton from "components/shared/BWIconButton";
 import BWView from "components/shared/BWView";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { StatusBar } from "expo-status-bar";
-import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
-import _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Keyboard,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { useFetchPLaylistsTotalCount, useFetchPlaylistsByProfile } from "hooks/playlists.queries";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Text, TextField, TextFieldRef } from "react-native-ui-lib";
+import { Chip, Text, TextField, TextFieldRef } from "react-native-ui-lib";
 import AddPlayList from "screens/Home/components/AddPlayList";
+import { PlayList } from "types/interfaces/playlists";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import PlayListCard from "./PlayListCard";
 
 const PlayListsScreen: React.FC<any> = () => {
-  const [searchMode, setSearchMode] = useState<boolean>(false);
+  const [searchMode, toggleSearchMode] = useState<boolean>(false);
   const [playlistBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
+  const [searchText, setSeachText] = useState<string>("");
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [playlists, setPlaylists] = useState<PlayList[]>([]);
+  const [refresh, setRefresh] = useState<boolean>(false);
 
   const textRef = useRef<TextFieldRef>(null);
-  const { data, refetch, isLoading } = useFetchPlaylistsByProfile({ title });
-
-  const clearSearch: any = () => {
-    setSearchMode(false);
-    setTitle("");
-  };
+  const { data, isLoading, refetch, isFetching } = useFetchPlaylistsByProfile({ title: searchText, pageNumber: (pageNumber - 1).toString() });
+  const { data: totalCount } = useFetchPLaylistsTotalCount({ title: searchText });
 
   useEffect(() => {
     if (searchMode) {
       textRef.current!.focus();
+      setPageNumber(1);
     }
   }, [searchMode]);
 
-  const debounceTyping = useCallback(
-    _.debounce(() => refetch(), 500),
-    [],
-  );
+  useEffect(() => {
+    // console.log(111, data);
 
-  const handleTyping = (value: string) => {
-    setTitle(value);
-    debounceTyping();
+    if (data) {
+      if (title) {
+        //If search is applied just yet and we have no data found
+        if (!data.length && pageNumber === 1) {
+          setPlaylists([]);
+          //If we did not found any data on the current page(any page but not the firrst) then do nothing
+        } else if (!data.length && pageNumber !== 1) {
+          return;
+        } else {
+          setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
+
+          //setPlaylists([...playlists, ...data]);
+          //setPlaylists([...data]);
+        }
+      } else {
+        setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
+      }
+    }
+
+    //If search after textfield is applied
+    // --------- good version --------
+    // ------------
+    // if(data.length && pageNumber ===1) {
+    //   setPlaylists([...data])
+    // } else if (data.length && pageNumber !== 1){
+    //   setPlaylists([...playlists, ...data])
+    // }
+    // if (data.length) {
+    //   setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
+    // } else {
+    //   if (title) {
+    //     setPlaylists([]);
+    //   }
+    // }
+  }, [data]);
+
+  // useEffect(() => {
+  //   if (pageNumber === 1) {
+  //     refetch();
+  //     return;
+  //   }
+
+  //   setPageNumber(1);
+  // }, [searchText]);
+
+  useEffect(() => {
+    if (!title && !searchMode) {
+      setSeachText(title);
+      return;
+    }
+
+    const debounceTitle = setTimeout(() => {
+      setPageNumber(1);
+      setSeachText(title);
+
+      // if (title) {
+      //   refetch();
+      // }
+    }, 500);
+
+    return () => clearTimeout(debounceTitle);
+  }, [title]);
+
+  const clearSearch: any = () => {
+    toggleSearchMode(false);
+    setTitle("");
+  };
+
+  const fetchNextPage = () => {
+    if (!isFetching && !isLoading) {
+      setPageNumber((prevValue) => prevValue + 1);
+    }
+  };
+
+  const refreshList = () => {
+    setRefresh(true);
+
+    if (pageNumber === 1) {
+      refetch();
+    } else {
+      setPageNumber(1);
+    }
+
+    if (!isFetching && !isLoading) {
+      setRefresh(false);
+    }
+
+    // setRefresh(true);
+
+    // if(pageNumber === 1){
+    //   refetch()
+
+    // }
+    // if (!isFetching && !isFetching) {
+    //   setRefresh(false);
+
+    // setPageNumber(1);
+
+    // }
+  };
+
+  const clearText = () => {
+    setTitle("");
+    toggleSearchMode(false);
   };
 
   return (
@@ -60,17 +152,17 @@ const PlayListsScreen: React.FC<any> = () => {
         {searchMode ? (
           <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
             <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
-              <Pressable onPress={() => setSearchMode(false)}>
+              <Pressable onPress={() => toggleSearchMode(false)}>
                 <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
               </Pressable>
               <View style={styles.flex}>
                 <TextField
                   keyboardAppearance="dark"
                   returnKeyType="search"
-                  onSubmitEditing={() => setSearchMode(false)}
+                  onSubmitEditing={() => toggleSearchMode(false)}
                   ref={textRef}
                   value={title}
-                  onChangeText={handleTyping}
+                  onChangeText={setTitle}
                   style={styles.searchInput}
                   leadingAccessory={
                     <View style={styles.leftIcon}>
@@ -79,11 +171,7 @@ const PlayListsScreen: React.FC<any> = () => {
                   }
                   trailingAccessory={
                     <View style={styles.rightIcon}>
-                      <BWIconButton
-                        onPress={clearSearch}
-                        icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />}
-                        link
-                      />
+                      <BWIconButton onPress={clearSearch} icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />} link />
                     </View>
                   }
                   placeholder="Search..."
@@ -95,29 +183,26 @@ const PlayListsScreen: React.FC<any> = () => {
               <BWView column gap={15}>
                 {isLoading ? (
                   <View style={{ marginTop: 50 }}>
-                    <ActivityIndicator
-                      color={COLORS.WARNING[500]}
-                      size="large"
-                      style={styles.loadinngSpinner}
-                    />
+                    <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
                   </View>
-                ) : !data.length ? (
+                ) : !playlists.length ? (
                   <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
                     <NoResultsFound width="100%" height={250} />
                     <BWView column alignItems="center" gap={10}>
                       <Text style={styles.notFoundTitle}>Not found</Text>
-                      <Text style={styles.notFoundDescription}>
-                        Sorry, no results found. Please try again or type anything else
-                      </Text>
+                      <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
                     </BWView>
                   </BWView>
                 ) : (
                   <FlatList
+                    onEndReached={fetchNextPage}
+                    initialNumToRender={20}
+                    onEndReachedThreshold={0.1}
                     showsVerticalScrollIndicator={false}
-                    data={data}
+                    data={playlists}
                     renderItem={({ item }) => <PlayListCard playlist={item} />}
                     keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
+                    contentContainerStyle={[styles.searchingListContainer, { paddingHorizontal: 10 }]}
                   />
                 )}
               </BWView>
@@ -126,69 +211,80 @@ const PlayListsScreen: React.FC<any> = () => {
         ) : (
           <BWView column gap={24} style={styles.viewContainer}>
             <BWView row alignItems="center" gap={20} justifyContent="space-between">
-              <Text style={styles.title}>Playlists</Text>
-              <BWIconButton
-                onPress={() => setSearchMode(true)}
-                icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />}
-                link
-              />
-            </BWView>
-            {data && (
-              <BWView column gap={16}>
-                <BWView row justifyContent="space-between">
-                  <Text style={styles.playlistsCount}>{data.length} playlists</Text>
-                  <Text style={styles.test}>Filter</Text>
-                </BWView>
-                <BWDivider
-                  orientation="horizontal"
-                  thickness={1.5}
-                  width="100%"
-                  color={COLORS.MUTED[700]}
-                />
+              <BWView row alignItems="center" gap={20}>
+                <Entypo name="folder-music" size={45} color={COLORS.WARNING[500]} />
 
-                {data.length ? (
-                  <FlatList
-                    data={data}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => <PlayListCard playlist={item} />}
-                    keyExtractor={(_, index) => index.toString()}
-                    contentContainerStyle={styles.listContainer}
-                  />
+                <Text style={styles.title}>Playlists</Text>
+              </BWView>
+              <BWIconButton onPress={() => toggleSearchMode(true)} icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />} link />
+            </BWView>
+            {searchText && (
+              <BWView row>
+                <Chip
+                  borderRadius={22}
+                  label={`Results for: ${title}`}
+                  rightElement={
+                    <BWIconButton
+                      onPress={clearText}
+                      style={{ backgroundColor: "transparent" }}
+                      icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
+                    />
+                  }
+                  labelStyle={styles.resultsChipLabel}
+                  containerStyle={styles.resultsChipContainer}
+                />
+              </BWView>
+            )}
+            <View style={styles.flex}>
+              <BWView column gap={15}>
+                {playlists && playlists.length ? (
+                  <BWView column gap={16}>
+                    <BWView row justifyContent="space-between">
+                      <Text style={styles.playlistsCount}>{totalCount} playlists</Text>
+                      <Text style={styles.test}>Filter</Text>
+                    </BWView>
+                    <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
+
+                    <FlatList
+                      refreshControl={<RefreshControl tintColor={COLORS.WARNING[400]} refreshing={refresh} onRefresh={refreshList} />}
+                      onEndReached={fetchNextPage}
+                      initialNumToRender={20}
+                      onEndReachedThreshold={0.1}
+                      data={playlists}
+                      showsVerticalScrollIndicator={false}
+                      renderItem={({ item }) => <PlayListCard playlist={item} />}
+                      keyExtractor={(_, index) => index.toString()}
+                      contentContainerStyle={styles.listContainer}
+                    />
+                  </BWView>
                 ) : (
                   <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
                     <NoResultsFound width="100%" height={250} />
                     <BWView column alignItems="center" gap={10}>
                       <Text style={styles.notFoundTitle}>Not found</Text>
-                      <Text style={styles.notFoundDescription}>
-                        Sorry, no results found. Please try again or type anything else
-                      </Text>
+                      <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
                     </BWView>
                   </BWView>
                 )}
               </BWView>
-            )}
+            </View>
           </BWView>
         )}
         <BWIconButton
           onPress={() => togglePlaylistsBottomSheet(true)}
           icon={() => <AntDesign name="plus" size={30} color={COLORS.MUTED[50]} />}
-          style={{
-            position: "absolute",
-            bottom: TAB_BAR_HEIGHT + 20,
-            right: 20,
-            zIndex: 1,
-            width: 60,
-            height: 60,
-            backgroundColor: COLORS.WARNING[500],
-          }}
+          // style={{
+          //   position: "absolute",
+          //   bottom: TAB_BAR_HEIGHT + 20,
+          //   right: 20,
+          //   // zIndex: 1,
+          //   width: 60,
+          //   height: 60,
+          //   backgroundColor: COLORS.WARNING[500],
+          // }}
+          style={styles.plusBtn}
         />
-        <BWBottomSheet
-          height="80%"
-          visible={playlistBottomSheet}
-          blurBackground
-          onPressOut={() => togglePlaylistsBottomSheet(false)}
-          keyboardOffSet={1.5}
-        >
+        <BWBottomSheet height="80%" visible={playlistBottomSheet} blurBackground onPressOut={() => togglePlaylistsBottomSheet(false)} keyboardOffSet={1.5}>
           <AddPlayList onClose={() => togglePlaylistsBottomSheet(false)} />
         </BWBottomSheet>
       </SafeAreaView>
@@ -214,6 +310,20 @@ const styles = StyleSheet.create({
     fontFamily: "MinomuBold",
     fontSize: 26,
   },
+
+  resultsChipLabel: {
+    color: COLORS.MUTED[50],
+    fontSize: 14,
+    fontFamily: "Minomu",
+    marginHorizontal: 10,
+  },
+
+  resultsChipContainer: {
+    backgroundColor: COLORS.WARNING[500],
+    paddingHorizontal: 10,
+    height: 40,
+  },
+
   playlistsCount: {
     fontFamily: "MinomuBold",
     color: COLORS.MUTED[50],
@@ -224,9 +334,15 @@ const styles = StyleSheet.create({
     color: COLORS.WARNING[500],
     fontSize: 18,
   },
+
+  searchingListContainer: {
+    gap: 15,
+    paddingBottom: TAB_BAR_HEIGHT - 20,
+  },
+
   listContainer: {
     gap: 15,
-    paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingBottom: TAB_BAR_HEIGHT * 2 + 10,
   },
 
   editContainer: {
@@ -267,5 +383,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.MUTED[400],
     textAlign: "center",
+  },
+
+  plusBtn: {
+    position: "absolute",
+    bottom: TAB_BAR_HEIGHT + 20,
+    right: 20,
+    // zIndex: 1,
+    width: 60,
+    height: 60,
+    backgroundColor: COLORS.WARNING[500],
   },
 });

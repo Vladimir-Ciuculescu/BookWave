@@ -23,6 +23,12 @@ export interface GetPlaylistsRequest extends Request {
   };
 }
 
+export interface GetPlaylistTotalCountRequest extends Request {
+  query: {
+    title: string;
+  };
+}
+
 export interface RemovePlayListRequest extends Request {
   query: {
     audioId?: string;

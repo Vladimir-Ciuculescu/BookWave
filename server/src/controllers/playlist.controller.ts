@@ -5,6 +5,7 @@ import { PipelineStage, Schema, isValidObjectId } from "mongoose";
 import {
   AddPlayListRequest,
   GetPlaylistAudiosRequest,
+  GetPlaylistTotalCountRequest,
   GetPlaylistsRequest,
   RemovePlayListRequest,
   UpdatePlayListRequest,
@@ -113,6 +114,8 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
   try {
     const pipeline: PipelineStage[] = [
       { $match: { owner: userId, visibility: { $ne: "auto" } } },
+      // { $skip: parseInt(limit) * parseInt(pageNumber) },
+      // { $limit: parseInt(limit) },
       {
         $project: {
           audio: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
@@ -122,6 +125,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           createdAt: "$createdAt",
         },
       },
+
       { $unwind: { path: "$audio", preserveNullAndEmptyArrays: true } },
       { $lookup: { from: "audios", localField: "audio", foreignField: "_id", as: "audio" } },
       {
@@ -162,16 +166,40 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           createdAt: 1,
         },
       },
-      { $sort: { createdAt: 1 } },
+      // { $sort: { title: 1 } },
+      // { $sort: { createdAt: 1 } },
     ];
 
     if (title) {
-      pipeline.push({ $match: { title: { $regex: title, $options: "i" } } });
+      pipeline.push({ $match: { title: { $regex: title, $options: "i" } } }, { $sort: { title: 1 } });
+    } else {
+      pipeline.push({ $sort: { createdAt: -1 } });
     }
+
+    pipeline.push({ $skip: parseInt(limit) * parseInt(pageNumber) }, { $limit: parseInt(limit) });
 
     const playlists = await PlayListModel.aggregate(pipeline);
 
-    return res.status(200).json({ playlists });
+    return res.status(200).json({ playlists: playlists });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
+const getPlayListsTotalCount = async (req: GetPlaylistTotalCountRequest, res: Response) => {
+  const { title } = req.query;
+
+  try {
+    let filter = {};
+
+    if (title) {
+      filter = { title: { $regex: title } };
+    }
+
+    const totalCount = await PlayListModel.collection.countDocuments(filter);
+
+    return res.status(200).json(totalCount);
   } catch (error) {
     console.log(error);
     return res.status(422).json({ error });
@@ -239,6 +267,7 @@ const PlaylistController = {
   updatePlayList,
   removePlayList,
   getPlaylistsByUser,
+  getPlayListsTotalCount,
   getPlayListAudios,
   getIsExistentInPlaylist,
 };

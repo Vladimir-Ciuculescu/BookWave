@@ -1,4 +1,4 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Fontisto, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
@@ -12,6 +12,7 @@ import FavoritesScreen from "screens/Favorites/FavoritesScreen";
 import HomeScreen from "screens/Home/HomeScreen";
 import PlayListsScreen from "screens/PlayLists/PlayListsScreen";
 import ProfileScreen from "screens/Profile/ProfileScreen";
+import Rick_Morty_Screen from "screens/Rick&Morty/Rick&MortyScreen";
 import UploadAudioScreen from "screens/UploadAudio/UploadScreen";
 import { COLORS } from "utils/colors";
 
@@ -70,6 +71,13 @@ const TabNavigator: React.FC<any> = () => {
           component={PlayListsScreen}
           options={{
             tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "newspaper" : "newspaper-outline"} size={24} color={color} />,
+          }}
+        />
+        <Tab.Screen
+          name="Rick&Morty"
+          component={Rick_Morty_Screen}
+          options={{
+            tabBarIcon: ({ focused, color }) => <Fontisto name="test-tube-alt" size={24} color={color} />,
           }}
         />
 
