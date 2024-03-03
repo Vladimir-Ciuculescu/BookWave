@@ -37,52 +37,18 @@ const PlayListsScreen: React.FC<any> = () => {
   }, [searchMode]);
 
   useEffect(() => {
-    // console.log(111, data);
-
     if (data) {
-      if (title) {
-        //If search is applied just yet and we have no data found
-        if (!data.length && pageNumber === 1) {
+      if (!data.length) {
+        if (pageNumber === 1) {
           setPlaylists([]);
-          //If we did not found any data on the current page(any page but not the firrst) then do nothing
-        } else if (!data.length && pageNumber !== 1) {
-          return;
         } else {
-          setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
-
-          //setPlaylists([...playlists, ...data]);
-          //setPlaylists([...data]);
+          return;
         }
       } else {
         setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
       }
     }
-
-    //If search after textfield is applied
-    // --------- good version --------
-    // ------------
-    // if(data.length && pageNumber ===1) {
-    //   setPlaylists([...data])
-    // } else if (data.length && pageNumber !== 1){
-    //   setPlaylists([...playlists, ...data])
-    // }
-    // if (data.length) {
-    //   setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
-    // } else {
-    //   if (title) {
-    //     setPlaylists([]);
-    //   }
-    // }
   }, [data]);
-
-  // useEffect(() => {
-  //   if (pageNumber === 1) {
-  //     refetch();
-  //     return;
-  //   }
-
-  //   setPageNumber(1);
-  // }, [searchText]);
 
   useEffect(() => {
     if (!title && !searchMode) {
@@ -93,10 +59,6 @@ const PlayListsScreen: React.FC<any> = () => {
     const debounceTitle = setTimeout(() => {
       setPageNumber(1);
       setSeachText(title);
-
-      // if (title) {
-      //   refetch();
-      // }
     }, 500);
 
     return () => clearTimeout(debounceTitle);
@@ -125,19 +87,6 @@ const PlayListsScreen: React.FC<any> = () => {
     if (!isFetching && !isLoading) {
       setRefresh(false);
     }
-
-    // setRefresh(true);
-
-    // if(pageNumber === 1){
-    //   refetch()
-
-    // }
-    // if (!isFetching && !isFetching) {
-    //   setRefresh(false);
-
-    // setPageNumber(1);
-
-    // }
   };
 
   const clearText = () => {
@@ -202,7 +151,7 @@ const PlayListsScreen: React.FC<any> = () => {
                     data={playlists}
                     renderItem={({ item }) => <PlayListCard playlist={item} />}
                     keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={[styles.searchingListContainer, { paddingHorizontal: 10 }]}
+                    contentContainerStyle={[styles.searchingListContainer]}
                   />
                 )}
               </BWView>
@@ -241,7 +190,6 @@ const PlayListsScreen: React.FC<any> = () => {
                   <BWView column gap={16}>
                     <BWView row justifyContent="space-between">
                       <Text style={styles.playlistsCount}>{totalCount} playlists</Text>
-                      <Text style={styles.test}>Filter</Text>
                     </BWView>
                     <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
 
@@ -273,15 +221,6 @@ const PlayListsScreen: React.FC<any> = () => {
         <BWIconButton
           onPress={() => togglePlaylistsBottomSheet(true)}
           icon={() => <AntDesign name="plus" size={30} color={COLORS.MUTED[50]} />}
-          // style={{
-          //   position: "absolute",
-          //   bottom: TAB_BAR_HEIGHT + 20,
-          //   right: 20,
-          //   // zIndex: 1,
-          //   width: 60,
-          //   height: 60,
-          //   backgroundColor: COLORS.WARNING[500],
-          // }}
           style={styles.plusBtn}
         />
         <BWBottomSheet height="80%" visible={playlistBottomSheet} blurBackground onPressOut={() => togglePlaylistsBottomSheet(false)} keyboardOffSet={1.5}>
@@ -336,12 +275,13 @@ const styles = StyleSheet.create({
   },
 
   searchingListContainer: {
-    gap: 15,
+    gap: 20,
     paddingBottom: TAB_BAR_HEIGHT - 20,
+    paddingHorizontal: 20,
   },
 
   listContainer: {
-    gap: 15,
+    gap: 20,
     paddingBottom: TAB_BAR_HEIGHT * 2 + 10,
   },
 
@@ -389,7 +329,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: TAB_BAR_HEIGHT + 20,
     right: 20,
-    // zIndex: 1,
+    zIndex: 1,
     width: 60,
     height: 60,
     backgroundColor: COLORS.WARNING[500],

@@ -13,8 +13,6 @@ interface PlayListCardProps {
 }
 
 const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
-  // console.log(111, playlist.title);
-
   return (
     <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
       <BWView row gap={20}>
