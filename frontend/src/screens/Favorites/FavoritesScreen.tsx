@@ -196,7 +196,7 @@ const FavoritesScreen: React.FC<any> = () => {
         </View>
       ) : (
         <BWView column gap={24} style={styles.viewContainer}>
-          <BWView row justifyContent="space-between">
+          <BWView style={{ paddingHorizontal: 20 }} row justifyContent="space-between">
             <BWView row alignItems="center" gap={20}>
               <FontAwesome name="music" size={45} color={COLORS.WARNING[500]} />
               <Text style={styles.title}>Favorites</Text>
@@ -204,7 +204,7 @@ const FavoritesScreen: React.FC<any> = () => {
             <BWIconButton onPress={() => toggleSearchMode(true)} icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />} link />
           </BWView>
           {title && (
-            <BWView row>
+            <BWView row style={{ paddingHorizontal: 15 }}>
               <Chip
                 borderRadius={22}
                 label={`Results for: ${title}`}
@@ -221,9 +221,9 @@ const FavoritesScreen: React.FC<any> = () => {
             </BWView>
           )}
           {selectedCategories.length > 0 && (
-            <BWView column gap={10}>
+            <BWView column gap={20}>
               <Text style={styles.categoriesApplied}>Categories applied:</Text>
-              <ScrollView horizontal contentContainerStyle={{ gap: 10 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}>
                 {selectedCategories.map((category: Category) => (
                   <Chip
                     key={category}
@@ -243,7 +243,7 @@ const FavoritesScreen: React.FC<any> = () => {
               </ScrollView>
             </BWView>
           )}
-          <View style={styles.flex}>
+          <View style={[styles.flex, { paddingHorizontal: 15 }]}>
             {favorites && favorites.length ? (
               <BWView column gap={15}>
                 <BWView row justifyContent="space-between">
@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
   listContainer: {
     gap: 15,
     paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingHorizontal: 20,
   },
 
   searchingListContainer: {
@@ -299,7 +300,6 @@ const styles = StyleSheet.create({
 
   viewContainer: {
     flex: 1,
-    paddingHorizontal: 30,
     paddingTop: 20,
   },
 
@@ -359,6 +359,7 @@ const styles = StyleSheet.create({
   categoriesApplied: {
     color: COLORS.MUTED[50],
     fontFamily: "Minomu",
+    paddingHorizontal: 20,
   },
   loadinngSpinner: {
     transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],

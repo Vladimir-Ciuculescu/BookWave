@@ -1,10 +1,9 @@
-import { memo, useRef, useState, useEffect } from "react";
 import BWPressable from "components/shared/BWPressable";
+import { memo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { Chip } from "react-native-ui-lib";
 import { Category } from "types/enums/categories.enum";
 import { COLORS } from "utils/colors";
-import _ from "lodash";
 
 interface CategoriesProps {
   selectedCategories: Category[];
@@ -12,38 +11,22 @@ interface CategoriesProps {
   onToggle: (e: Category) => void;
 }
 
-const Categories: React.FC<CategoriesProps> = memo(
-  ({ selectedCategories, categories, onToggle }) => {
-    return (
-      <ScrollView
-        showsHorizontalScrollIndicator={false}
-        horizontal
-        contentContainerStyle={styles.categoriesContainer}
-      >
-        {categories.map((category: Category) => (
-          <BWPressable key={category} onPress={() => onToggle(category)}>
-            <Chip
-              key={category}
-              label={category}
-              labelStyle={[
-                selectedCategories.includes(category)
-                  ? styles.selectedLabel
-                  : styles.unselectedLabel,
-                styles.categoryLabel,
-              ]}
-              containerStyle={[
-                selectedCategories.includes(category)
-                  ? styles.selectedContainer
-                  : styles.unselectedContainer,
-                styles.categoryContainer,
-              ]}
-            />
-          </BWPressable>
-        ))}
-      </ScrollView>
-    );
-  },
-);
+const Categories: React.FC<CategoriesProps> = memo(({ selectedCategories, categories, onToggle }) => {
+  return (
+    <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={styles.categoriesContainer}>
+      {categories.map((category: Category) => (
+        <BWPressable key={category} onPress={() => onToggle(category)}>
+          <Chip
+            key={category}
+            label={category}
+            labelStyle={[selectedCategories.includes(category) ? styles.selectedLabel : styles.unselectedLabel, styles.categoryLabel]}
+            containerStyle={[selectedCategories.includes(category) ? styles.selectedContainer : styles.unselectedContainer, styles.categoryContainer]}
+          />
+        </BWPressable>
+      ))}
+    </ScrollView>
+  );
+});
 
 export default Categories;
 
