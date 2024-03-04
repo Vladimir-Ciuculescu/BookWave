@@ -6,63 +6,117 @@ import BWView from "components/shared/BWView";
 import { categories } from "consts/categories";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { StatusBar } from "expo-status-bar";
-import { useFetchFavorites } from "hooks/favorites.queries";
-import _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Keyboard, Pressable, SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import { useFetchFavorites, useFetchFavoritesTotalCount } from "hooks/favorites.queries";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
 import { Category } from "types/enums/categories.enum";
+import { AudioFile } from "types/interfaces/audios";
+import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import Categories from "./Categories";
 
 const FavoritesScreen: React.FC<any> = () => {
-  const LIMIT = 10;
-
-  const [index, setIndex] = useState(0);
-
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [favorites, setFavorites] = useState<AudioFile[]>([]);
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
   const [selectedCategories, toggleSelectedCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [reachedEnd, setReachedEnd] = useState<boolean>(false);
   const textRef = useRef<TextFieldRef>(null);
+  const flatListRef = useRef<any>(null);
 
-  const { data, refetch, isLoading } = useFetchFavorites({
-    limit: LIMIT,
-    pageNumber: index,
-    title,
-    categories: selectedCategories.join(","),
-  });
+  const payload: GetFavoritesRequest = {
+    pageNumber: (pageNumber - 1).toString(),
+  };
+
+  payload.title = searchText;
+
+  if (selectedCategories.length) {
+    payload.categories = selectedCategories.join(",");
+  }
+
+  const { data, refetch, isLoading, isFetching } = useFetchFavorites(payload);
+
+  const { data: total } = useFetchFavoritesTotalCount({ title: searchText, categories: selectedCategories.join(",") });
 
   useEffect(() => {
     if (searchMode) {
       textRef.current!.focus();
+      setPageNumber(1);
     }
   }, [searchMode]);
 
   useEffect(() => {
-    if (!title) {
-      refetch();
+    if (data) {
+      if (!data.length) {
+        if (pageNumber === 1) {
+          setFavorites([]);
+        } else {
+          setReachedEnd(true);
+          return;
+        }
+      } else {
+        setFavorites(pageNumber === 1 ? [...data] : [...favorites, ...data]);
+      }
     }
+
+    setReachedEnd(false);
+  }, [data]);
+
+  useEffect(() => {
+    if (!title && !searchMode) {
+      setSearchText(title);
+      setPageNumber(1);
+      return;
+    }
+
+    const debounceTitle = setTimeout(() => {
+      setPageNumber(1);
+      setSearchText(title);
+    }, 500);
+
+    return () => clearTimeout(debounceTitle);
   }, [title]);
 
-  const debounceTyping = useCallback(
-    _.debounce(() => refetch(), 500),
-    [],
-  );
+  useEffect(() => {
+    setPageNumber(1);
 
-  const handleTyping = (value: string) => {
-    setTitle(value);
-    debounceTyping();
-  };
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
+    }
+  }, [selectedCategories]);
 
-  const clearText = () => {
-    toggleSearchMode(false);
-    setTitle("");
+  const fetchNextPage = () => {
+    if (reachedEnd) {
+      return;
+    }
+
+    if (!isFetching && !isLoading) {
+      setPageNumber((prevValue) => prevValue + 1);
+    }
   };
 
   const clearSearch = () => {
     toggleSearchMode(false);
     setTitle("");
+  };
+
+  const refreshList = () => {
+    setRefresh(true);
+
+    if (pageNumber === 1) {
+      refetch();
+    } else {
+      setPageNumber(1);
+    }
+
+    if (!isFetching && !isLoading) {
+      setRefresh(false);
+    }
   };
 
   const toggleCategory = (category: Category) => {
@@ -91,7 +145,8 @@ const FavoritesScreen: React.FC<any> = () => {
                 onSubmitEditing={() => toggleSearchMode(false)}
                 ref={textRef}
                 value={title}
-                onChangeText={handleTyping}
+                onChangeText={setTitle}
+                // onChangeText={handleTyping}
                 style={styles.searchInput}
                 leadingAccessory={
                   <View style={styles.leftIcon}>
@@ -115,7 +170,7 @@ const FavoritesScreen: React.FC<any> = () => {
                 <View style={{ marginTop: 50 }}>
                   <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
                 </View>
-              ) : !data.length ? (
+              ) : !favorites.length ? (
                 <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
                   <NoResultsFound width="100%" height={250} />
                   <BWView column alignItems="center" gap={10}>
@@ -125,11 +180,15 @@ const FavoritesScreen: React.FC<any> = () => {
                 </BWView>
               ) : (
                 <FlatList
+                  ref={flatListRef}
+                  onEndReached={fetchNextPage}
+                  initialNumToRender={20}
+                  onEndReachedThreshold={0.1}
                   showsVerticalScrollIndicator={false}
-                  data={data}
+                  data={favorites}
                   renderItem={({ item }) => <PlayAudioCard audio={item} />}
                   keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
+                  contentContainerStyle={styles.searchingListContainer}
                 />
               )}
             </BWView>
@@ -151,7 +210,7 @@ const FavoritesScreen: React.FC<any> = () => {
                 label={`Results for: ${title}`}
                 rightElement={
                   <BWIconButton
-                    onPress={clearText}
+                    onPress={clearSearch}
                     style={{ backgroundColor: "transparent" }}
                     icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
                   />
@@ -185,31 +244,33 @@ const FavoritesScreen: React.FC<any> = () => {
             </BWView>
           )}
           <View style={styles.flex}>
-            {data && (
+            {favorites && favorites.length ? (
               <BWView column gap={15}>
                 <BWView row justifyContent="space-between">
-                  <Text style={styles.favoritesCount}>{data.length} favorites</Text>
-                  <Text style={styles.test}>Test button</Text>
+                  <Text style={styles.favoritesCount}>{total} favorites</Text>
                 </BWView>
 
                 <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
-                {data.length ? (
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={data}
-                    renderItem={({ item }) => <PlayAudioCard audio={item} />}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={styles.listContainer}
-                  />
-                ) : (
-                  <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
-                    <NoResultsFound width="100%" height={250} />
-                    <BWView column alignItems="center" gap={10}>
-                      <Text style={styles.notFoundTitle}>Not found</Text>
-                      <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
-                    </BWView>
-                  </BWView>
-                )}
+
+                <FlatList
+                  refreshControl={<RefreshControl tintColor={COLORS.WARNING[400]} refreshing={refresh} onRefresh={refreshList} />}
+                  onEndReached={fetchNextPage}
+                  onEndReachedThreshold={1}
+                  initialNumToRender={20}
+                  showsVerticalScrollIndicator={false}
+                  data={favorites}
+                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={styles.listContainer}
+                />
+              </BWView>
+            ) : (
+              <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                <NoResultsFound width="100%" height={250} />
+                <BWView column alignItems="center" gap={10}>
+                  <Text style={styles.notFoundTitle}>Not found</Text>
+                  <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
+                </BWView>
               </BWView>
             )}
           </View>
@@ -227,6 +288,11 @@ const styles = StyleSheet.create({
     paddingBottom: TAB_BAR_HEIGHT + 40,
   },
 
+  searchingListContainer: {
+    gap: 15,
+    paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingHorizontal: 20,
+  },
   flex: {
     flex: 1,
   },

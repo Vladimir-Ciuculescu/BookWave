@@ -16,6 +16,8 @@ export interface AudioDocument<T = ObjectId> {
     publicId: string;
   };
   likes: ObjectId[];
+  //! Duration values that gets returned from cloudinary is in seconds
+  duration: Number;
   category: Category;
   createdAt: Date;
 }
@@ -48,6 +50,7 @@ const audioSchema = new Schema<AudioDocument>(
       publicId: String,
     },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    duration: Number,
     category: {
       type: String,
       enum: categories,

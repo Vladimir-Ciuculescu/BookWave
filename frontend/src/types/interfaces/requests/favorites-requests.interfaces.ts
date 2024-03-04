@@ -1,8 +1,11 @@
-import { Category } from "types/enums/categories.enum";
-
 export interface GetFavoritesRequest {
-  limit: number;
-  pageNumber: number;
-  title: string;
+  limit?: number;
+  pageNumber: string;
+  title?: string;
+  categories?: string;
+}
+
+export interface GetFavoritesTotalCountRequest {
+  title?: string;
   categories?: string;
 }

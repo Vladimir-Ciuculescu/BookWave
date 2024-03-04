@@ -24,6 +24,7 @@ const PlayListsScreen: React.FC<any> = () => {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [playlists, setPlaylists] = useState<PlayList[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [reachedEnd, setReachedEnd] = useState<boolean>(false);
 
   const textRef = useRef<TextFieldRef>(null);
   const { data, isLoading, refetch, isFetching } = useFetchPlaylistsByProfile({ title: searchText, pageNumber: (pageNumber - 1).toString() });
@@ -42,12 +43,15 @@ const PlayListsScreen: React.FC<any> = () => {
         if (pageNumber === 1) {
           setPlaylists([]);
         } else {
+          setReachedEnd(true);
           return;
         }
       } else {
         setPlaylists(pageNumber === 1 ? [...data] : [...playlists, ...data]);
       }
     }
+
+    setReachedEnd(false);
   }, [data]);
 
   useEffect(() => {
@@ -64,15 +68,18 @@ const PlayListsScreen: React.FC<any> = () => {
     return () => clearTimeout(debounceTitle);
   }, [title]);
 
-  const clearSearch: any = () => {
-    toggleSearchMode(false);
-    setTitle("");
-  };
-
   const fetchNextPage = () => {
+    if (reachedEnd) {
+      return;
+    }
+
     if (!isFetching && !isLoading) {
       setPageNumber((prevValue) => prevValue + 1);
     }
+  };
+  const clearSearch: any = () => {
+    toggleSearchMode(false);
+    setTitle("");
   };
 
   const refreshList = () => {
@@ -87,11 +94,6 @@ const PlayListsScreen: React.FC<any> = () => {
     if (!isFetching && !isLoading) {
       setRefresh(false);
     }
-  };
-
-  const clearText = () => {
-    setTitle("");
-    toggleSearchMode(false);
   };
 
   return (
@@ -174,7 +176,7 @@ const PlayListsScreen: React.FC<any> = () => {
                   label={`Results for: ${title}`}
                   rightElement={
                     <BWIconButton
-                      onPress={clearText}
+                      onPress={clearSearch}
                       style={{ backgroundColor: "transparent" }}
                       icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
                     />

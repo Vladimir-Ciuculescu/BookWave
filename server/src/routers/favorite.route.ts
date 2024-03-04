@@ -1,5 +1,5 @@
-import FavoriteController from "../controllers/favorite.controller";
 import { Router } from "express";
+import FavoriteController from "../controllers/favorite.controller";
 import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
 import { isVerifiedMiddleware } from "../middlewares/is-verified.middleware";
 
@@ -10,5 +10,7 @@ router.post("/toggle", isAuthenticatedMiddleware, isVerifiedMiddleware, Favorite
 router.get("/", isAuthenticatedMiddleware, isVerifiedMiddleware, FavoriteController.getFavorites);
 
 router.get("/is-favorite", isAuthenticatedMiddleware, FavoriteController.getIsFavorite);
+
+router.get("/total-count", isAuthenticatedMiddleware, isVerifiedMiddleware, FavoriteController.getFavoritesTotalCount);
 
 export default router;

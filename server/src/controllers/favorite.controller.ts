@@ -3,7 +3,7 @@ import AudioModel from "models/audio.model";
 import FavoriteModel, { FavoriteDocument } from "models/favorite.model";
 import { PipelineStage, isValidObjectId } from "mongoose";
 import { ToggleFavoriteAudioRequest } from "types/requests/audio.requests";
-import { GetFavoritesRequest } from "types/requests/favorite.request";
+import { GetFavoritesRequest, GetFavoritesTotalCountRequest } from "types/requests/favorite.request";
 
 const toggleFavoriteAudio = async (req: ToggleFavoriteAudioRequest, res: Response) => {
   const { audioId } = req.query;
@@ -69,19 +69,39 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
   const userId = req.user.id;
   const { limit = "20", pageNumber = "0", title, categories = "" } = req.query;
 
-  console.log(categories);
+  // const pipeLine: PipelineStage[] = [
+  //   { $match: { owner: userId } },
+  //   {
+  //     $project: {
+  //       audioIds: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
+  //     },
+  //   },
+  //   { $unwind: "$audioIds" },
+  // { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
+  //   { $unwind: "$audio" },
+
+  // { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
+  //   { $unwind: "$owner" },
+  //   {
+  // $project: {
+  //   _id: 0,
+  //   id: "$audio._id",
+  //   title: "$audio.title",
+  //   about: "$audio.about",
+  //   category: "$audio.category",
+  //   file: "$audio.file.url",
+  //   poster: "$audio.poster.url",
+  //   owner: { name: "$owner.name", id: "$owner._id" },
+  // },
+  //   },
+  // ];
 
   const pipeLine: PipelineStage[] = [
     { $match: { owner: userId } },
-    {
-      $project: {
-        audioIds: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
-      },
-    },
+    { $project: { audioIds: "$items" } },
     { $unwind: "$audioIds" },
     { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
     { $unwind: "$audio" },
-
     { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
     { $unwind: "$owner" },
     {
@@ -93,23 +113,110 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
         category: "$audio.category",
         file: "$audio.file.url",
         poster: "$audio.poster.url",
+        duration: "$audio.duration",
         owner: { name: "$owner.name", id: "$owner._id" },
+        createdAt: "$audio.createdAt",
       },
     },
   ];
 
-  if (title) {
-    pipeLine.push({ $match: { title: { $regex: title, $options: "i" } } });
-  }
+  //Apply filters if required
 
-  if (categories !== "") {
+  if (categories) {
     pipeLine.push({ $match: { category: { $in: categories.split(",") } } });
   }
+
+  if (title) {
+    pipeLine.push({ $match: { title: { $regex: title, $options: "i" } } }, { $sort: { title: 1 } });
+  } else {
+    pipeLine.push({ $sort: { createdAt: -1 } });
+  }
+
+  //Add pagination
+  pipeLine.push({ $skip: parseInt(limit) * parseInt(pageNumber) }, { $limit: parseInt(limit) });
 
   try {
     const favorites = await FavoriteModel.aggregate(pipeLine);
 
     return res.status(200).json({ favorites });
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
+export const getFavoritesTotalCount = async (req: GetFavoritesTotalCountRequest, res: Response) => {
+  const { title, categories } = req.query;
+
+  const userId = req.user.id;
+
+  try {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          owner: userId,
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $lookup: {
+          from: "audios",
+          localField: "items",
+          foreignField: "_id",
+          as: "audio",
+        },
+      },
+      {
+        $unwind: "$audio",
+      },
+    ];
+
+    if (title) {
+      pipeline.push({ $match: { "audio.title": { $regex: title, $options: "i" } } });
+    }
+
+    if (categories) {
+      pipeline.push({ $match: { "audio.category": { $in: categories.split(",") } } });
+    }
+
+    const filteredFavorites = await FavoriteModel.aggregate(pipeline);
+
+    // const filteredFavorites = await FavoriteModel.aggregate([
+    //   {
+    //     $match: {
+    //       owner: userId,
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$items",
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "audios",
+    //       localField: "items",
+    //       foreignField: "_id",
+    //       as: "audio",
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$audio",
+    //   },
+    //   // {
+    //   //   $match: {
+    //   //     "audio.category": { $in: "Music".split(",") },
+    //   //   },
+    //   // },
+    //   // {
+    //   //   $match: {
+    //   //     "audio.title": { $regex: "1", $options: "i" },
+    //   //     "audio.category": { $in: "Music".split(",") },
+    //   //   },
+    //   // },
+    // ]);
+
+    return res.status(200).json(filteredFavorites.length);
   } catch (error) {
     console.log(error);
     return res.status(422).json({ error });
@@ -137,6 +244,7 @@ const getIsFavorite = async (req: Request, res: Response) => {
 const FavoriteController = {
   toggleFavoriteAudio,
   getFavorites,
+  getFavoritesTotalCount,
   getIsFavorite,
 };
 

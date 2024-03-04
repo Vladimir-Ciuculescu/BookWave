@@ -8,7 +8,7 @@ import { playerSelector, setDidFinishAction, setIsPlayingAction, setVisibileModa
 import { AudioFile } from "types/interfaces/audios";
 import { loadAudio } from "utils/audio";
 import { COLORS } from "utils/colors";
-import { formatToClock } from "utils/math";
+import { convertFromMillisecondsToClock } from "utils/math";
 import BWDivider from "./shared/BWDivider";
 import BWIconButton from "./shared/BWIconButton";
 import BWImage from "./shared/BWImage";
@@ -111,8 +111,8 @@ const AudioPlayerContent = () => {
           thumbTintColor={COLORS.WARNING[600]}
         />
         <BWView style={{ width: "100%" }} row justifyContent="space-between">
-          <Text style={{ color: "white" }}>{formatToClock(progress)} </Text>
-          <Text style={{ color: "white" }}>{formatToClock(duration)}</Text>
+          <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(progress)} </Text>
+          <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(duration)}</Text>
         </BWView>
         <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
           <BWIconButton

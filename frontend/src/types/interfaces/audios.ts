@@ -8,4 +8,5 @@ export interface AudioFile {
   file: string;
   poster?: string;
   owner: { id: string; name: string };
+  duration: number;
 }
