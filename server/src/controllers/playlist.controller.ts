@@ -114,8 +114,7 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
   try {
     const pipeline: PipelineStage[] = [
       { $match: { owner: userId, visibility: { $ne: "auto" } } },
-      // { $skip: parseInt(limit) * parseInt(pageNumber) },
-      // { $limit: parseInt(limit) },
+
       {
         $project: {
           audio: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
@@ -166,8 +165,6 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
           createdAt: 1,
         },
       },
-      // { $sort: { title: 1 } },
-      // { $sort: { createdAt: 1 } },
     ];
 
     if (title) {
