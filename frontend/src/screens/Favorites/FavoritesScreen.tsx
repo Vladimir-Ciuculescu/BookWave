@@ -10,9 +10,13 @@ import { useFetchFavorites, useFetchFavoritesTotalCount } from "hooks/favorites.
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setAudiosListAction, setIsPlayingAction } from "redux/reducers/player.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { Category } from "types/enums/categories.enum";
 import { AudioFile } from "types/interfaces/audios";
 import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
+import { loadAudio } from "utils/audio";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import Categories from "./Categories";
@@ -28,6 +32,8 @@ const FavoritesScreen: React.FC<any> = () => {
   const [reachedEnd, setReachedEnd] = useState<boolean>(false);
   const textRef = useRef<TextFieldRef>(null);
   const flatListRef = useRef<any>(null);
+  const dispatch = useDispatch();
+  const { track, audio, isPlaying } = useSelector(playerSelector);
 
   const payload: GetFavoritesRequest = {
     pageNumber: (pageNumber - 1).toString(),
@@ -90,6 +96,10 @@ const FavoritesScreen: React.FC<any> = () => {
     }
   }, [selectedCategories]);
 
+  useEffect(() => {
+    dispatch(setAudiosListAction(favorites));
+  }, [favorites]);
+
   const fetchNextPage = () => {
     if (reachedEnd) {
       return;
@@ -129,6 +139,25 @@ const FavoritesScreen: React.FC<any> = () => {
     toggleSelectedCategories((oldValues) => oldValues.filter((item: Category) => category !== item));
   };
 
+  const playAudio = async (item: AudioFile) => {
+    try {
+      if (!track || (track && item !== audio)) {
+        await loadAudio(dispatch, item);
+        return;
+      }
+
+      if (isPlaying) {
+        await track.pauseAsync();
+      } else {
+        await track.playAsync();
+      }
+
+      dispatch(setIsPlayingAction(!isPlaying));
+    } catch (error) {
+      dispatch(setToastMessageAction({ message: "Could not play audio, try again", type: "error" }));
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
       <StatusBar style="light" />
@@ -146,7 +175,6 @@ const FavoritesScreen: React.FC<any> = () => {
                 ref={textRef}
                 value={title}
                 onChangeText={setTitle}
-                // onChangeText={handleTyping}
                 style={styles.searchInput}
                 leadingAccessory={
                   <View style={styles.leftIcon}>
@@ -186,7 +214,9 @@ const FavoritesScreen: React.FC<any> = () => {
                   onEndReachedThreshold={0.1}
                   showsVerticalScrollIndicator={false}
                   data={favorites}
-                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
+                  renderItem={({ item }) => (
+                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                  )}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.searchingListContainer}
                 />
@@ -259,7 +289,9 @@ const FavoritesScreen: React.FC<any> = () => {
                   initialNumToRender={20}
                   showsVerticalScrollIndicator={false}
                   data={favorites}
-                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
+                  renderItem={({ item }) => (
+                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                  )}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.listContainer}
                 />

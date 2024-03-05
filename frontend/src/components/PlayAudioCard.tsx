@@ -1,23 +1,29 @@
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
-import { Text } from "react-native-ui-lib";
+import { Text, View } from "react-native-ui-lib";
 import { AudioFile } from "types/interfaces/audios";
 import { COLORS } from "utils/colors";
 import { convertFromSecondsToClock } from "utils/math";
+import SoundWave from "./SoundWave";
 import BWIconButton from "./shared/BWIconButton";
 import BWImage from "./shared/BWImage";
 import BWView from "./shared/BWView";
 
 interface PlayAudioCardProps {
   audio: AudioFile;
+  onPress: () => void;
+  isPlaying?: boolean;
 }
 
-const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio }) => {
+const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying }) => {
   return (
     <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
       <BWView row gap={20}>
-        <BWImage src={audio.poster} style={styles.audioImage} placeholder={!audio.poster} iconName="music" iconSize={40} />
+        <View style={styles.imageContainer}>
+          {isPlaying && <SoundWave />}
+          <BWImage style={styles.image} placeholder={!audio.poster} iconName="image" src={audio.poster!} />
+        </View>
         <BWView column style={{ height: "100%" }} justifyContent="space-evenly">
           <Text style={styles.audioTitle}>{audio.title}</Text>
           <BWView row>
@@ -28,7 +34,11 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio }) => {
           </BWView>
         </BWView>
       </BWView>
-      <BWIconButton onPress={() => {}} style={styles.playBtn} icon={() => <Ionicons name="md-play" size={16} color="black" />} />
+      <BWIconButton
+        onPress={onPress}
+        style={styles.playBtn}
+        icon={() => (isPlaying ? <FontAwesome name="pause" size={16} color="black" /> : <Ionicons name="md-play" size={16} color="black" />)}
+      />
     </BWView>
   );
 };
@@ -36,9 +46,15 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio }) => {
 export default memo(PlayAudioCard);
 
 const styles = StyleSheet.create({
-  audioImage: {
+  imageContainer: {
     height: 80,
     width: 80,
+    borderRadius: 24,
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
     borderRadius: 24,
   },
 

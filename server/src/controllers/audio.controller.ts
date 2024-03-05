@@ -16,12 +16,6 @@ const addAudioFile: RequestHandler = async (req: AddAudioRequest, res: Response)
       return res.status(422).json({ error: "Audio file is missing !" });
     }
 
-    // const data = await cloudinary.uploader.upload(audioFile[0].filepath, { resource_type: "video" });
-
-    // console.log(1111, data.duration);
-
-    // console.log(222, convertToClockFormat(data.duration));
-
     const { public_id, secure_url, duration } = await cloudinary.uploader.upload(audioFile[0].filepath, { resource_type: "video" });
 
     if (posterFile) {

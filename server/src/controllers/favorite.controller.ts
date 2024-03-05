@@ -69,33 +69,6 @@ const getFavorites = async (req: GetFavoritesRequest, res: Response) => {
   const userId = req.user.id;
   const { limit = "20", pageNumber = "0", title, categories = "" } = req.query;
 
-  // const pipeLine: PipelineStage[] = [
-  //   { $match: { owner: userId } },
-  //   {
-  //     $project: {
-  //       audioIds: { $slice: ["$items", parseInt(limit) * parseInt(pageNumber), parseInt(limit)] },
-  //     },
-  //   },
-  //   { $unwind: "$audioIds" },
-  // { $lookup: { from: "audios", localField: "audioIds", foreignField: "_id", as: "audio" } },
-  //   { $unwind: "$audio" },
-
-  // { $lookup: { from: "users", localField: "audio.owner", foreignField: "_id", as: "owner" } },
-  //   { $unwind: "$owner" },
-  //   {
-  // $project: {
-  //   _id: 0,
-  //   id: "$audio._id",
-  //   title: "$audio.title",
-  //   about: "$audio.about",
-  //   category: "$audio.category",
-  //   file: "$audio.file.url",
-  //   poster: "$audio.poster.url",
-  //   owner: { name: "$owner.name", id: "$owner._id" },
-  // },
-  //   },
-  // ];
-
   const pipeLine: PipelineStage[] = [
     { $match: { owner: userId } },
     { $project: { audioIds: "$items" } },
@@ -182,39 +155,6 @@ export const getFavoritesTotalCount = async (req: GetFavoritesTotalCountRequest,
     }
 
     const filteredFavorites = await FavoriteModel.aggregate(pipeline);
-
-    // const filteredFavorites = await FavoriteModel.aggregate([
-    //   {
-    //     $match: {
-    //       owner: userId,
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$items",
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: "audios",
-    //       localField: "items",
-    //       foreignField: "_id",
-    //       as: "audio",
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$audio",
-    //   },
-    //   // {
-    //   //   $match: {
-    //   //     "audio.category": { $in: "Music".split(",") },
-    //   //   },
-    //   // },
-    //   // {
-    //   //   $match: {
-    //   //     "audio.title": { $regex: "1", $options: "i" },
-    //   //     "audio.category": { $in: "Music".split(",") },
-    //   //   },
-    //   // },
-    // ]);
 
     return res.status(200).json(filteredFavorites.length);
   } catch (error) {
