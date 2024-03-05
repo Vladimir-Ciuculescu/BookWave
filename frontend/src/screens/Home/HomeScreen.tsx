@@ -113,6 +113,7 @@ const HomeScreen: React.FC<any> = () => {
       if (!track || (track && item !== audio)) {
         await loadAudio(dispatch, item);
         const { response } = await FavoriteService.getIsFavoriteApi(item.id);
+
         dispatch(setIsFavoriteAction(response));
         return;
       }

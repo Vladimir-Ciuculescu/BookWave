@@ -17,6 +17,8 @@ router.get("/is-in-playlist", isAuthenticatedMiddleware, PlaylistController.getI
 
 router.get("/by-profile", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlaylistsByUser);
 
+router.get("/total-count", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlayListsTotalCount);
+
 router.get("/:playlistId", isAuthenticatedMiddleware, isVerifiedMiddleware, PlaylistController.getPlayListAudios);
 
 export default router;

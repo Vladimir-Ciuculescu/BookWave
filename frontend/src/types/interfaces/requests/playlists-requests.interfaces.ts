@@ -20,6 +20,12 @@ export interface RemoveFromPlaylistRequest {
 
 export interface GetPlaylistsRequest {
   title: string;
+  limit?: string;
+  pageNumber?: string;
+}
+
+export interface GetPlaylistsTotalCountRequest {
+  title: string;
 }
 
 export interface getIsExistentInPlaylistRequest {

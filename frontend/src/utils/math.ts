@@ -9,15 +9,14 @@ export interface MapRangeOptions {
 export const mapRange = (options: MapRangeOptions) => {
   const { inputValue, outputMax, outputMin, inputMax, inputMin } = options;
 
-  const result =
-    ((inputValue - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin;
+  const result = ((inputValue - inputMin) / (inputMax - inputMin)) * (outputMax - outputMin) + outputMin;
 
   if (result === Infinity) return 0;
 
   return result;
 };
 
-export const formatToClock = (milliseconds: number) => {
+export const convertFromMillisecondsToClock = (milliseconds: number) => {
   if (!milliseconds) {
     return "00:00";
   }
@@ -30,4 +29,15 @@ export const formatToClock = (milliseconds: number) => {
   const formattedSeconds = String(seconds).padStart(2, "0");
 
   return `${formattedMinutes}:${formattedSeconds}`;
+};
+
+export const convertFromSecondsToClock = (durationInSeconds: number) => {
+  // Convert duration to minutes and seconds
+  const totalMinutes = Math.floor(durationInSeconds / 60); // Get total minutes
+  const remainingSeconds = Math.round(durationInSeconds % 60); // Get remaining seconds
+
+  // Format the result as "MM:SS"
+  const formattedDuration = `${totalMinutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+
+  return formattedDuration;
 };

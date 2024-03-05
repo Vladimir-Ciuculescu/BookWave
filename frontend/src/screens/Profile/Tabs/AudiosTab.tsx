@@ -1,11 +1,11 @@
-import { FlatList, StyleSheet } from "react-native";
-import { Text, View } from "react-native-ui-lib";
-import BWView from "components/shared/BWView";
-import { COLORS } from "utils/colors";
+import PlayAudioCard from "components/PlayAudioCard";
 import BWDivider from "components/shared/BWDivider";
+import BWView from "components/shared/BWView";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { useFetchAudiosByProfile } from "hooks/audios.queries";
-import PlayAudioCard from "components/PlayAudioCard";
+import { FlatList, StyleSheet } from "react-native";
+import { Text, View } from "react-native-ui-lib";
+import { COLORS } from "utils/colors";
 
 const AudiosTab = () => {
   const { data } = useFetchAudiosByProfile();
@@ -22,18 +22,13 @@ const AudiosTab = () => {
         {data && (
           <>
             <Text style={styles.audioCounter}>{data.length} audios</Text>
-            <BWDivider
-              orientation="horizontal"
-              thickness={1.5}
-              width="100%"
-              color={COLORS.MUTED[700]}
-            />
+            <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
             <FlatList
               showsVerticalScrollIndicator={false}
               data={copy}
               contentContainerStyle={styles.listContainer}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <PlayAudioCard audio={item} />}
+              renderItem={({ item }) => <PlayAudioCard onPress={() => {}} audio={item} />}
             />
           </>
         )}

@@ -1,11 +1,12 @@
-import { StyleSheet } from "react-native";
-import { Text } from "react-native-ui-lib";
+import { Entypo } from "@expo/vector-icons";
+import BWIconButton from "components/shared/BWIconButton";
 import BWImage from "components/shared/BWImage";
 import BWView from "components/shared/BWView";
+import { memo } from "react";
+import { StyleSheet } from "react-native";
+import { Text } from "react-native-ui-lib";
 import { PlayList } from "types/interfaces/playlists";
 import { COLORS } from "utils/colors";
-import BWIconButton from "components/shared/BWIconButton";
-import { Ionicons, Entypo } from "@expo/vector-icons";
 
 interface PlayListCardProps {
   playlist: PlayList;
@@ -32,16 +33,12 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
           </BWView>
         </BWView>
       </BWView>
-      <BWIconButton
-        link
-        onPress={() => {}}
-        icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />}
-      />
+      <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
     </BWView>
   );
 };
 
-export default PlayListCard;
+export default memo(PlayListCard);
 
 const styles = StyleSheet.create({
   audioImage: {

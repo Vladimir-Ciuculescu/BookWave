@@ -4,7 +4,7 @@ import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { BlurView } from "expo-blur";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { playerSelector } from "redux/reducers/player.reducer";
@@ -19,8 +19,6 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC<any> = () => {
   const { track, audio } = useSelector(playerSelector);
-
-  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     return track

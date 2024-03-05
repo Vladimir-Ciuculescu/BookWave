@@ -1,10 +1,10 @@
-import { StyleSheet, Pressable, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Text } from "react-native-ui-lib";
-import BWView from "./shared/BWView";
-import { COLORS } from "utils/colors";
-import BWImage from "./shared/BWImage";
 import { AudioFile } from "types/interfaces/audios";
+import { COLORS } from "utils/colors";
 import SoundWave from "./SoundWave";
+import BWImage from "./shared/BWImage";
+import BWView from "./shared/BWView";
 
 interface AudioCard {
   audio: AudioFile;
@@ -15,21 +15,11 @@ interface AudioCard {
 
 const AudioCard: React.FC<AudioCard> = ({ audio, onPress, onLongPress, animation }) => {
   return (
-    <Pressable
-      style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}
-      delayLongPress={200}
-      onPress={onPress}
-      onLongPress={onLongPress}
-    >
+    <Pressable style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)} delayLongPress={200} onPress={onPress} onLongPress={onLongPress}>
       <BWView column gap={10} key={audio.id} style={styles.listContainer}>
         <View style={styles.imageContainer}>
           {animation && <SoundWave />}
-          <BWImage
-            style={styles.image}
-            placeholder={!audio.poster}
-            iconName="image"
-            src={audio.poster!}
-          />
+          <BWImage style={styles.image} placeholder={!audio.poster} iconName="image" src={audio.poster!} />
         </View>
 
         <Text style={styles.imageTitle} numberOfLines={2} ellipsizeMode="tail">

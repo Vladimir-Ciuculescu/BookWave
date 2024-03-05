@@ -1,6 +1,6 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
-import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
+import { GetFavoritesRequest, GetFavoritesTotalCountRequest } from "types/interfaces/requests/favorites-requests.interfaces";
 
 export const getFavoritesApi = async (payload: GetFavoritesRequest) => {
   try {
@@ -13,6 +13,16 @@ export const getFavoritesApi = async (payload: GetFavoritesRequest) => {
     });
 
     return data.favorites;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+export const getFavoritesTotalCountapi = async (payload: GetFavoritesTotalCountRequest) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/favorites/total-count`, { params: payload, headers: { Authorization: `Bearer=${await getToken()}` } });
+
+    return data;
   } catch (error: any) {
     throw new Error(error.response.data.error);
   }
@@ -47,6 +57,7 @@ export const getIsFavoriteApi = async (audioId: string) => {
 
 const FavoriteService = {
   getFavoritesApi,
+  getFavoritesTotalCountapi,
   toggleFavoriteAudioApi,
   getIsFavoriteApi,
 };

@@ -6,66 +6,108 @@ import BWView from "components/shared/BWView";
 import { categories } from "consts/categories";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { StatusBar } from "expo-status-bar";
-import { useFetchFavorites } from "hooks/favorites.queries";
-import _ from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Keyboard,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { useFetchFavorites, useFetchFavoritesTotalCount } from "hooks/favorites.queries";
+import { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setAudiosListAction, setIsPlayingAction } from "redux/reducers/player.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { Category } from "types/enums/categories.enum";
+import { AudioFile } from "types/interfaces/audios";
+import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
+import { loadAudio } from "utils/audio";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import Categories from "./Categories";
 
 const FavoritesScreen: React.FC<any> = () => {
-  const LIMIT = 10;
-
-  const [index, setIndex] = useState(0);
-
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [favorites, setFavorites] = useState<AudioFile[]>([]);
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
   const [selectedCategories, toggleSelectedCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
+  const [refresh, setRefresh] = useState<boolean>(false);
+  const [reachedEnd, setReachedEnd] = useState<boolean>(false);
   const textRef = useRef<TextFieldRef>(null);
+  const flatListRef = useRef<any>(null);
+  const dispatch = useDispatch();
+  const { track, audio, isPlaying } = useSelector(playerSelector);
 
-  const { data, refetch, isLoading } = useFetchFavorites({
-    limit: LIMIT,
-    pageNumber: index,
-    title,
-    categories: selectedCategories.join(","),
-  });
+  const payload: GetFavoritesRequest = {
+    pageNumber: (pageNumber - 1).toString(),
+  };
+
+  payload.title = searchText;
+
+  if (selectedCategories.length) {
+    payload.categories = selectedCategories.join(",");
+  }
+
+  const { data, refetch, isLoading, isFetching } = useFetchFavorites(payload);
+
+  const { data: total } = useFetchFavoritesTotalCount({ title: searchText, categories: selectedCategories.join(",") });
 
   useEffect(() => {
     if (searchMode) {
       textRef.current!.focus();
+      setPageNumber(1);
     }
   }, [searchMode]);
 
   useEffect(() => {
-    if (!title) {
-      refetch();
+    if (data) {
+      if (!data.length) {
+        if (pageNumber === 1) {
+          setFavorites([]);
+        } else {
+          setReachedEnd(true);
+          return;
+        }
+      } else {
+        setFavorites(pageNumber === 1 ? [...data] : [...favorites, ...data]);
+      }
     }
+
+    setReachedEnd(false);
+  }, [data]);
+
+  useEffect(() => {
+    if (!title && !searchMode) {
+      setSearchText(title);
+      setPageNumber(1);
+      return;
+    }
+
+    const debounceTitle = setTimeout(() => {
+      setPageNumber(1);
+      setSearchText(title);
+    }, 500);
+
+    return () => clearTimeout(debounceTitle);
   }, [title]);
 
-  const debounceTyping = useCallback(
-    _.debounce(() => refetch(), 500),
-    [],
-  );
+  useEffect(() => {
+    setPageNumber(1);
 
-  const handleTyping = (value: string) => {
-    setTitle(value);
-    debounceTyping();
-  };
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: false, offset: 0 });
+    }
+  }, [selectedCategories]);
 
-  const clearText = () => {
-    toggleSearchMode(false);
-    setTitle("");
+  useEffect(() => {
+    dispatch(setAudiosListAction(favorites));
+  }, [favorites]);
+
+  const fetchNextPage = () => {
+    if (reachedEnd) {
+      return;
+    }
+
+    if (!isFetching && !isLoading) {
+      setPageNumber((prevValue) => prevValue + 1);
+    }
   };
 
   const clearSearch = () => {
@@ -73,46 +115,132 @@ const FavoritesScreen: React.FC<any> = () => {
     setTitle("");
   };
 
+  const refreshList = () => {
+    setRefresh(true);
+
+    if (pageNumber === 1) {
+      refetch();
+    } else {
+      setPageNumber(1);
+    }
+
+    if (!isFetching && !isLoading) {
+      setRefresh(false);
+    }
+  };
+
   const toggleCategory = (category: Category) => {
     const isCategorySelected = selectedCategories.includes(category);
 
-    toggleSelectedCategories((oldValues) =>
-      isCategorySelected
-        ? oldValues.filter((item: Category) => category !== item)
-        : [...oldValues, category],
-    );
+    toggleSelectedCategories((oldValues) => (isCategorySelected ? oldValues.filter((item: Category) => category !== item) : [...oldValues, category]));
   };
 
   const removeCategory = (category: Category) => {
-    toggleSelectedCategories((oldValues) =>
-      oldValues.filter((item: Category) => category !== item),
-    );
+    toggleSelectedCategories((oldValues) => oldValues.filter((item: Category) => category !== item));
+  };
+
+  const playAudio = async (item: AudioFile) => {
+    try {
+      if (!track || (track && item !== audio)) {
+        await loadAudio(dispatch, item);
+        return;
+      }
+
+      if (isPlaying) {
+        await track.pauseAsync();
+      } else {
+        await track.playAsync();
+      }
+
+      dispatch(setIsPlayingAction(!isPlaying));
+    } catch (error) {
+      dispatch(setToastMessageAction({ message: "Could not play audio, try again", type: "error" }));
+    }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
       <StatusBar style="light" />
-      {!searchMode ? (
+      {searchMode ? (
+        <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
+          <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
+            <Pressable onPress={() => toggleSearchMode(false)}>
+              <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
+            </Pressable>
+            <View style={styles.flex}>
+              <TextField
+                keyboardAppearance="dark"
+                returnKeyType="search"
+                onSubmitEditing={() => toggleSearchMode(false)}
+                ref={textRef}
+                value={title}
+                onChangeText={setTitle}
+                style={styles.searchInput}
+                leadingAccessory={
+                  <View style={styles.leftIcon}>
+                    <Feather name="search" size={22} color={COLORS.MUTED[50]} />
+                  </View>
+                }
+                trailingAccessory={
+                  <View style={styles.rightIcon}>
+                    <BWIconButton onPress={clearSearch} icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />} link />
+                  </View>
+                }
+                placeholder="Search..."
+                placeholderTextColor={COLORS.MUTED[600]}
+              />
+            </View>
+          </BWView>
+          <View style={styles.flex}>
+            <BWView column gap={15}>
+              <Categories selectedCategories={selectedCategories} categories={categories} onToggle={toggleCategory} />
+              {isLoading ? (
+                <View style={{ marginTop: 50 }}>
+                  <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
+                </View>
+              ) : !favorites.length ? (
+                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                  <NoResultsFound width="100%" height={250} />
+                  <BWView column alignItems="center" gap={10}>
+                    <Text style={styles.notFoundTitle}>Not found</Text>
+                    <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
+                  </BWView>
+                </BWView>
+              ) : (
+                <FlatList
+                  ref={flatListRef}
+                  onEndReached={fetchNextPage}
+                  initialNumToRender={20}
+                  onEndReachedThreshold={0.1}
+                  showsVerticalScrollIndicator={false}
+                  data={favorites}
+                  renderItem={({ item }) => (
+                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={styles.searchingListContainer}
+                />
+              )}
+            </BWView>
+          </View>
+        </View>
+      ) : (
         <BWView column gap={24} style={styles.viewContainer}>
-          <BWView row justifyContent="space-between">
+          <BWView style={{ paddingHorizontal: 20 }} row justifyContent="space-between">
             <BWView row alignItems="center" gap={20}>
               <FontAwesome name="music" size={45} color={COLORS.WARNING[500]} />
               <Text style={styles.title}>Favorites</Text>
             </BWView>
-            <BWIconButton
-              onPress={() => toggleSearchMode(true)}
-              icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />}
-              link
-            />
+            <BWIconButton onPress={() => toggleSearchMode(true)} icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />} link />
           </BWView>
           {title && (
-            <BWView row>
+            <BWView row style={{ paddingHorizontal: 15 }}>
               <Chip
                 borderRadius={22}
                 label={`Results for: ${title}`}
                 rightElement={
                   <BWIconButton
-                    onPress={clearText}
+                    onPress={clearSearch}
                     style={{ backgroundColor: "transparent" }}
                     icon={() => <AntDesign name="close" size={20} color={COLORS.MUTED[50]} />}
                   />
@@ -123,9 +251,9 @@ const FavoritesScreen: React.FC<any> = () => {
             </BWView>
           )}
           {selectedCategories.length > 0 && (
-            <BWView column gap={10}>
+            <BWView column gap={20}>
               <Text style={styles.categoriesApplied}>Categories applied:</Text>
-              <ScrollView horizontal contentContainerStyle={{ gap: 10 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}>
                 {selectedCategories.map((category: Category) => (
                   <Chip
                     key={category}
@@ -145,113 +273,40 @@ const FavoritesScreen: React.FC<any> = () => {
               </ScrollView>
             </BWView>
           )}
-          <View style={styles.flex}>
-            {data && (
+          <View style={[styles.flex, { paddingHorizontal: 15 }]}>
+            {favorites && favorites.length ? (
               <BWView column gap={15}>
                 <BWView row justifyContent="space-between">
-                  <Text style={styles.favoritesCount}>{data.length} favorites</Text>
-                  <Text style={styles.test}>Test button</Text>
+                  <Text style={styles.favoritesCount}>{total} favorites</Text>
                 </BWView>
-                <BWDivider
-                  orientation="horizontal"
-                  thickness={1.5}
-                  width="100%"
-                  color={COLORS.MUTED[700]}
+
+                <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
+
+                <FlatList
+                  refreshControl={<RefreshControl tintColor={COLORS.WARNING[400]} refreshing={refresh} onRefresh={refreshList} />}
+                  onEndReached={fetchNextPage}
+                  onEndReachedThreshold={1}
+                  initialNumToRender={20}
+                  showsVerticalScrollIndicator={false}
+                  data={favorites}
+                  renderItem={({ item }) => (
+                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                  contentContainerStyle={styles.listContainer}
                 />
-                {data.length ? (
-                  <FlatList
-                    showsVerticalScrollIndicator={false}
-                    data={data}
-                    renderItem={({ item }) => <PlayAudioCard audio={item} />}
-                    keyExtractor={(item, index) => index.toString()}
-                    contentContainerStyle={styles.listContainer}
-                  />
-                ) : (
-                  <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
-                    <NoResultsFound width="100%" height={250} />
-                    <BWView column alignItems="center" gap={10}>
-                      <Text style={styles.notFoundTitle}>Not found</Text>
-                      <Text style={styles.notFoundDescription}>
-                        Sorry, no results found. Please try again or type anything else
-                      </Text>
-                    </BWView>
-                  </BWView>
-                )}
+              </BWView>
+            ) : (
+              <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+                <NoResultsFound width="100%" height={250} />
+                <BWView column alignItems="center" gap={10}>
+                  <Text style={styles.notFoundTitle}>Not found</Text>
+                  <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
+                </BWView>
               </BWView>
             )}
           </View>
         </BWView>
-      ) : (
-        <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
-          <BWView row alignItems="center" gap={10} style={{ paddingHorizontal: 10 }}>
-            <Pressable onPress={() => toggleSearchMode(false)}>
-              <Ionicons name="chevron-back-outline" size={24} color={COLORS.WARNING[500]} />
-            </Pressable>
-            <View style={styles.flex}>
-              <TextField
-                keyboardAppearance="dark"
-                returnKeyType="search"
-                onSubmitEditing={() => toggleSearchMode(false)}
-                ref={textRef}
-                value={title}
-                onChangeText={handleTyping}
-                style={styles.searchInput}
-                leadingAccessory={
-                  <View style={styles.leftIcon}>
-                    <Feather name="search" size={22} color={COLORS.MUTED[50]} />
-                  </View>
-                }
-                trailingAccessory={
-                  <View style={styles.rightIcon}>
-                    <BWIconButton
-                      onPress={clearSearch}
-                      icon={() => <Ionicons name="close" size={20} color={COLORS.WARNING[500]} />}
-                      link
-                    />
-                  </View>
-                }
-                placeholder="Search..."
-                placeholderTextColor={COLORS.MUTED[600]}
-              />
-            </View>
-          </BWView>
-          <View style={styles.flex}>
-            <BWView column gap={15}>
-              <Categories
-                selectedCategories={selectedCategories}
-                categories={categories}
-                onToggle={toggleCategory}
-              />
-              {isLoading ? (
-                <View style={{ marginTop: 50 }}>
-                  <ActivityIndicator
-                    color={COLORS.WARNING[500]}
-                    size="large"
-                    style={styles.loadinngSpinner}
-                  />
-                </View>
-              ) : !data.length ? (
-                <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
-                  <NoResultsFound width="100%" height={250} />
-                  <BWView column alignItems="center" gap={10}>
-                    <Text style={styles.notFoundTitle}>Not found</Text>
-                    <Text style={styles.notFoundDescription}>
-                      Sorry, no results found. Please try again or type anything else
-                    </Text>
-                  </BWView>
-                </BWView>
-              ) : (
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  data={data}
-                  renderItem={({ item }) => <PlayAudioCard audio={item} />}
-                  keyExtractor={(item, index) => index.toString()}
-                  contentContainerStyle={[styles.listContainer, { paddingHorizontal: 10 }]}
-                />
-              )}
-            </BWView>
-          </View>
-        </View>
       )}
     </SafeAreaView>
   );
@@ -263,15 +318,20 @@ const styles = StyleSheet.create({
   listContainer: {
     gap: 15,
     paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingHorizontal: 20,
   },
 
+  searchingListContainer: {
+    gap: 15,
+    paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingHorizontal: 20,
+  },
   flex: {
     flex: 1,
   },
 
   viewContainer: {
     flex: 1,
-    paddingHorizontal: 30,
     paddingTop: 20,
   },
 
@@ -331,6 +391,7 @@ const styles = StyleSheet.create({
   categoriesApplied: {
     color: COLORS.MUTED[50],
     fontFamily: "Minomu",
+    paddingHorizontal: 20,
   },
   loadinngSpinner: {
     transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],

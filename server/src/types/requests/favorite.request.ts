@@ -1,5 +1,4 @@
 import { Request } from "express";
-import { Category } from "types/enums/audio-category.enum";
 
 export interface GetFavoritesRequest extends Request {
   query: {
@@ -8,5 +7,12 @@ export interface GetFavoritesRequest extends Request {
     //test
     categories: string;
     title?: string;
+  };
+}
+
+export interface GetFavoritesTotalCountRequest extends Request {
+  query: {
+    title: string;
+    categories: string;
   };
 }
