@@ -4,10 +4,12 @@ import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { BlurView } from "expo-blur";
+import useAudioController from "hooks/useAudioController";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
-import { playerSelector } from "redux/reducers/player.reducer";
+import { useActiveTrack } from "react-native-track-player";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setAudioAction } from "redux/reducers/player.reducer";
 import FavoritesScreen from "screens/Favorites/FavoritesScreen";
 import HomeScreen from "screens/Home/HomeScreen";
 import PlayListsScreen from "screens/PlayLists/PlayListsScreen";
@@ -19,18 +21,35 @@ const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC<any> = () => {
   const { track, audio } = useSelector(playerSelector);
+  const { isPlayerReady } = useAudioController();
+  const currentTrack = useActiveTrack();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    return track
-      ? () => {
-          track.unloadAsync();
-        }
-      : undefined;
-  }, [track]);
+    if (currentTrack) {
+      //@ts-ignore
+
+      const payload = {
+        id: currentTrack.id,
+        title: currentTrack.title,
+        about: currentTrack.about,
+        category: currentTrack.genre,
+        file: currentTrack.url,
+        poster: currentTrack.artwork,
+        owner: currentTrack.owner,
+      };
+
+      //@ts-ignore
+      dispatch(setAudioAction(payload));
+    }
+  }, [currentTrack]);
 
   return (
     <>
       {audio && <MiniPlayer />}
+      {/* {isPlayerReady && currentTrack && <MiniPlayer />} */}
+      {/* {trackk && <MiniPlayer />} */}
+
       <AudioPlayer />
       <Tab.Navigator
         screenOptions={{

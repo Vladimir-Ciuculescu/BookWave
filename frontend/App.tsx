@@ -1,8 +1,8 @@
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from "expo-av";
 import { useFonts } from "expo-font";
 import AppNavigator from "navigation/ApppNavigator";
 import { useEffect } from "react";
 import { LogBox } from "react-native";
+import TrackPlayer from "react-native-track-player";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import store from "redux/store";
@@ -21,19 +21,11 @@ export default function App() {
   });
 
   useEffect(() => {
-    const setAudioMode = async () => {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        staysActiveInBackground: true,
-        interruptionModeIOS: InterruptionModeIOS.DuckOthers,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-        playThroughEarpieceAndroid: false,
-      });
+    const setupPlayer = async () => {
+      await TrackPlayer.setupPlayer();
     };
 
-    setAudioMode();
+    setupPlayer();
   }, []);
 
   if (!fontsLoaded) {
