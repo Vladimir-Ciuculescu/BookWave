@@ -1,14 +1,14 @@
 import { AntDesign, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { useEffect, useState } from "react";
+import useAudioController from "hooks/useAudioController";
+import { useState } from "react";
 import { Dimensions, StyleSheet } from "react-native";
+import TrackPlayer, { useActiveTrack, useProgress } from "react-native-track-player";
 import { ActionSheet, Dialog, PanningProvider, Text, View } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
-import { playerSelector, setDidFinishAction, setIsPlayingAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
-import { AudioFile } from "types/interfaces/audios";
-import { loadAudio } from "utils/audio";
+import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { COLORS } from "utils/colors";
-import { convertFromMillisecondsToClock } from "utils/math";
+import { convertFromSecondsToClock } from "utils/math";
 import BWDivider from "./shared/BWDivider";
 import BWIconButton from "./shared/BWIconButton";
 import BWImage from "./shared/BWImage";
@@ -17,77 +17,63 @@ import BWView from "./shared/BWView";
 const { height, width } = Dimensions.get("screen");
 
 const AudioPlayerContent = () => {
-  const { track, audio, progress, duration, isPlaying, didFinish, list, isFavorite } = useSelector(playerSelector);
-
-  const [progressValue, setProgressValue] = useState(progress);
   const [speedModal, toggleSpeedModal] = useState<boolean>(false);
-
+  const { audio, list } = useSelector(playerSelector);
+  const { position, duration } = useProgress(300);
+  const { isPlaying, onAudioPress, skipTo } = useAudioController();
+  const track = useActiveTrack();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setProgressValue((prevValue: number) => prevValue + 500);
-    }, 500);
-
-    if (!isPlaying) {
-      clearInterval(progressInterval);
-    }
-
-    return () => {
-      clearInterval(progressInterval);
-    };
-  }, [duration, isPlaying]);
-
-  const seekTimeStamp = async (milliSeconds: number) => {
-    await track?.setPositionAsync(milliSeconds);
+  const stepTimestamp = async (direction: "backward" | "forward") => {
+    await skipTo(direction === "backward" ? -10 : 10);
   };
 
-  const skipTo = async (direction: "backward" | "forwnard") => {
-    await track?.setPositionAsync(direction === "backward" ? progress - 10 * 1000 : progress + 10 * 1000);
-    setProgressValue((prevValue) => (direction === "backward" ? prevValue - 10 * 1000 : prevValue + 10 * 1000));
-  };
-
-  const findAudioIndex = (list: AudioFile[], audio: AudioFile) => {
-    const index = list.findIndex((item: AudioFile) => item === audio);
-
-    return index;
+  const seekTimeStamp = async (second: number) => {
+    await TrackPlayer.seekTo(second);
   };
 
   const stepBackWard = async () => {
-    const currentIndex = findAudioIndex(list, audio!);
+    const currentList = await TrackPlayer.getQueue();
 
-    await loadAudio(dispatch, list[currentIndex - 1]);
+    const currentIndex = await TrackPlayer.getActiveTrackIndex();
 
-    setProgressValue(0);
-  };
+    if (currentIndex === null) {
+      return;
+    }
 
-  const stepForward = async () => {
-    const currentIndex = findAudioIndex(list, audio!);
+    const previousTrack = currentList[currentIndex! - 1];
 
-    await loadAudio(dispatch, list[currentIndex + 1]);
-
-    setProgressValue(0);
-  };
-
-  const toggleIsPlaying = async () => {
-    dispatch(setIsPlayingAction(!isPlaying));
-
-    if (isPlaying) {
-      await track?.pauseAsync();
-    } else {
-      if (didFinish) {
-        setProgressValue(0);
-        await track?.replayAsync();
-        dispatch(setDidFinishAction(false));
-      } else {
-        await track?.playAsync();
-      }
+    if (previousTrack) {
+      await TrackPlayer.skipToPrevious();
+      dispatch(setAudioAction(list[currentIndex! - 1]));
     }
   };
 
-  const isFirstInList = findAudioIndex(list, audio!) === 0;
+  const stepForward = async () => {
+    const currentList = await TrackPlayer.getQueue();
 
-  const isLastInList = findAudioIndex(list, audio!) === list.length - 1;
+    const currentIndex = await TrackPlayer.getActiveTrackIndex();
+
+    if (currentIndex === null) {
+      return;
+    }
+
+    const nextTrack = currentList[currentIndex! + 1];
+
+    if (nextTrack) {
+      await TrackPlayer.skipToNext();
+      dispatch(setAudioAction(list[currentIndex! + 1]));
+    }
+  };
+
+  const findTrackIndex = (data: any[], track: any) => {
+    const trackIndex = data.findIndex((audio) => audio.id === track.id);
+    return trackIndex;
+  };
+
+  const isLastTrack = track ? findTrackIndex(list, audio) === list.length - 1 : false;
+
+  const isFirstTrack = track ? findTrackIndex(list, audio) === 0 : false;
 
   return (
     <View style={{ backgroundColor: COLORS.MUTED[800], height: "110%", paddingTop: 40 }}>
@@ -103,50 +89,33 @@ const AudioPlayerContent = () => {
           minimumValue={0}
           step={1000}
           maximumValue={duration}
-          value={progressValue}
-          onValueChange={(e) => setProgressValue(e)}
+          value={position}
           onSlidingComplete={seekTimeStamp}
           minimumTrackTintColor={COLORS.WARNING[500]}
           maximumTrackTintColor={COLORS.WARNING[500]}
           thumbTintColor={COLORS.WARNING[600]}
         />
         <BWView style={{ width: "100%" }} row justifyContent="space-between">
-          <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(progress)} </Text>
-          <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(duration)}</Text>
+          <Text style={{ color: "white" }}>{convertFromSecondsToClock(position)} </Text>
+          <Text style={{ color: "white" }}>{convertFromSecondsToClock(duration)} </Text>
         </BWView>
         <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
-          <BWIconButton
-            link
-            icon={() => <AntDesign name="stepbackward" size={30} color={COLORS.MUTED[50]} />}
-            onPress={stepBackWard}
-            disabled={isFirstInList}
-          />
-          <BWIconButton link icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => skipTo("backward")} />
+          <BWIconButton link icon={() => <AntDesign name="stepbackward" size={30} color={COLORS.MUTED[50]} />} onPress={stepBackWard} disabled={isFirstTrack} />
+          <BWIconButton link icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("backward")} />
           <BWIconButton
             style={{ width: 50, height: 50, backgroundColor: COLORS.WARNING[500], paddingLeft: 4 }}
             icon={() =>
               isPlaying ? <Ionicons name="pause" size={24} color={COLORS.MUTED[50]} /> : <FontAwesome5 name="play" size={24} color={COLORS.MUTED[50]} />
             }
-            onPress={toggleIsPlaying}
+            onPress={() => onAudioPress(audio!, list)}
           />
-          <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => skipTo("forwnard")} />
+          <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("forward")} />
 
-          <BWIconButton link icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />} onPress={stepForward} disabled={isLastInList} />
+          <BWIconButton link icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />} onPress={stepForward} disabled={isLastTrack} />
         </BWView>
         <BWView row gap={50} style={{ marginTop: 30 }}>
-          <BWIconButton
-            link
-            icon={() => <AntDesign name="heart" size={30} color={COLORS.MUTED[50]} />}
-            // onPress={stepBackWard}
-            onPress={() => {}}
-            disabled={isFirstInList}
-          />
-          <BWIconButton
-            link
-            icon={() => <MaterialIcons name="speed" size={30} color={COLORS.MUTED[50]} />}
-            // onPress={() => skipTo("backward")}
-            onPress={() => toggleSpeedModal(true)}
-          />
+          <BWIconButton link icon={() => <AntDesign name="heart" size={30} color={COLORS.MUTED[50]} />} onPress={() => {}} />
+          <BWIconButton link icon={() => <MaterialIcons name="speed" size={30} color={COLORS.MUTED[50]} />} onPress={() => toggleSpeedModal(true)} />
         </BWView>
       </BWView>
       <Dialog

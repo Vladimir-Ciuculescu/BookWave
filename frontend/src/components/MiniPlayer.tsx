@@ -1,64 +1,37 @@
-import { Text, View } from "react-native-ui-lib";
-import { StyleSheet } from "react-native";
-import { MINI_PLAYER_HEIGHT, TAB_BAR_HEIGHT } from "consts/dimensions";
-import { COLORS } from "utils/colors";
-import BWView from "./shared/BWView";
-import { Dimensions } from "react-native";
-import BWImage from "./shared/BWImage";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  playerSelector,
-  setAudioAction,
-  setDidFinishAction,
-  setIsPlayingAction,
-  setTrackAction,
-  setVisibileModalPlayerAction,
-} from "redux/reducers/player.reducer";
 import { AntDesign, FontAwesome, Ionicons } from "@expo/vector-icons";
-import BWIconButton from "./shared/BWIconButton";
+import { MINI_PLAYER_HEIGHT, TAB_BAR_HEIGHT } from "consts/dimensions";
+import useAudioController from "hooks/useAudioController";
+import { Dimensions, StyleSheet } from "react-native";
+import Animated, { FadeInLeft, FadeOutRight } from "react-native-reanimated";
+import TrackPlayer, { useProgress } from "react-native-track-player";
+import { Text, View } from "react-native-ui-lib";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
+import { COLORS } from "utils/colors";
 import { mapRange } from "utils/math";
+import BWIconButton from "./shared/BWIconButton";
+import BWImage from "./shared/BWImage";
 import BWPressable from "./shared/BWPressable";
-import Animated, {
-  FadeInDown,
-  FadeInLeft,
-  FadeInRight,
-  FadeOutDown,
-  FadeOutRight,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
-import { useEffect } from "react";
+import BWView from "./shared/BWView";
 
 const { width } = Dimensions.get("window");
 
 const MiniPlayer: React.FC<any> = () => {
-  const { track, audio, isPlaying, duration, progress, didFinish } = useSelector(playerSelector);
+  const { audio, list } = useSelector(playerSelector);
+
+  const { isPlaying, onAudioPress } = useAudioController();
+  const progress = useProgress(300);
 
   const dispatch = useDispatch();
-
-  const togglePlaying = async () => {
-    dispatch(setIsPlayingAction(!isPlaying));
-
-    if (isPlaying) {
-      await track?.pauseAsync();
-    } else {
-      if (didFinish) {
-        await track?.replayAsync();
-        dispatch(setDidFinishAction(false));
-      } else {
-        await track?.playAsync();
-      }
-    }
-  };
 
   const openAudioPlayer = () => {
     dispatch(setVisibileModalPlayerAction(true));
   };
 
   const unloadAudio = async () => {
-    await track?.unloadAsync();
-    dispatch(setTrackAction(undefined));
+    await TrackPlayer.reset();
+
+    //dispatch(setTrackAction(undefined));
     dispatch(setAudioAction(undefined));
   };
 
@@ -71,8 +44,8 @@ const MiniPlayer: React.FC<any> = () => {
               outputMin: 0,
               outputMax: 100,
               inputMin: 0,
-              inputMax: duration,
-              inputValue: progress,
+              inputMax: progress.duration,
+              inputValue: progress.position,
             })}%`,
           },
           styles.progress,
@@ -81,13 +54,7 @@ const MiniPlayer: React.FC<any> = () => {
       <BWPressable onPress={openAudioPlayer}>
         <BWView row justifyContent="space-between" style={styles.innerContainer}>
           <BWView row alignItems="center" gap={15}>
-            <BWImage
-              src={audio!.poster}
-              placeholder={!audio?.poster}
-              iconName="image"
-              iconSize={30}
-              style={styles.poster}
-            />
+            <BWImage src={audio!.poster} placeholder={!audio?.poster} iconName="image" iconSize={30} style={styles.poster} />
             <BWView column justifyContent="space-between" gap={5}>
               <Text style={styles.title}>{audio!.title}</Text>
               <Text style={styles.owner}>{audio!.owner.name}</Text>
@@ -98,19 +65,11 @@ const MiniPlayer: React.FC<any> = () => {
             <BWIconButton
               style={styles.actionBtn}
               icon={() =>
-                isPlaying ? (
-                  <Ionicons name="pause" size={24} color={COLORS.WARNING[500]} />
-                ) : (
-                  <FontAwesome name="play" size={24} color={COLORS.WARNING[500]} />
-                )
+                isPlaying ? <Ionicons name="pause" size={24} color={COLORS.WARNING[500]} /> : <FontAwesome name="play" size={24} color={COLORS.WARNING[500]} />
               }
-              onPress={togglePlaying}
+              onPress={() => onAudioPress(audio!, list)}
             />
-            <BWIconButton
-              style={styles.actionBtn}
-              icon={() => <AntDesign name="close" size={24} color={COLORS.WARNING[500]} />}
-              onPress={unloadAudio}
-            />
+            <BWIconButton style={styles.actionBtn} icon={() => <AntDesign name="close" size={24} color={COLORS.WARNING[500]} />} onPress={unloadAudio} />
           </BWView>
         </BWView>
       </BWPressable>

@@ -20,7 +20,6 @@
     "@reduxjs/toolkit": "^1.9.7",
     "axios": "^1.5.1",
     "expo": "^49.0.16",
-    "expo-av": "~13.4.1",
     "expo-blur": "~12.4.1",
     "expo-dev-client": "~2.4.13",
     "expo-document-picker": "~11.5.4",

@@ -7,16 +7,15 @@ import { categories } from "consts/categories";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { StatusBar } from "expo-status-bar";
 import { useFetchFavorites, useFetchFavoritesTotalCount } from "hooks/favorites.queries";
+import useAudioController from "hooks/useAudioController";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
-import { playerSelector, setAudiosListAction, setIsPlayingAction } from "redux/reducers/player.reducer";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { playerSelector } from "redux/reducers/player.reducer";
 import { Category } from "types/enums/categories.enum";
 import { AudioFile } from "types/interfaces/audios";
 import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
-import { loadAudio } from "utils/audio";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import Categories from "./Categories";
@@ -33,7 +32,8 @@ const FavoritesScreen: React.FC<any> = () => {
   const textRef = useRef<TextFieldRef>(null);
   const flatListRef = useRef<any>(null);
   const dispatch = useDispatch();
-  const { track, audio, isPlaying } = useSelector(playerSelector);
+  const { audio } = useSelector(playerSelector);
+  const { onAudioPress, isPlaying } = useAudioController();
 
   const payload: GetFavoritesRequest = {
     pageNumber: (pageNumber - 1).toString(),
@@ -96,10 +96,6 @@ const FavoritesScreen: React.FC<any> = () => {
     }
   }, [selectedCategories]);
 
-  useEffect(() => {
-    dispatch(setAudiosListAction(favorites));
-  }, [favorites]);
-
   const fetchNextPage = () => {
     if (reachedEnd) {
       return;
@@ -137,25 +133,6 @@ const FavoritesScreen: React.FC<any> = () => {
 
   const removeCategory = (category: Category) => {
     toggleSelectedCategories((oldValues) => oldValues.filter((item: Category) => category !== item));
-  };
-
-  const playAudio = async (item: AudioFile) => {
-    try {
-      if (!track || (track && item !== audio)) {
-        await loadAudio(dispatch, item);
-        return;
-      }
-
-      if (isPlaying) {
-        await track.pauseAsync();
-      } else {
-        await track.playAsync();
-      }
-
-      dispatch(setIsPlayingAction(!isPlaying));
-    } catch (error) {
-      dispatch(setToastMessageAction({ message: "Could not play audio, try again", type: "error" }));
-    }
   };
 
   return (
@@ -215,7 +192,11 @@ const FavoritesScreen: React.FC<any> = () => {
                   showsVerticalScrollIndicator={false}
                   data={favorites}
                   renderItem={({ item }) => (
-                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                    <PlayAudioCard
+                      onPress={() => onAudioPress(item, favorites)}
+                      audio={item}
+                      isPlaying={(audio && item.id === audio!.id && isPlaying) || false}
+                    />
                   )}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.searchingListContainer}
@@ -290,7 +271,11 @@ const FavoritesScreen: React.FC<any> = () => {
                   showsVerticalScrollIndicator={false}
                   data={favorites}
                   renderItem={({ item }) => (
-                    <PlayAudioCard onPress={() => playAudio(item)} audio={item} isPlaying={(audio && item.id === audio!.id && isPlaying) || false} />
+                    <PlayAudioCard
+                      onPress={() => onAudioPress(item, favorites)}
+                      audio={item}
+                      isPlaying={(audio && item.id === audio!.id && isPlaying) || false}
+                    />
                   )}
                   keyExtractor={(item, index) => index.toString()}
                   contentContainerStyle={styles.listContainer}
@@ -317,13 +302,13 @@ export default FavoritesScreen;
 const styles = StyleSheet.create({
   listContainer: {
     gap: 15,
-    paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingBottom: TAB_BAR_HEIGHT + 100,
     paddingHorizontal: 20,
   },
 
   searchingListContainer: {
     gap: 15,
-    paddingBottom: TAB_BAR_HEIGHT + 40,
+    paddingBottom: TAB_BAR_HEIGHT + 110,
     paddingHorizontal: 20,
   },
   flex: {

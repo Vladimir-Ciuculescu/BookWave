@@ -8,17 +8,17 @@ import BWImage from "components/shared/BWImage";
 import BWView from "components/shared/BWView";
 import { StatusBar } from "expo-status-bar";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
+import useAudioController from "hooks/useAudioController";
 import { Skeleton } from "moti/skeleton";
 import React, { ReactNode, useEffect, useState } from "react";
 import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useDispatch, useSelector } from "react-redux";
-import { playerSelector, setAudiosListAction, setIsFavoriteAction, setIsPlayingAction } from "redux/reducers/player.reducer";
+import { playerSelector } from "redux/reducers/player.reducer";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import PlayLists from "screens/Home/components/PlayLists";
 import { AudioFile } from "types/interfaces/audios";
-import { loadAudio } from "utils/audio";
 import { COLORS } from "utils/colors";
 import { NoData } from "../../../assets/illustrations";
 
@@ -35,8 +35,9 @@ const HomeScreen: React.FC<any> = () => {
   const [selectedAudio, setSelectedAudio] = useState<AudioFile | undefined>();
   const [audiosList, setAudiosList] = useState<AudioFile[]>([]);
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
+  const { onAudioPress, isPlaying } = useAudioController();
 
-  const { track, audio, isPlaying } = useSelector(playerSelector);
+  const { track, audio } = useSelector(playerSelector);
 
   const dispatch = useDispatch();
 
@@ -77,10 +78,6 @@ const HomeScreen: React.FC<any> = () => {
     setSelectedAudio(undefined);
   };
 
-  const playAction = () => {
-    playAudio(selectedAudio!, audiosList);
-  };
-
   const toggleFavoriteAudioAction = async () => {
     try {
       setIsInFavorites((prevValue) => !prevValue);
@@ -106,35 +103,11 @@ const HomeScreen: React.FC<any> = () => {
     toggleNewPlayListBottomSheet(true);
   };
 
-  const playAudio = async (item: AudioFile, list: AudioFile[]) => {
-    try {
-      dispatch(setAudiosListAction(list));
-
-      if (!track || (track && item !== audio)) {
-        await loadAudio(dispatch, item);
-        const { response } = await FavoriteService.getIsFavoriteApi(item.id);
-
-        dispatch(setIsFavoriteAction(response));
-        return;
-      }
-
-      if (isPlaying) {
-        await track.pauseAsync();
-      } else {
-        await track.playAsync();
-      }
-
-      dispatch(setIsPlayingAction(!isPlaying));
-    } catch (error) {
-      dispatch(setToastMessageAction({ message: "Could not play audio, try again", type: "error" }));
-    }
-  };
-
   const options: Option[] = [
     {
-      label: isPlaying && track ? "Pause" : "Play",
+      label: isPlaying ? "Pause" : "Play",
       icon: <FontAwesome name={isPlaying && track ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
-      onPress: () => playAction(),
+      onPress: () => onAudioPress(selectedAudio!, audiosList),
     },
     {
       label: "Add to playlist",
@@ -167,10 +140,10 @@ const HomeScreen: React.FC<any> = () => {
             latestAudios.data.uploads.map((upload: AudioFile) => {
               return (
                 <AudioCard
-                  animation={isPlaying && audio && audio.id === upload.id}
+                  animation={isPlaying && audio && audio!.id === upload.id}
                   audio={upload}
                   key={upload.id}
-                  onPress={() => playAudio(upload, latestAudios.data.uploads)}
+                  onPress={() => onAudioPress(upload, latestAudios.data.uploads)}
                   onLongPress={() => openOptionsBottomSheet(upload, "latest")}
                 />
               );
@@ -203,7 +176,7 @@ const HomeScreen: React.FC<any> = () => {
                   animation={isPlaying && audio && audio.id === upload.id}
                   audio={upload}
                   key={upload.id}
-                  onPress={() => playAudio(upload, recommendedAudios.data.audios)}
+                  onPress={() => onAudioPress(upload, recommendedAudios.data.audios)}
                   onLongPress={() => openOptionsBottomSheet(upload, "recommended")}
                 />
               );

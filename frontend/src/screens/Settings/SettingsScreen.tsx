@@ -14,9 +14,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useLayoutEffect, useState } from "react";
 import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { Text } from "react-native-ui-lib";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
-import { playerSelector } from "redux/reducers/player.reducer";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
@@ -39,8 +38,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     params: { profile },
   } = route;
 
-  const { track } = useSelector(playerSelector);
-
   const initialValues: ProfileData = {
     name: profile.name,
     avatar: profile.avatar,
@@ -52,13 +49,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <BWIconButton
-          link
-          onPress={closeSettings}
-          icon={() => <AntDesign name="close" size={24} color={COLORS.MUTED[50]} />}
-        />
-      ),
+      headerRight: () => <BWIconButton link onPress={closeSettings} icon={() => <AntDesign name="close" size={24} color={COLORS.MUTED[50]} />} />,
     });
   }, [navigation]);
 
@@ -114,17 +105,15 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
   };
 
   const openLogOutPopUp = (fromAll: "yes" | "no") => {
-    Alert.alert(
-      "Log out",
-      `Are you sure you want to log out ${fromAll === "yes" ? "from all devices" : ""} ?`,
-      [{ text: "Yes", style: "destructive", onPress: () => logOut(fromAll) }, { text: "No" }],
-    );
+    Alert.alert("Log out", `Are you sure you want to log out ${fromAll === "yes" ? "from all devices" : ""} ?`, [
+      { text: "Yes", style: "destructive", onPress: () => logOut(fromAll) },
+      { text: "No" },
+    ]);
   };
 
   const logOut = async (fromAll: "yes" | "no") => {
     await UserService.logOutApi({ fromAll });
     await AsyncStorage.removeItem("token");
-    await track?.unloadAsync();
     navigation.pop();
     navigation.navigate("Login");
     dispatch(
@@ -148,11 +137,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           <Section
             title="Profile info"
             content={
-              <BWForm
-                initialValues={initialValues}
-                validationSchema={updateProfileSchema}
-                onSubmit={(values) => handleUpdate(values)}
-              >
+              <BWForm initialValues={initialValues} validationSchema={updateProfileSchema} onSubmit={(values) => handleUpdate(values)}>
                 {/* @ts-ignore */}
                 {({ setFieldValue, values, dirty }) => {
                   return (
@@ -171,24 +156,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
                           link
                           title="Edit profile picture"
                           labelStyle={{ fontSize: 14, color: COLORS.MUTED[50] }}
-                          iconSource={() => (
-                            <Feather name="edit-2" size={20} color={COLORS.MUTED[50]} />
-                          )}
+                          iconSource={() => <Feather name="edit-2" size={20} color={COLORS.MUTED[50]} />}
                         />
                       </BWView>
 
-                      <BWInput
-                        placeholder="Edit your name"
-                        name="name"
-                        enablerError
-                        keyboardAppearance="dark"
-                      />
+                      <BWInput placeholder="Edit your name" name="name" enablerError keyboardAppearance="dark" />
                       <BWView row justifyContent="space-between" alignItems="center">
-                        <Text
-                          style={{ color: COLORS.WARNING[500], fontSize: 18, fontFamily: "Minomu" }}
-                        >
-                          {profile.email}
-                        </Text>
+                        <Text style={{ color: COLORS.WARNING[500], fontSize: 18, fontFamily: "Minomu" }}>{profile.email}</Text>
                         <BWSubmitButton disabled={!dirty} title="Save" loading={loading} />
                       </BWView>
                     </BWView>
@@ -200,13 +174,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           <BWView column gap={35}>
             <Section
               title="History"
-              content={
-                <Action
-                  onPress={() => {}}
-                  title="Clear all"
-                  icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
-                />
-              }
+              content={<Action onPress={() => {}} title="Clear all" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />}
             />
             <Section
               title="Sign out"
@@ -217,11 +185,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
                     title="Logout from all devices"
                     icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
                   />
-                  <Action
-                    onPress={() => openLogOutPopUp("no")}
-                    title="Logout"
-                    icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
-                  />
+                  <Action onPress={() => openLogOutPopUp("no")} title="Logout" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />
                 </BWView>
               }
             />
