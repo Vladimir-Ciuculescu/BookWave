@@ -4,7 +4,7 @@ import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { BlurView } from "expo-blur";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { useActiveTrack } from "react-native-track-player";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,9 +19,11 @@ import { COLORS } from "utils/colors";
 const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC<any> = () => {
-  const { audio } = useSelector(playerSelector);
+  const { audio, visibleModalPlayer } = useSelector(playerSelector);
   const currentTrack = useActiveTrack();
   const dispatch = useDispatch();
+  // const { position } = useProgress();
+  const [position, setPosition] = useState<number>(0);
 
   useEffect(() => {
     if (currentTrack) {
@@ -45,10 +47,9 @@ const TabNavigator: React.FC<any> = () => {
   return (
     <>
       {audio && <MiniPlayer />}
-      {/* {isPlayerReady && currentTrack && <MiniPlayer />} */}
-      {/* {trackk && <MiniPlayer />} */}
 
-      <AudioPlayer />
+      {/* <AudioPlayer /> */}
+      {visibleModalPlayer && <AudioPlayer />}
       <Tab.Navigator
         screenOptions={{
           unmountOnBlur: true,

@@ -1,28 +1,58 @@
-import { AntDesign, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
+import FavoriteService from "api/favorites.api";
 import useAudioController from "hooks/useAudioController";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet } from "react-native";
 import TrackPlayer, { useActiveTrack, useProgress } from "react-native-track-player";
-import { ActionSheet, Dialog, PanningProvider, Text, View } from "react-native-ui-lib";
+import { Dialog, PanningProvider, Text, View } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { COLORS } from "utils/colors";
 import { convertFromSecondsToClock } from "utils/math";
 import BWDivider from "./shared/BWDivider";
 import BWIconButton from "./shared/BWIconButton";
 import BWImage from "./shared/BWImage";
+import BWPressable from "./shared/BWPressable";
 import BWView from "./shared/BWView";
 
 const { height, width } = Dimensions.get("screen");
 
-const AudioPlayerContent = () => {
-  const [speedModal, toggleSpeedModal] = useState<boolean>(false);
-  const { audio, list } = useSelector(playerSelector);
+const AudioPlayer: React.FC<any> = () => {
+  const [playbackModal, togglePlaybackModal] = useState<boolean>(false);
+  const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
+  const { audio, list, visibleModalPlayer } = useSelector(playerSelector);
+
   const { position, duration } = useProgress(300);
   const { isPlaying, onAudioPress, skipTo } = useAudioController();
+  const [currentRate, setCurrentRate] = useState<number>(1);
   const track = useActiveTrack();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const checkIfInFavorites = async () => {
+      const isAudioInFavorites = await FavoriteService.getIsFavoriteApi(audio!.id);
+
+      setIsInFavorites(isAudioInFavorites);
+    };
+    if (visibleModalPlayer) {
+      checkIfInFavorites();
+    }
+  }, [visibleModalPlayer]);
+
+  useEffect(() => {
+    const getRate = async () => {
+      const rate = await TrackPlayer.getRate();
+      setCurrentRate(rate);
+    };
+
+    if (playbackModal) {
+      getRate();
+    }
+  }, [playbackModal]);
+
+  const speedRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
   const stepTimestamp = async (direction: "backward" | "forward") => {
     await skipTo(direction === "backward" ? -10 : 10);
@@ -75,109 +105,170 @@ const AudioPlayerContent = () => {
 
   const isFirstTrack = track ? findTrackIndex(list, audio) === 0 : false;
 
-  return (
-    <View style={{ backgroundColor: COLORS.MUTED[800], height: "110%", paddingTop: 40 }}>
-      <BWView column alignItems="center" gap={16} style={{ paddingHorizontal: 20 }}>
-        <BWImage src={audio?.poster} style={{ width: width * 0.75, height: width * 0.75, borderRadius: 20 }} placeholder={!audio?.poster} iconName="image" />
-        <BWView column alignItems="center" gap={8}>
-          <Text style={{ color: COLORS.MUTED[50], fontSize: 24, fontFamily: "MinomuBold" }}>{audio?.title}</Text>
-          <Text style={{ color: COLORS.MUTED[300], fontSize: 24, fontFamily: "Minomu" }}>{audio?.about}</Text>
-        </BWView>
-        <BWDivider orientation="horizontal" thickness={1.2} width="100%" color={COLORS.MUTED[700]} />
-        <Slider
-          style={{ width: "100%", height: 40 }}
-          minimumValue={0}
-          step={1000}
-          maximumValue={duration}
-          value={position}
-          onSlidingComplete={seekTimeStamp}
-          minimumTrackTintColor={COLORS.WARNING[500]}
-          maximumTrackTintColor={COLORS.WARNING[500]}
-          thumbTintColor={COLORS.WARNING[600]}
-        />
-        <BWView style={{ width: "100%" }} row justifyContent="space-between">
-          <Text style={{ color: "white" }}>{convertFromSecondsToClock(position)} </Text>
-          <Text style={{ color: "white" }}>{convertFromSecondsToClock(duration)} </Text>
-        </BWView>
-        <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
-          <BWIconButton link icon={() => <AntDesign name="stepbackward" size={30} color={COLORS.MUTED[50]} />} onPress={stepBackWard} disabled={isFirstTrack} />
-          <BWIconButton link icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("backward")} />
-          <BWIconButton
-            style={{ width: 50, height: 50, backgroundColor: COLORS.WARNING[500], paddingLeft: 4 }}
-            icon={() =>
-              isPlaying ? <Ionicons name="pause" size={24} color={COLORS.MUTED[50]} /> : <FontAwesome5 name="play" size={24} color={COLORS.MUTED[50]} />
-            }
-            onPress={() => onAudioPress(audio!, list)}
-          />
-          <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("forward")} />
-
-          <BWIconButton link icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />} onPress={stepForward} disabled={isLastTrack} />
-        </BWView>
-        <BWView row gap={50} style={{ marginTop: 30 }}>
-          <BWIconButton link icon={() => <AntDesign name="heart" size={30} color={COLORS.MUTED[50]} />} onPress={() => {}} />
-          <BWIconButton link icon={() => <MaterialIcons name="speed" size={30} color={COLORS.MUTED[50]} />} onPress={() => toggleSpeedModal(true)} />
-        </BWView>
-      </BWView>
-      <Dialog
-        visible={speedModal}
-        panDirection={PanningProvider.Directions.DOWN}
-        containerStyle={{ backgroundColor: COLORS.MUTED[900], height: 100, borderRadius: 10 }}
-        useSafeArea
-        onDismiss={() => toggleSpeedModal(false)}
-      >
-        <Text text60>Content</Text>
-      </Dialog>
-    </View>
-  );
-};
-
-const Title = () => null;
-
-const AudioPlayer: React.FC<any> = () => {
-  const { visibleModalPlayer } = useSelector(playerSelector);
-
-  const dispatch = useDispatch();
-
-  const closeModalPlayer = () => {
+  const closePlayer = () => {
     dispatch(setVisibileModalPlayerAction(false));
   };
 
+  const renderSpeedRate = (rate: number) => {
+    if (rate === 1) {
+      return "Normal";
+    }
+
+    return `${rate}x`;
+  };
+
+  const isCurrentRate = (rate: number) => currentRate === rate;
+
+  const changeSpeedRate = async (rate: number) => {
+    try {
+      await TrackPlayer.setRate(rate);
+      setCurrentRate(rate);
+    } catch (error: any) {
+      dispatch(setToastMessageAction({ message: error.message, type: "error" }));
+    }
+  };
+
+  const toggleFavoriteAudio = async () => {
+    try {
+      await FavoriteService.toggleFavoriteAudioApi(audio!.id);
+
+      setIsInFavorites((prevValue) => !prevValue);
+
+      dispatch(setToastMessageAction({ message: isInFavorites ? "Audio removed from favorites" : "Audio added to favorites", type: "success" }));
+    } catch (error) {
+      console.log(error);
+      dispatch(setToastMessageAction({ message: "An unexpected error occured !", type: "error" }));
+    }
+  };
+
   return (
-    <ActionSheet
-      containerStyle={{ height: height * 0.85, borderRadius: 10 }}
-      dialogStyle={{ borderRadius: 20 }}
+    <Dialog
+      bottom={true}
+      height={(height * 80) / 100}
+      onDismiss={closePlayer}
+      panDirection={PanningProvider.Directions.DOWN}
       visible={visibleModalPlayer}
-      title={"Title"}
-      onDismiss={closeModalPlayer}
-      cancelButtonIndex={3}
-      destructiveButtonIndex={0}
-      options={[{ label: "", onPress: () => {} }]}
-      renderAction={() => <AudioPlayerContent />}
-      renderTitle={() => <Title />}
-    />
+      containerStyle={styles.dialogContainer}
+    >
+      <View style={styles.dialogContent}>
+        <BWView column alignItems="center" gap={16} style={{ paddingHorizontal: 20 }}>
+          <BWImage src={audio?.poster} style={styles.image} placeholder={!audio?.poster} iconName="image" />
+          <BWView column alignItems="center" gap={8}>
+            <Text style={styles.title}>{audio?.title}</Text>
+            <Text style={styles.about}>{audio?.about}</Text>
+          </BWView>
+          <BWDivider orientation="horizontal" thickness={1.2} width="100%" color={COLORS.MUTED[700]} />
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={duration}
+            value={position}
+            onSlidingComplete={seekTimeStamp}
+            minimumTrackTintColor={COLORS.WARNING[500]}
+            maximumTrackTintColor={COLORS.WARNING[500]}
+            thumbTintColor={COLORS.WARNING[600]}
+          />
+          <BWView style={{ width: "100%" }} row justifyContent="space-between">
+            <Text style={styles.position}>{convertFromSecondsToClock(position)} </Text>
+            <Text style={styles.position}>{convertFromSecondsToClock(duration)} </Text>
+          </BWView>
+          <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
+            <BWIconButton
+              link
+              icon={() => <AntDesign name="stepbackward" size={30} color={COLORS.MUTED[50]} />}
+              onPress={stepBackWard}
+              disabled={isFirstTrack}
+            />
+            <BWIconButton link icon={() => <MaterialIcons name="replay-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("backward")} />
+            <BWIconButton
+              style={styles.toggleButton}
+              icon={() =>
+                isPlaying ? <Ionicons name="pause" size={22} color={COLORS.MUTED[50]} /> : <FontAwesome5 name="play" size={22} color={COLORS.MUTED[50]} />
+              }
+              onPress={() => onAudioPress(audio!, list)}
+            />
+            <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("forward")} />
+
+            <BWIconButton link icon={() => <AntDesign name="stepforward" size={30} color={COLORS.MUTED[50]} />} onPress={stepForward} disabled={isLastTrack} />
+          </BWView>
+          <BWView row gap={50} style={{ marginTop: 30 }}>
+            <BWIconButton
+              link
+              icon={() => <AntDesign name={isInFavorites ? "heart" : "hearto"} size={30} color={COLORS.MUTED[50]} />}
+              onPress={toggleFavoriteAudio}
+            />
+            <BWIconButton link icon={() => <MaterialIcons name="speed" size={30} color={COLORS.MUTED[50]} />} onPress={() => togglePlaybackModal(true)} />
+          </BWView>
+        </BWView>
+        <Dialog
+          visible={playbackModal}
+          bottom={true}
+          panDirection={PanningProvider.Directions.DOWN}
+          containerStyle={{ backgroundColor: COLORS.MUTED[900], borderRadius: 10, width: "100%", alignSelf: "center" }}
+          useSafeArea
+          onDismiss={() => togglePlaybackModal(false)}
+        >
+          <BWView column>
+            {speedRates.map((speedRate, index) => {
+              return (
+                <BWPressable key={index} onPress={() => changeSpeedRate(speedRate)} style={{ paddingHorizontal: 50, paddingVertical: 13 }}>
+                  <Text style={{ fontFamily: "MinomuBold", fontSize: 20, color: COLORS.MUTED[50] }}>{renderSpeedRate(speedRate)}</Text>
+                  {isCurrentRate(speedRate) && <Feather name="check" size={24} color="white" style={{ position: "absolute", left: 10, top: 15 }} />}
+                </BWPressable>
+              );
+            })}
+          </BWView>
+        </Dialog>
+      </View>
+    </Dialog>
   );
 };
 
 export default AudioPlayer;
 
 const styles = StyleSheet.create({
-  track: {
-    height: 8,
-    color: "red",
+  dialogContainer: {
+    width: width,
+    alignSelf: "center",
+    borderTopEndRadius: 20,
+    borderTopLeftRadius: 20,
   },
-  thumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 13,
-    borderColor: COLORS.WARNING[600],
-    borderWidth: 1,
+  dialogContent: {
+    backgroundColor: COLORS.MUTED[800],
+    height: "100%",
+    paddingTop: 40,
   },
-  activeThumb: {
-    width: 40,
-
-    height: 40,
+  image: {
+    width: width * 0.75,
+    height: width * 0.75,
     borderRadius: 20,
-    borderColor: "yellow",
-    borderWidth: 2,
+  },
+
+  title: {
+    color: COLORS.MUTED[50],
+    fontSize: 24,
+    fontFamily: "MinomuBold",
+  },
+  about: {
+    color: COLORS.MUTED[300],
+    fontSize: 24,
+    fontFamily: "Minomu",
+  },
+
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+
+  position: {
+    color: COLORS.MUTED[50],
+    fontFamily: "MinomuBold",
+  },
+
+  toggleButton: {
+    width: 45,
+    height: 45,
+    backgroundColor: COLORS.WARNING[500],
+    paddingLeft: 4,
   },
 });

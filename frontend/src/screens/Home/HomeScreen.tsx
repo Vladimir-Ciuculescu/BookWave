@@ -11,7 +11,7 @@ import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.qu
 import useAudioController from "hooks/useAudioController";
 import { Skeleton } from "moti/skeleton";
 import React, { ReactNode, useEffect, useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
+import { Dimensions, Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector } from "redux/reducers/player.reducer";
@@ -28,6 +28,8 @@ interface Option {
   onPress: () => void;
 }
 
+const { width, height } = Dimensions.get("screen");
+
 const HomeScreen: React.FC<any> = () => {
   const [optionsBottomSheet, toggleOptionsBottomSheet] = useState<boolean>(false);
   const [playlistsBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
@@ -37,7 +39,7 @@ const HomeScreen: React.FC<any> = () => {
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
   const { onAudioPress, isPlaying } = useAudioController();
 
-  const { track, audio } = useSelector(playerSelector);
+  const { audio } = useSelector(playerSelector);
 
   const dispatch = useDispatch();
 
@@ -89,7 +91,7 @@ const HomeScreen: React.FC<any> = () => {
       }
     } catch (error) {
       console.log(error);
-      setToastMessageAction({ message: "Something went wrong, please try again !", type: "error" });
+      dispatch(setToastMessageAction({ message: "Something went wrong, please try again !", type: "error" }));
     }
   };
 
@@ -106,7 +108,7 @@ const HomeScreen: React.FC<any> = () => {
   const options: Option[] = [
     {
       label: isPlaying ? "Pause" : "Play",
-      icon: <FontAwesome name={isPlaying && track ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
+      icon: <FontAwesome name={isPlaying ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
       onPress: () => onAudioPress(selectedAudio!, audiosList),
     },
     {
@@ -237,6 +239,32 @@ const HomeScreen: React.FC<any> = () => {
         <BWBottomSheet height="78%" visible={newPlayListBottomSheet} blurBackground onPressOut={closeNewPlayListBottomSheet} keyboardOffSet={1.5}>
           <AddPlayList audio={selectedAudio} onClose={closeNewPlayListBottomSheet} />
         </BWBottomSheet>
+        {/* <Dialog
+          //useSafeArea
+          top={false}
+          bottom={true}
+          height={height / 1.3}
+          panDirection={PanningProvider.Directions.DOWN}
+          visible
+          containerStyle={{ backgroundColor: "red", width: width, alignSelf: "center", borderTopEndRadius: 20, borderTopLeftRadius: 20 }}
+          // renderPannableHeader={renderPannableHeader}
+          // pannableHeaderProps={this.pannableTitle}
+          // supportedOrientations={this.supportedOrientations}
+          // ignoreBackgroundPress={ignoreBackgroundPress}
+        >
+          <Text>awda</Text>
+        </Dialog> */}
+        {/* <Dialog
+          top={false}
+          bottom={true}
+          height={height / 1.3}
+          onDismiss={closePlayer}
+          panDirection={PanningProvider.Directions.DOWN}
+          visible={visibleModalPlayer}
+          containerStyle={{ backgroundColor: "red", width: width, alignSelf: "center", borderTopEndRadius: 20, borderTopLeftRadius: 20 }}
+        >
+          <Text></Text>
+        </Dialog> */}
       </SafeAreaView>
     </GestureHandlerRootView>
   );
