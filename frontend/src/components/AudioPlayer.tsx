@@ -8,6 +8,7 @@ import { ActionSheet, Dialog, PanningProvider, Text, View } from "react-native-u
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { COLORS } from "utils/colors";
+import { convertFromSecondsToClock } from "utils/math";
 import BWDivider from "./shared/BWDivider";
 import BWIconButton from "./shared/BWIconButton";
 import BWImage from "./shared/BWImage";
@@ -95,11 +96,8 @@ const AudioPlayerContent = () => {
           thumbTintColor={COLORS.WARNING[600]}
         />
         <BWView style={{ width: "100%" }} row justifyContent="space-between">
-          {/* <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(progress)} </Text> */}
-          <Text style={{ color: "white" }}>awdwad </Text>
-          <Text style={{ color: "white" }}>awdwad </Text>
-
-          {/* <Text style={{ color: "white" }}>{convertFromMillisecondsToClock(duration)}</Text> */}
+          <Text style={{ color: "white" }}>{convertFromSecondsToClock(position)} </Text>
+          <Text style={{ color: "white" }}>{convertFromSecondsToClock(duration)} </Text>
         </BWView>
         <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
           <BWIconButton link icon={() => <AntDesign name="stepbackward" size={30} color={COLORS.MUTED[50]} />} onPress={stepBackWard} disabled={isFirstTrack} />

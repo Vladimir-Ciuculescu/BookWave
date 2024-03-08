@@ -40,6 +40,11 @@ const useAudioController = () => {
   };
 
   const onAudioPress = async (track: AudioFile, data: AudioFile[]) => {
+    if (state === State.Ended) {
+      await TrackPlayer.seekTo(0);
+      await TrackPlayer.play();
+    }
+
     if (state === undefined || state === State.None) {
       await updateQueue(data);
       const trackIndex = data.findIndex((audio) => audio.id === track.id);
