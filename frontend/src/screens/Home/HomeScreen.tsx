@@ -239,32 +239,6 @@ const HomeScreen: React.FC<any> = () => {
         <BWBottomSheet height="78%" visible={newPlayListBottomSheet} blurBackground onPressOut={closeNewPlayListBottomSheet} keyboardOffSet={1.5}>
           <AddPlayList audio={selectedAudio} onClose={closeNewPlayListBottomSheet} />
         </BWBottomSheet>
-        {/* <Dialog
-          //useSafeArea
-          top={false}
-          bottom={true}
-          height={height / 1.3}
-          panDirection={PanningProvider.Directions.DOWN}
-          visible
-          containerStyle={{ backgroundColor: "red", width: width, alignSelf: "center", borderTopEndRadius: 20, borderTopLeftRadius: 20 }}
-          // renderPannableHeader={renderPannableHeader}
-          // pannableHeaderProps={this.pannableTitle}
-          // supportedOrientations={this.supportedOrientations}
-          // ignoreBackgroundPress={ignoreBackgroundPress}
-        >
-          <Text>awda</Text>
-        </Dialog> */}
-        {/* <Dialog
-          top={false}
-          bottom={true}
-          height={height / 1.3}
-          onDismiss={closePlayer}
-          panDirection={PanningProvider.Directions.DOWN}
-          visible={visibleModalPlayer}
-          containerStyle={{ backgroundColor: "red", width: width, alignSelf: "center", borderTopEndRadius: 20, borderTopLeftRadius: 20 }}
-        >
-          <Text></Text>
-        </Dialog> */}
       </SafeAreaView>
     </GestureHandlerRootView>
   );
