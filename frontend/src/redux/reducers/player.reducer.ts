@@ -13,7 +13,6 @@ interface InitialStateProps {
 // ? Initial State
 const initialState: InitialStateProps = {
   audio: undefined,
-
   visibleModalPlayer: false,
   list: [],
 };
