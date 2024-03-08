@@ -32,11 +32,7 @@ const FavoritesScreen: React.FC<any> = () => {
   const textRef = useRef<TextFieldRef>(null);
   const flatListRef = useRef<any>(null);
   const dispatch = useDispatch();
-  const {
-    track,
-    audio,
-    //isPlaying
-  } = useSelector(playerSelector);
+  const { audio } = useSelector(playerSelector);
   const { onAudioPress, isPlaying } = useAudioController();
 
   const payload: GetFavoritesRequest = {

@@ -4,7 +4,6 @@ import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { BlurView } from "expo-blur";
-import useAudioController from "hooks/useAudioController";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { useActiveTrack } from "react-native-track-player";
@@ -20,8 +19,7 @@ import { COLORS } from "utils/colors";
 const Tab = createBottomTabNavigator();
 
 const TabNavigator: React.FC<any> = () => {
-  const { track, audio } = useSelector(playerSelector);
-  const { isPlayerReady } = useAudioController();
+  const { audio } = useSelector(playerSelector);
   const currentTrack = useActiveTrack();
   const dispatch = useDispatch();
 
