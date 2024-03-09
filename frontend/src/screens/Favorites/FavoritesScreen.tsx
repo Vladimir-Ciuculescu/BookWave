@@ -193,7 +193,8 @@ const FavoritesScreen: React.FC<any> = () => {
                   data={favorites}
                   renderItem={({ item }) => (
                     <PlayAudioCard
-                      onPress={() => onAudioPress(item, favorites)}
+                      onSelect={() => {}}
+                      onPlay={() => onAudioPress(item, favorites)}
                       audio={item}
                       isPlaying={(audio && item.id === audio!.id && isPlaying) || false}
                     />
@@ -272,7 +273,8 @@ const FavoritesScreen: React.FC<any> = () => {
                   data={favorites}
                   renderItem={({ item }) => (
                     <PlayAudioCard
-                      onPress={() => onAudioPress(item, favorites)}
+                      onSelect={() => {}}
+                      onPlay={() => onAudioPress(item, favorites)}
                       audio={item}
                       isPlaying={(audio && item.id === audio!.id && isPlaying) || false}
                     />
@@ -303,7 +305,7 @@ const styles = StyleSheet.create({
   listContainer: {
     gap: 15,
     paddingBottom: TAB_BAR_HEIGHT + 100,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
 
   searchingListContainer: {

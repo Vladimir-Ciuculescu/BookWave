@@ -1,13 +1,13 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ForgotPasswordScreen from "screens/ForgotPassword/ForgotPasswordScreen";
+import InitializationScreen from "screens/InitializationScreen";
+import Latest_RecommendedScreen from "screens/Latest_Recommended/Latest_RecommendedScreen";
 import LoginScreen from "screens/Login/LoginScreen";
 import OTPVerificationScreen from "screens/OTPVerification/OTPVerificationScreen";
-import { StackNavigatorProps } from "types/interfaces/navigation";
-import TabNavigator from "./TabNavigator";
-import InitializationScreen from "screens/InitializationScreen";
 import RegisterScreen from "screens/Register/RegisterScreen";
 import SettingsScreen from "screens/Settings/SettingsScreen";
-import { Text, View } from "react-native-ui-lib";
+import { StackNavigatorProps } from "types/interfaces/navigation";
+import TabNavigator from "./TabNavigator";
 
 const Stack = createNativeStackNavigator<StackNavigatorProps>();
 
@@ -24,6 +24,9 @@ const StackNavigator: React.FC<any> = () => {
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen component={SettingsScreen} name="Settings" />
+      </Stack.Group>
+      <Stack.Group>
+        <Stack.Screen component={Latest_RecommendedScreen} name="Latest_Recommended" />
       </Stack.Group>
     </Stack.Navigator>
   );

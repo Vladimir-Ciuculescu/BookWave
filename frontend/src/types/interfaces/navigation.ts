@@ -1,3 +1,4 @@
+import { AudioFile } from "./audios";
 import { UserProfile } from "./users";
 
 export type StackNavigatorProps = {
@@ -5,8 +6,8 @@ export type StackNavigatorProps = {
   Register: undefined;
   ForgotPassword: undefined;
   OTPVerification: { userInfo: any };
-
   Settings: { profile: UserProfile };
   App: { screen: string } | undefined;
   InitialScreen: undefined;
+  Latest_Recommended: { uploads: AudioFile[] };
 };

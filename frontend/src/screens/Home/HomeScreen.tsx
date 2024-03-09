@@ -1,4 +1,6 @@
 import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import FavoriteService from "api/favorites.api";
 import AudioCard from "components/AudioCard";
 import BWBottomSheet from "components/shared/BWBottomSheet";
@@ -18,15 +20,10 @@ import { playerSelector } from "redux/reducers/player.reducer";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import PlayLists from "screens/Home/components/PlayLists";
-import { AudioFile } from "types/interfaces/audios";
+import { AudioAction, AudioFile } from "types/interfaces/audios";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 import { NoData } from "../../../assets/illustrations";
-
-interface Option {
-  label: string;
-  icon: JSX.Element;
-  onPress: () => void;
-}
 
 const { width, height } = Dimensions.get("screen");
 
@@ -38,13 +35,14 @@ const HomeScreen: React.FC<any> = () => {
   const [audiosList, setAudiosList] = useState<AudioFile[]>([]);
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
   const { onAudioPress, isPlaying } = useAudioController();
+  const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
 
   const { audio } = useSelector(playerSelector);
 
   const dispatch = useDispatch();
 
-  const latestAudios = useFetchLatestAudios();
-  const recommendedAudios = useFetchRecommendedAudios();
+  const { data: latestAudios, isLoading: areLatestAudiosLoading } = useFetchLatestAudios();
+  const { data: recommendedAudios, isLoading: areRecommendedAudiosLoading } = useFetchRecommendedAudios();
 
   useEffect(() => {
     if (optionsBottomSheet) {
@@ -59,7 +57,7 @@ const HomeScreen: React.FC<any> = () => {
   }, [selectedAudio]);
 
   const openOptionsBottomSheet = (audio: AudioFile, list: "recommended" | "latest") => {
-    setAudiosList(list === "recommended" ? recommendedAudios.data.audios : latestAudios.data.uploads);
+    setAudiosList(list === "recommended" ? recommendedAudios.audios : latestAudios.uploads);
 
     toggleOptionsBottomSheet(true);
     setSelectedAudio(audio);
@@ -105,7 +103,15 @@ const HomeScreen: React.FC<any> = () => {
     toggleNewPlayListBottomSheet(true);
   };
 
-  const options: Option[] = [
+  const goToLatestAudios = () => {
+    navigation.navigate("Latest_Recommended", { uploads: latestAudios.uploads });
+  };
+
+  const goToRecommendedAudios = () => {
+    navigation.navigate("Latest_Recommended", { uploads: recommendedAudios.uploads });
+  };
+
+  const options: AudioAction[] = [
     {
       label: isPlaying ? "Pause" : "Play",
       icon: <FontAwesome name={isPlaying ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
@@ -124,32 +130,33 @@ const HomeScreen: React.FC<any> = () => {
   ];
 
   const renderLatestUploads = () => {
-    if (latestAudios.isLoading) {
+    if (areLatestAudiosLoading) {
       return Array.of(5).map((_, index) => <Skeleton colorMode="dark" width={140} height={140} key={index} />);
     } else {
       return (
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={[styles.list, !latestAudios.data.uploads.length ? { width: "100%" } : null]}
+          contentContainerStyle={[styles.list, !latestAudios.uploads.length ? { width: "100%" } : null]}
         >
-          {!latestAudios.data.uploads.length ? (
+          {!latestAudios.uploads.length ? (
             <BWView column alignItems="center" justifyContent="center" style={styles.noDataContainer} gap={25}>
               <NoData width="100%" height={200} />
               <Text style={styles.notFoundTitle}>No uploads found</Text>
             </BWView>
           ) : (
-            latestAudios.data.uploads.map((upload: AudioFile) => {
-              return (
-                <AudioCard
-                  animation={isPlaying && audio && audio!.id === upload.id}
-                  audio={upload}
-                  key={upload.id}
-                  onPress={() => onAudioPress(upload, latestAudios.data.uploads)}
-                  onLongPress={() => openOptionsBottomSheet(upload, "latest")}
-                />
-              );
-            })
+            latestAudios.uploads.map(
+              (upload: AudioFile, index: number) =>
+                index < 5 && (
+                  <AudioCard
+                    animation={isPlaying && audio && audio!.id === upload.id}
+                    audio={upload}
+                    key={upload.id}
+                    onPress={() => onAudioPress(upload, latestAudios.uploads)}
+                    onLongPress={() => openOptionsBottomSheet(upload, "latest")}
+                  />
+                ),
+            )
           )}
         </ScrollView>
       );
@@ -157,32 +164,33 @@ const HomeScreen: React.FC<any> = () => {
   };
 
   const renderRecommendedUploads = () => {
-    if (recommendedAudios.isLoading) {
+    if (areRecommendedAudiosLoading) {
       return Array.of(5).map((_, index) => <Skeleton colorMode="dark" width={140} height={140} key={index} />);
     } else {
       return (
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={[styles.list, !recommendedAudios.data.audios.length ? { width: "100%" } : null]}
+          contentContainerStyle={[styles.list, !recommendedAudios.audios.length ? { width: "100%" } : null]}
         >
-          {!recommendedAudios.data.audios.length ? (
+          {!recommendedAudios.audios.length ? (
             <BWView column alignItems="center" justifyContent="center" style={styles.noDataContainer} gap={25}>
               <NoData width="100%" height={200} />
               <Text style={styles.notFoundTitle}>No uploads found</Text>
             </BWView>
           ) : (
-            recommendedAudios.data.audios.map((upload: AudioFile) => {
-              return (
-                <AudioCard
-                  animation={isPlaying && audio && audio.id === upload.id}
-                  audio={upload}
-                  key={upload.id}
-                  onPress={() => onAudioPress(upload, recommendedAudios.data.audios)}
-                  onLongPress={() => openOptionsBottomSheet(upload, "recommended")}
-                />
-              );
-            })
+            recommendedAudios.audios.map(
+              (upload: AudioFile, index: number) =>
+                index < 5 && (
+                  <AudioCard
+                    animation={isPlaying && audio && audio.id === upload.id}
+                    audio={upload}
+                    key={upload.id}
+                    onPress={() => onAudioPress(upload, recommendedAudios.audios)}
+                    onLongPress={() => openOptionsBottomSheet(upload, "recommended")}
+                  />
+                ),
+            )
           )}
         </ScrollView>
       );
@@ -197,7 +205,7 @@ const HomeScreen: React.FC<any> = () => {
       </BWView>
       <BWDivider orientation="horizontal" color={COLORS.DARK[300]} width="100%" thickness={2} />
       <BWView column gap={30}>
-        {options.map((option: Option) => (
+        {options.map((option: AudioAction) => (
           <Pressable onPress={option.onPress} key={option.label} style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}>
             <BWView row alignItems="center" gap={20}>
               {option.icon}
@@ -217,7 +225,7 @@ const HomeScreen: React.FC<any> = () => {
           <BWView column gap={25}>
             <BWView row justifyContent="space-between">
               <Text style={styles.sectionTitle}>Latest Uploads</Text>
-              <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
+              <BWButton onPress={goToLatestAudios} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
 
             {renderLatestUploads()}
@@ -225,7 +233,7 @@ const HomeScreen: React.FC<any> = () => {
           <BWView column gap={25}>
             <BWView row justifyContent="space-between">
               <Text style={styles.sectionTitle}>Recommended Uploads</Text>
-              <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
+              <BWButton onPress={goToRecommendedAudios} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
             {renderRecommendedUploads()}
           </BWView>
@@ -270,7 +278,6 @@ const styles = StyleSheet.create({
   list: {
     gap: 15,
     paddingHorizontal: 20,
-    //width: "100%",
   },
 
   audioImage: {

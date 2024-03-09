@@ -1,8 +1,8 @@
-import { useDispatch } from "react-redux";
-import { useQuery } from "react-query";
 import AudioService from "api/audios.api";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import ProfileService from "api/profiles.api";
+import { useQuery } from "react-query";
+import { useDispatch } from "react-redux";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
 
 export const useFetchLatestAudios = () => {
   const dispatch = useDispatch();

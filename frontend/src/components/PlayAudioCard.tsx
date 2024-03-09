@@ -1,4 +1,4 @@
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "react-native-ui-lib";
@@ -12,11 +12,12 @@ import BWView from "./shared/BWView";
 
 interface PlayAudioCardProps {
   audio: AudioFile;
-  onPress: () => void;
+  onPlay: () => void;
   isPlaying?: boolean;
+  onSelect: () => void;
 }
 
-const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying }) => {
+const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPlay, isPlaying, onSelect }) => {
   return (
     <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
       <BWView row gap={20}>
@@ -25,7 +26,9 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying
           <BWImage style={styles.image} placeholder={!audio.poster} iconName="image" src={audio.poster!} />
         </View>
         <BWView column style={{ height: "100%" }} justifyContent="space-evenly">
-          <Text style={styles.audioTitle}>{audio.title}</Text>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.audioTitle}>
+            {audio.title}
+          </Text>
           <BWView row>
             <Text numberOfLines={1} ellipsizeMode="tail" style={styles.audioDescription}>
               {audio.about}
@@ -34,11 +37,14 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying
           </BWView>
         </BWView>
       </BWView>
-      <BWIconButton
-        onPress={onPress}
-        style={styles.playBtn}
-        icon={() => (isPlaying ? <FontAwesome name="pause" size={16} color="black" /> : <Ionicons name="md-play" size={16} color="black" />)}
-      />
+      <BWView row gap={20}>
+        <BWIconButton
+          onPress={onPlay}
+          style={styles.playBtn}
+          icon={() => (isPlaying ? <FontAwesome name="pause" size={16} color="black" /> : <Ionicons name="md-play" size={16} color="black" />)}
+        />
+        <BWIconButton link onPress={onSelect} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
+      </BWView>
     </BWView>
   );
 };
@@ -62,6 +68,7 @@ const styles = StyleSheet.create({
     color: COLORS.MUTED[50],
     fontSize: 18,
     fontFamily: "MinomuBold",
+    maxWidth: 180,
   },
 
   audioDescription: {
