@@ -3,6 +3,7 @@ import FavoriteService from "api/favorites.api";
 import useAudioController from "hooks/useAudioController";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
+import { useActiveTrack } from "react-native-track-player";
 import { Text } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,19 +12,33 @@ import {
   toggleOptionBottomSheetsAction,
   togglePlaylistsBottomSheetAction,
 } from "redux/reducers/audio-actions.reducer";
+import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import PlayLists from "screens/Home/components/PlayLists";
-import { AudioAction } from "types/interfaces/audios";
+import { AudioAction, AudioFile } from "types/interfaces/audios";
 import { COLORS } from "utils/colors";
 import BWBottomSheet from "./shared/BWBottomSheet";
 import BWDivider from "./shared/BWDivider";
 import BWImage from "./shared/BWImage";
 import BWView from "./shared/BWView";
 
-const AudioActionsBottomSheet: React.FC<any> = () => {
-  const { isPlaying } = useAudioController();
+interface AudioActionsBottomSheetProps {
+  list: AudioFile[];
+  optionsBottomSheetOffSet: string | number;
+  playlistsBottomSheetOffset: string | number;
+  newPlaylistBottomSheetOffset: string | number;
+}
+
+const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
+  list,
+  optionsBottomSheetOffSet,
+  playlistsBottomSheetOffset,
+  newPlaylistBottomSheetOffset,
+}) => {
+  const { isPlaying, onAudioPress } = useAudioController();
   const dispatch = useDispatch();
-  const { onAudioPress } = useAudioController();
+  const track = useActiveTrack();
+
   const { optionsVisible, playlistsVisible, newPlaylistVisible, selectedAudio } = useSelector(audioActionsSelector);
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
 
@@ -39,24 +54,48 @@ const AudioActionsBottomSheet: React.FC<any> = () => {
     }
   }, [optionsVisible]);
 
+  const isActiveTrack = () => {
+    if (track && selectedAudio) {
+      if (isPlaying && track.id === selectedAudio!.id) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const openPlaylistsList = () => {
+    dispatch(toggleOptionBottomSheetsAction(false));
+    dispatch(togglePlaylistsBottomSheetAction(true));
+  };
+
+  const toggleFavoriteAudio = async () => {
+    try {
+      await FavoriteService.toggleFavoriteAudioApi(selectedAudio!.id);
+
+      setIsInFavorites((prevValue) => !prevValue);
+
+      dispatch(setToastMessageAction({ message: isInFavorites ? "Audio removed from favorites !" : "Audio added to favorites", type: "success" }));
+    } catch (error) {
+      dispatch(setToastMessageAction({ message: "An unexpected error occured !", type: "error" }));
+    }
+  };
+
   const options: AudioAction[] = [
     {
-      label: isPlaying ? "Pause" : "Play",
-      icon: <FontAwesome name={isPlaying ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
-      // onPress: () => onAudioPress(selectedAudio!, audiosList),
-      onPress: () => {},
+      label: isActiveTrack() ? "Pause" : "Play",
+      icon: <FontAwesome name={isActiveTrack() ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
+      onPress: () => onAudioPress(selectedAudio!, list),
     },
     {
       label: "Add to playlist",
       icon: <MaterialCommunityIcons name="playlist-music" size={24} color={COLORS.MUTED[50]} />,
-      // onPress: () => addToPlaylistAction(),
-      onPress: () => {},
+      onPress: () => openPlaylistsList(),
     },
     {
       label: isInFavorites ? "Remove from favorites" : "Add to favorites",
       icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
       // onPress: () => toggleFavoriteAudioAction(),
-      onPress: () => {},
+      onPress: () => toggleFavoriteAudio(),
     },
   ];
 
@@ -79,7 +118,7 @@ const AudioActionsBottomSheet: React.FC<any> = () => {
 
   return (
     <>
-      <BWBottomSheet height="70%" blurBackground visible={optionsVisible} onPressOut={closeOptionsBottomSheet}>
+      <BWBottomSheet height={optionsBottomSheetOffSet} blurBackground visible={optionsVisible} onPressOut={closeOptionsBottomSheet}>
         <BWView column gap={20}>
           <BWView row alignItems="center" gap={20}>
             <BWImage src={selectedAudio?.poster!} placeholder={!selectedAudio?.poster} iconName="image" style={styles.audioImage} iconSize={34} />
@@ -98,10 +137,16 @@ const AudioActionsBottomSheet: React.FC<any> = () => {
           </BWView>
         </BWView>
       </BWBottomSheet>
-      <BWBottomSheet height="80%" visible={playlistsVisible} onPressOut={closePlayListsBottomSheet} blurBackground>
+      <BWBottomSheet height={playlistsBottomSheetOffset} visible={playlistsVisible} onPressOut={closePlayListsBottomSheet} blurBackground>
         <PlayLists audio={selectedAudio} onNewPlayList={openNewPlayListBottomSheet} onClose={closePlayListsBottomSheet} />
       </BWBottomSheet>
-      <BWBottomSheet height="78%" visible={newPlaylistVisible} blurBackground onPressOut={closeNewPlayListBottomSheet} keyboardOffSet={1.5}>
+      <BWBottomSheet
+        height={newPlaylistBottomSheetOffset}
+        visible={newPlaylistVisible}
+        blurBackground
+        onPressOut={closeNewPlayListBottomSheet}
+        keyboardOffSet={1.5}
+      >
         <AddPlayList audio={selectedAudio} onClose={closeNewPlayListBottomSheet} />
       </BWBottomSheet>
     </>

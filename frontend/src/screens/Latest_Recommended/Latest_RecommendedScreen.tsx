@@ -2,12 +2,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import PlayAudioCard from "components/PlayAudioCard";
+import useAudioController from "hooks/useAudioController";
 import { useLayoutEffect } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setSelectedAudioAction, toggleOptionBottomSheetsAction } from "redux/reducers/audio-actions.reducer";
+import { playerSelector } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
@@ -23,6 +25,8 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
   } = route;
 
   const dispatch = useDispatch();
+  const { audio } = useSelector(playerSelector);
+  const { isPlaying, onAudioPress } = useAudioController();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,10 +53,17 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
           showsVerticalScrollIndicator={false}
           data={uploads}
           keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => <PlayAudioCard onSelect={() => selectAudio(item)} audio={item} onPlay={() => {}} />}
+          renderItem={({ item }) => (
+            <PlayAudioCard
+              isPlaying={audio && item.id === audio!.id && isPlaying}
+              onSelect={() => selectAudio(item)}
+              audio={item}
+              onPlay={() => onAudioPress(item, uploads)}
+            />
+          )}
           contentContainerStyle={{ gap: 25 }}
         />
-        <AudioActionsBottomSheet />
+        <AudioActionsBottomSheet optionsBottomSheetOffSet="50%" playlistsBottomSheetOffset="60%" newPlaylistBottomSheetOffset="90%" list={uploads} />
       </View>
     </GestureHandlerRootView>
   );
