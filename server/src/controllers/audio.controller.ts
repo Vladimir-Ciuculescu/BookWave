@@ -103,6 +103,7 @@ const getLatestUploads = async (req: GetLatestUploadsRequest, res: Response) => 
         file: upload.file.url,
         poster: upload.poster?.url,
         owner: { id: upload.owner._id, name: upload.owner.name },
+        duration: upload.duration,
       };
     });
 

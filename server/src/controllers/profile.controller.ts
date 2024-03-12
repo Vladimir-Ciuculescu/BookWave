@@ -174,7 +174,7 @@ const getRecommendedAudios = async (req: GetRecommendedAudiosRequest, res: Respo
       // { $match: { _id: { $exists: true } } },
       matchOptions,
       { $sort: { likesLength: -1 } },
-      { $limit: 10 },
+      { $limit: parseInt(limit) },
       { $lookup: { from: "users", localField: "owner", foreignField: "_id", as: "owner" } },
       { $unwind: "$owner" },
       {
@@ -187,6 +187,7 @@ const getRecommendedAudios = async (req: GetRecommendedAudiosRequest, res: Respo
           about: "$about",
           file: "$file.url",
           poster: "$poster.url",
+          duration: "$duration",
         },
       },
       { $limit: parseInt(limit) },

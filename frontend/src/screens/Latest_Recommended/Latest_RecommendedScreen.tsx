@@ -1,16 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
-import PlayAudioCard from "components/PlayAudioCard";
+import AudioPlayer from "components/AudioPlayer";
+import PlayCardTest from "components/PlayCardTest";
 import useAudioController from "hooks/useAudioController";
 import { useLayoutEffect } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useActiveTrack } from "react-native-track-player";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
-import { useDispatch, useSelector } from "react-redux";
-import { setSelectedAudioAction, toggleOptionBottomSheetsAction } from "redux/reducers/audio-actions.reducer";
+import { useSelector } from "react-redux";
 import { playerSelector } from "redux/reducers/player.reducer";
-import { AudioFile } from "types/interfaces/audios";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 
@@ -21,12 +21,12 @@ interface Latest_RecommendedScreenProps {
 
 const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ navigation, route }) => {
   const {
-    params: { uploads },
+    params: { listType },
   } = route;
 
-  const dispatch = useDispatch();
-  const { audio } = useSelector(playerSelector);
+  const { visibleModalPlayer, latest, recommended } = useSelector(playerSelector);
   const { isPlaying, onAudioPress } = useAudioController();
+  const track = useActiveTrack();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,29 +41,24 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
     });
   }, [navigation]);
 
-  const selectAudio = (audio: AudioFile) => {
-    dispatch(setSelectedAudioAction(audio));
-    dispatch(toggleOptionBottomSheetsAction(true));
-  };
+  const queue = listType === "recommended" ? recommended : latest;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={uploads}
+          data={queue}
+          initialNumToRender={20}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => (
-            <PlayAudioCard
-              isPlaying={audio && item.id === audio!.id && isPlaying}
-              onSelect={() => selectAudio(item)}
-              audio={item}
-              onPlay={() => onAudioPress(item, uploads)}
-            />
+            <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, queue)} />
           )}
           contentContainerStyle={{ gap: 25 }}
         />
-        <AudioActionsBottomSheet optionsBottomSheetOffSet="50%" playlistsBottomSheetOffset="60%" newPlaylistBottomSheetOffset="90%" list={uploads} />
+
+        <AudioActionsBottomSheet optionsBottomSheetOffSet="50%" playlistsBottomSheetOffset="60%" newPlaylistBottomSheetOffset="90%" list={queue} />
+        {visibleModalPlayer && <AudioPlayer />}
       </View>
     </GestureHandlerRootView>
   );

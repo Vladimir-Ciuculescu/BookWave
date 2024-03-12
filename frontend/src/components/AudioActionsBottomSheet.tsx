@@ -35,15 +35,15 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
   playlistsBottomSheetOffset,
   newPlaylistBottomSheetOffset,
 }) => {
+  // ? Hooks
+  const { optionsVisible, playlistsVisible, newPlaylistVisible, selectedAudio } = useSelector(audioActionsSelector);
+  const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
   const { isPlaying, onAudioPress } = useAudioController();
   const dispatch = useDispatch();
   const track = useActiveTrack();
 
-  const { optionsVisible, playlistsVisible, newPlaylistVisible, selectedAudio } = useSelector(audioActionsSelector);
-  const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
-
   useEffect(() => {
-    if (optionsVisible) {
+    if (optionsVisible && selectedAudio) {
       const checkIfInFavorites = async () => {
         const isAudioInFavorites = await FavoriteService.getIsFavoriteApi(selectedAudio!.id);
 
@@ -54,15 +54,7 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
     }
   }, [optionsVisible]);
 
-  const isActiveTrack = () => {
-    if (track && selectedAudio) {
-      if (isPlaying && track.id === selectedAudio!.id) {
-        return true;
-      }
-    }
-    return false;
-  };
-
+  //? Functions
   const openPlaylistsList = () => {
     dispatch(toggleOptionBottomSheetsAction(false));
     dispatch(togglePlaylistsBottomSheetAction(true));
@@ -79,25 +71,6 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
       dispatch(setToastMessageAction({ message: "An unexpected error occured !", type: "error" }));
     }
   };
-
-  const options: AudioAction[] = [
-    {
-      label: isActiveTrack() ? "Pause" : "Play",
-      icon: <FontAwesome name={isActiveTrack() ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
-      onPress: () => onAudioPress(selectedAudio!, list),
-    },
-    {
-      label: "Add to playlist",
-      icon: <MaterialCommunityIcons name="playlist-music" size={24} color={COLORS.MUTED[50]} />,
-      onPress: () => openPlaylistsList(),
-    },
-    {
-      label: isInFavorites ? "Remove from favorites" : "Add to favorites",
-      icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
-      // onPress: () => toggleFavoriteAudioAction(),
-      onPress: () => toggleFavoriteAudio(),
-    },
-  ];
 
   const closeOptionsBottomSheet = () => {
     dispatch(toggleOptionBottomSheetsAction(false));
@@ -116,6 +89,35 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
     dispatch(toggleNewPlaylistBottomSheetAction(false));
   };
 
+  const isActiveTrack = () => {
+    if (track && selectedAudio) {
+      if (isPlaying && track.id === selectedAudio!.id) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  //Options
+  const options: AudioAction[] = [
+    {
+      label: isActiveTrack() ? "Pause" : "Play",
+      icon: <FontAwesome name={isActiveTrack() ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
+      onPress: () => onAudioPress(selectedAudio!, list),
+    },
+    {
+      label: "Add to playlist",
+      icon: <MaterialCommunityIcons name="playlist-music" size={24} color={COLORS.MUTED[50]} />,
+      onPress: () => openPlaylistsList(),
+    },
+    {
+      label: isInFavorites ? "Remove from favorites" : "Add to favorites",
+      icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
+      onPress: () => toggleFavoriteAudio(),
+    },
+  ];
+
+  //File component
   return (
     <>
       <BWBottomSheet height={optionsBottomSheetOffSet} blurBackground visible={optionsVisible} onPressOut={closeOptionsBottomSheet}>

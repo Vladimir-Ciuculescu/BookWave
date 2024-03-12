@@ -28,7 +28,7 @@ const AudiosTab = () => {
               data={copy}
               contentContainerStyle={styles.listContainer}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <PlayAudioCard onPlay={() => {}} audio={item} />}
+              renderItem={({ item }) => <PlayAudioCard onSelect={() => {}} onPlay={() => {}} audio={item} />}
             />
           </>
         )}

@@ -1,4 +1,3 @@
-import { AudioFile } from "./audios";
 import { UserProfile } from "./users";
 
 export type StackNavigatorProps = {
@@ -9,5 +8,5 @@ export type StackNavigatorProps = {
   Settings: { profile: UserProfile };
   App: { screen: string } | undefined;
   InitialScreen: undefined;
-  Latest_Recommended: { uploads: AudioFile[] };
+  Latest_Recommended: { listType: "recommended" | "latest" };
 };

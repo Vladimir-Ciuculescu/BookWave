@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import TrackPlayer, { RepeatMode, State, Track, usePlaybackState } from "react-native-track-player";
+import TrackPlayer, { RepeatMode, State, Track, useActiveTrack, usePlaybackState } from "react-native-track-player";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction, setAudiosListAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
@@ -29,6 +29,7 @@ const useAudioController = () => {
 
   const { audio, list } = useSelector(playerSelector);
   const dispatch = useDispatch();
+  const currentTrack = useActiveTrack();
 
   const isPlaying = state === State.Playing;
   const isPlayerReady = state !== State.None && state !== undefined;
@@ -43,6 +44,7 @@ const useAudioController = () => {
     if (state === State.Ended) {
       await TrackPlayer.seekTo(0);
       await TrackPlayer.play();
+      return;
     }
 
     if (state === undefined || state === State.None) {
@@ -55,17 +57,8 @@ const useAudioController = () => {
       return;
     }
 
-    if (state === State.Playing && audio!.id === track.id) {
-      await TrackPlayer.pause();
-      return;
-    }
-
-    if (state === State.Paused && audio!.id === track.id) {
-      await TrackPlayer.play();
-      return;
-    }
-
-    if (track.id !== audio!.id) {
+    //! Remember, this case was the last one in function
+    if (track.id !== audio!.id || currentTrack!.id !== track.id) {
       if (!_.isEqual(list, data)) {
         await TrackPlayer.reset();
         await updateQueue(data);
@@ -78,6 +71,17 @@ const useAudioController = () => {
       await TrackPlayer.skip(trackIndex);
       await TrackPlayer.play();
       dispatch(setAudioAction(track));
+      return;
+    }
+
+    if (state === State.Playing && audio!.id === track.id) {
+      await TrackPlayer.pause();
+      return;
+    }
+
+    if (state === State.Paused && audio!.id === track.id) {
+      await TrackPlayer.play();
+      return;
     }
   };
 
