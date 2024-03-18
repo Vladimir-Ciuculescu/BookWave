@@ -16,9 +16,10 @@ interface BWButtonProps {
   iconOnRight?: boolean;
 }
 
-const BWButton: React.FC<BWButtonProps> = ({ title, style, labelStyle, onPress, disabled, link, loading, iconSource, iconOnRight }) => {
+const BWButton: React.FC<BWButtonProps> = ({ title, style, labelStyle, onPress, disabled, link, loading, iconSource, iconOnRight }, ref) => {
   return (
     <Button
+      ref={ref}
       link={link || false}
       disabled={disabled || loading}
       label={loading ? undefined : title}

@@ -1,10 +1,11 @@
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
+import PlayListService from "api/playlists.api";
 import AudioPlayer from "components/AudioPlayer";
 import PlayCardTest from "components/PlayCardTest";
 import BWButton from "components/shared/BWButton";
 import { useFetchFavorites } from "hooks/favorites.queries";
-import React, { forwardRef, useLayoutEffect } from "react";
+import React, { forwardRef, useLayoutEffect, useState } from "react";
 import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { Extrapolate, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { Dash, Text } from "react-native-ui-lib";
@@ -13,6 +14,7 @@ import { playerSelector } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
+import { convertFromSecondsToClock } from "utils/math";
 
 const { height, width } = Dimensions.get("window");
 
@@ -32,6 +34,9 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
 
   const { visibleModalPlayer } = useSelector(playerSelector);
 
+  const [totalCount, setTotalCount] = useState<number>();
+  const [totalDuration, setTotalDuration] = useState<number>();
+
   // const scrollYOffset = useSharedValue(height / 2.5);
   const scrollYOffset = useSharedValue(0);
 
@@ -46,7 +51,25 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
         </TouchableOpacity>
       ),
     });
+
+    const getTotal = async () => {
+      const totalDuration = await PlayListService.getPlaylistAudiosTotalDurationApi({ playlistId: id });
+
+      setTotalDuration(totalDuration);
+    };
+
+    getTotal();
   }, [navigation]);
+
+  // useEffect(() => {
+  //   const getTotal = async () => {
+  //     const total = await PlayListService.getPlaylistsAudiosTotalCountApi({ playlistId: id });
+
+  //     setTotal(total);
+  //   };
+
+  //   getTotal();
+  // }, [navigation]);
 
   // TODO Fetch current playlists of the song and paginate it
   const { data, refetch, isLoading, isFetching } = useFetchFavorites({ pageNumber: "0" });
@@ -123,7 +146,7 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
                 fontSize: 20,
               }}
             >
-              56 songs
+              {audiosCount} songs
             </Text>
             <Dash vertical length={15} thickness={2.5} />
             <Text
@@ -133,7 +156,7 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
                 fontSize: 20,
               }}
             >
-              01:25:43 mins
+              {convertFromSecondsToClock(totalDuration!)} mins
             </Text>
           </View>
           <AnimatedBwButton

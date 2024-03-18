@@ -2,6 +2,8 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import {
   AddPlayListRequest,
+  GetPlaylistAudiosTotalCountRequest,
+  GetPlaylistAudiosTotalDurationRequest,
   GetPlaylistsRequest,
   GetPlaylistsTotalCountRequest,
   RemoveFromPlaylistRequest,
@@ -30,6 +32,31 @@ const getPlayListsTotalCountApi = async (payload: GetPlaylistsTotalCountRequest)
     return data;
   } catch (error: any) {
     throw new Error(error.response.data.error);
+  }
+};
+
+const getPlaylistsAudiosTotalCountApi = async (payload: GetPlaylistAudiosTotalCountRequest) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/audios-total-count`, { params: payload, headers: { Authorization: `Bearer=${await getToken()}` } });
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+const getPlaylistAudiosTotalDurationApi = async (payload: GetPlaylistAudiosTotalDurationRequest) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/audios-total-duration`, {
+      params: payload,
+      headers: { Authorization: `Bearer=${await getToken()}` },
+    });
+
+    console.log(555, data);
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.errro);
   }
 };
 
@@ -89,6 +116,8 @@ const getIsExistentInPlaylist = async (payload: getIsExistentInPlaylistRequest) 
 const PlayListService = {
   getPlayListsByProfileApi,
   getPlayListsTotalCountApi,
+  getPlaylistsAudiosTotalCountApi,
+  getPlaylistAudiosTotalDurationApi,
   addPlayListApi,
   updatePlayListApi,
   removeFromPlaylist,

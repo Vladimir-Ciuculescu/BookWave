@@ -15,6 +15,18 @@ export interface GetPlaylistAudiosRequest extends Request {
   };
 }
 
+export interface GetPlaylistAudiosTotalCountRequest extends Request {
+  query: {
+    playlistId: string;
+  };
+}
+
+export interface GetPlaylistAudiosTotalDurationRequest extends Request {
+  query: {
+    playlistId: string;
+  };
+}
+
 export interface GetPlaylistsRequest extends Request {
   query: {
     limit: string;

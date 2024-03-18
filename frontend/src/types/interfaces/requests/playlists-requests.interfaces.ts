@@ -28,6 +28,14 @@ export interface GetPlaylistsTotalCountRequest {
   title: string;
 }
 
+export interface GetPlaylistAudiosTotalCountRequest {
+  playlistId: string;
+}
+
+export interface GetPlaylistAudiosTotalDurationRequest {
+  playlistId: string;
+}
+
 export interface getIsExistentInPlaylistRequest {
   audioId: string;
   playlistId: string;
