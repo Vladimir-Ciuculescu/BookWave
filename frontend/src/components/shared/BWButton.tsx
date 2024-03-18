@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { StyleSheet, ViewStyle, ActivityIndicator, TextStyle } from "react-native";
+import React from "react";
+import { ActivityIndicator, StyleSheet, TextStyle, ViewStyle } from "react-native";
 
 import { Button } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
@@ -16,29 +16,13 @@ interface BWButtonProps {
   iconOnRight?: boolean;
 }
 
-const BWButton: React.FC<BWButtonProps> = ({
-  title,
-  style,
-  labelStyle,
-  onPress,
-  disabled,
-  link,
-  loading,
-  iconSource,
-  iconOnRight,
-}) => {
+const BWButton: React.FC<BWButtonProps> = ({ title, style, labelStyle, onPress, disabled, link, loading, iconSource, iconOnRight }) => {
   return (
     <Button
       link={link || false}
       disabled={disabled || loading}
       label={loading ? undefined : title}
-      iconSource={
-        loading
-          ? () => <ActivityIndicator size="small" color={COLORS.MUTED[50]} />
-          : iconSource
-          ? iconSource
-          : null
-      }
+      iconSource={loading ? () => <ActivityIndicator size="small" color={COLORS.MUTED[50]} /> : iconSource ? iconSource : null}
       iconOnRight={iconOnRight}
       onPress={onPress}
       labelStyle={[
@@ -48,12 +32,7 @@ const BWButton: React.FC<BWButtonProps> = ({
         labelStyle,
         title && iconSource && { paddingLeft: 7 },
       ]}
-      style={[
-        link ? styles.link : styles.contained,
-        disabled || loading ? styles.disabled : styles.enabled,
-        styles.btn,
-        style,
-      ]}
+      style={[link ? styles.link : styles.contained, disabled || loading ? styles.disabled : styles.enabled, styles.btn, style]}
     />
   );
 };

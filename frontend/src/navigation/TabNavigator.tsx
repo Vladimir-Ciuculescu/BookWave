@@ -4,9 +4,9 @@ import AudioPlayer from "components/AudioPlayer";
 import MiniPlayer from "components/MiniPlayer";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { BlurView } from "expo-blur";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { Track, useActiveTrack } from "react-native-track-player";
+import { useActiveTrack } from "react-native-track-player";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction } from "redux/reducers/player.reducer";
 import FavoritesScreen from "screens/Favorites/FavoritesScreen";
@@ -22,13 +22,9 @@ const TabNavigator: React.FC<any> = () => {
   const { visibleModalPlayer } = useSelector(playerSelector);
   const currentTrack = useActiveTrack();
   const dispatch = useDispatch();
-  const [position, setPosition] = useState<number>(0);
-  const [miniplayerTrack, setMiniPlayerTrack] = useState<Track>();
 
   useEffect(() => {
     if (currentTrack) {
-      //@ts-ignore
-
       const payload = {
         id: currentTrack.id,
         title: currentTrack.title,

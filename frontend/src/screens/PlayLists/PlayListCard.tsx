@@ -1,10 +1,14 @@
 import { Entypo } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import BWIconButton from "components/shared/BWIconButton";
 import BWImage from "components/shared/BWImage";
+import BWPressable from "components/shared/BWPressable";
 import BWView from "components/shared/BWView";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-ui-lib";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import { PlayList } from "types/interfaces/playlists";
 import { COLORS } from "utils/colors";
 
@@ -13,28 +17,41 @@ interface PlayListCardProps {
 }
 
 const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
+
+  const goToPlaylistAudios = () => {
+    navigation.navigate("PlaylistAudios", {
+      id: playlist._id,
+      title: playlist.title,
+      poster: playlist.audios[0] ? playlist.audios[0].poster! : "",
+      audiosCount: playlist.audios.length,
+    });
+  };
+
   return (
-    <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
-      <BWView row gap={20}>
-        <BWImage
-          //@ts-ignore
-          src={playlist.audios[0] && playlist.audios[0].poster}
-          placeholder={!playlist.audios[0]}
-          style={styles.audioImage}
-          iconName="music"
-          iconSize={40}
-        />
-        <BWView column style={{ height: "100%" }} justifyContent="space-evenly">
-          <Text style={styles.audioTitle}>{playlist.title}</Text>
-          <BWView row>
-            <Text numberOfLines={1} ellipsizeMode="tail" style={styles.audioDescription}>
-              {playlist.audios.length} songs
-            </Text>
+    <BWPressable onPress={goToPlaylistAudios}>
+      <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
+        <BWView row gap={20}>
+          <BWImage
+            //@ts-ignore
+            src={playlist.audios[0] && playlist.audios[0].poster}
+            placeholder={!playlist.audios[0]}
+            style={styles.audioImage}
+            iconName="music"
+            iconSize={40}
+          />
+          <BWView column style={{ height: "100%" }} justifyContent="space-evenly">
+            <Text style={styles.audioTitle}>{playlist.title}</Text>
+            <BWView row>
+              <Text numberOfLines={1} ellipsizeMode="tail" style={styles.audioDescription}>
+                {playlist.audios.length} songs
+              </Text>
+            </BWView>
           </BWView>
         </BWView>
+        <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
       </BWView>
-      <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
-    </BWView>
+    </BWPressable>
   );
 };
 

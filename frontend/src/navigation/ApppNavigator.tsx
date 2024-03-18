@@ -1,8 +1,7 @@
-import { NavigationContainer } from "@react-navigation/native";
-import StackNavigator from "./StackNavigator";
-import { DefaultTheme } from "@react-navigation/native";
-import { COLORS } from "utils/colors";
+import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import ToastNotification from "components/ToastNotification";
+import { COLORS } from "utils/colors";
+import StackNavigator from "./StackNavigator";
 
 const NavigatorTheme = {
   ...DefaultTheme,

@@ -64,15 +64,18 @@ const HomeScreen: React.FC<any> = () => {
               <Text style={styles.notFoundTitle}>No uploads found</Text>
             </BWView>
           ) : (
-            latestAudios.uploads.map((upload: AudioFile, index: number) => (
-              <AudioCard
-                animation={isPlaying && audio && audio!.id === upload.id}
-                audio={upload}
-                key={upload.id}
-                onPress={() => onAudioPress(upload, latestAudios.uploads.slice(0, 5))}
-                onLongPress={() => openOptionsBottomSheet(upload, "latest")}
-              />
-            ))
+            latestAudios.uploads.map(
+              (upload: AudioFile, index: number) =>
+                index < 5 && (
+                  <AudioCard
+                    animation={isPlaying && audio && audio!.id === upload.id}
+                    audio={upload}
+                    key={upload.id}
+                    onPress={() => onAudioPress(upload, latestAudios.uploads.slice(0, 5))}
+                    onLongPress={() => openOptionsBottomSheet(upload, "latest")}
+                  />
+                ),
+            )
           )}
         </ScrollView>
       );

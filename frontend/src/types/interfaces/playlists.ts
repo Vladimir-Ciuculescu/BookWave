@@ -1,4 +1,5 @@
 import { Visibilites } from "types/enums/visibilites.enum";
+import { AudioFile } from "./audios";
 
 interface PosterAudio {
   _id: string;
@@ -9,5 +10,5 @@ export interface PlayList {
   owner: string;
   title: string;
   visibility: Visibilites;
-  audios: string[];
+  audios: AudioFile[];
 }

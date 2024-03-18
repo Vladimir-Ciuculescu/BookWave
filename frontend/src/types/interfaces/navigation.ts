@@ -9,4 +9,5 @@ export type StackNavigatorProps = {
   App: { screen: string } | undefined;
   InitialScreen: undefined;
   Latest_Recommended: { listType: "recommended" | "latest" };
+  PlaylistAudios: { id: string; poster: string; title: string; audiosCount: number };
 };

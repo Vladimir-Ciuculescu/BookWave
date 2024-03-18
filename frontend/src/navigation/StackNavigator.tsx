@@ -4,6 +4,7 @@ import InitializationScreen from "screens/InitializationScreen";
 import Latest_RecommendedScreen from "screens/Latest_Recommended/Latest_RecommendedScreen";
 import LoginScreen from "screens/Login/LoginScreen";
 import OTPVerificationScreen from "screens/OTPVerification/OTPVerificationScreen";
+import PlaylistAudiosScreen from "screens/PlaylistAudios/PlaylistAudiosScreen";
 import RegisterScreen from "screens/Register/RegisterScreen";
 import SettingsScreen from "screens/Settings/SettingsScreen";
 import { StackNavigatorProps } from "types/interfaces/navigation";
@@ -27,6 +28,7 @@ const StackNavigator: React.FC<any> = () => {
       </Stack.Group>
       <Stack.Group>
         <Stack.Screen component={Latest_RecommendedScreen} name="Latest_Recommended" />
+        <Stack.Screen component={PlaylistAudiosScreen} name="PlaylistAudios" />
       </Stack.Group>
     </Stack.Navigator>
   );

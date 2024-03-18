@@ -291,7 +291,7 @@ const FavoritesScreen: React.FC<any> = () => {
             </View>
           </BWView>
         )}
-        <AudioActionsBottomSheet optionsBottomSheetOffSet="58%" playlistsBottomSheetOffset="60%" newPlaylistBottomSheetOffset="90%" list={favorites} />
+        <AudioActionsBottomSheet optionsBottomSheetOffSet="60%" playlistsBottomSheetOffset="95%" newPlaylistBottomSheetOffset="90%" list={favorites} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
