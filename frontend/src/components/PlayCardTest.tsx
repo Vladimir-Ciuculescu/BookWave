@@ -1,11 +1,10 @@
 import { Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
-import useAudioController from "hooks/useAudioController";
 import { memo } from "react";
 import { StyleSheet } from "react-native";
-import { useActiveTrack } from "react-native-track-player";
 import { Text, View } from "react-native-ui-lib";
-import { useDispatch, useSelector } from "react-redux";
-import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
+import { useDispatch } from "react-redux";
+import { setSelectedAudioAction, toggleOptionBottomSheetsAction } from "redux/reducers/audio-actions.reducer";
+import { setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { COLORS } from "utils/colors";
 import { convertFromSecondsToClock } from "utils/math";
@@ -15,30 +14,24 @@ import BWImage from "./shared/BWImage";
 import BWPressable from "./shared/BWPressable";
 import BWView from "./shared/BWView";
 
-interface PlayAudioCardProps {
+interface TestProps {
   audio: AudioFile;
-  onPlay: () => void;
-  //isPlaying?: boolean;
-  onSelect: () => void;
+  onPress: () => void;
+  onLongPress?: () => void;
+  isPlaying: boolean;
 }
 
-const PlayAudioCard: React.FC<PlayAudioCardProps> = ({
-  audio,
-  onPlay,
-  //isPlaying,
-  onSelect,
-}) => {
+const PlayCardTest: React.FC<TestProps> = ({ audio, onPress, isPlaying }) => {
   const dispatch = useDispatch();
-  const { onAudioPress, isPlaying } = useAudioController();
-  const { list } = useSelector(playerSelector);
-  const track = useActiveTrack();
 
   const openAudioPlayer = async () => {
-    //await onAudioPress(audio, list);
     dispatch(setVisibileModalPlayerAction(true));
-    // dispatch(setAudiosListAction())
-    dispatch(setAudioAction(audio));
-    // onAudioPress(audio, list);
+    dispatch(setSelectedAudioAction(audio));
+  };
+
+  const openAudioActions = () => {
+    dispatch(toggleOptionBottomSheetsAction(true));
+    dispatch(setSelectedAudioAction(audio));
   };
 
   return (
@@ -46,7 +39,7 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({
       <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
         <BWView row gap={20}>
           <View style={styles.imageContainer}>
-            {isPlaying && track && track!.id === audio.id && <SoundWave />}
+            {isPlaying && <SoundWave />}
             <BWImage style={styles.image} placeholder={!audio.poster} iconName="image" src={audio.poster!} />
           </View>
           <BWView column style={{ height: "100%" }} justifyContent="space-evenly">
@@ -63,26 +56,18 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({
         </BWView>
         <BWView row gap={20}>
           <BWIconButton
-            onPress={onPlay}
+            onPress={onPress}
             style={styles.playBtn}
-            icon={() =>
-              isPlaying && track && track!.id === audio.id ? (
-                <FontAwesome name="pause" size={16} color="black" />
-              ) : (
-                <Ionicons name="md-play" size={16} color="black" />
-              )
-            }
+            icon={() => (isPlaying ? <FontAwesome name="pause" size={16} color="black" /> : <Ionicons name="md-play" size={16} color="black" />)}
           />
-          <BWIconButton link onPress={onSelect} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
+          <BWIconButton link onPress={openAudioActions} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
         </BWView>
       </BWView>
     </BWPressable>
   );
 };
 
-export default memo(PlayAudioCard);
-
-// export default PlayAudioCard;
+export default memo(PlayCardTest);
 
 const styles = StyleSheet.create({
   imageContainer: {

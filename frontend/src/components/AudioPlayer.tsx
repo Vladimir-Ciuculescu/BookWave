@@ -4,11 +4,13 @@ import FavoriteService from "api/favorites.api";
 import useAudioController from "hooks/useAudioController";
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet } from "react-native";
-import TrackPlayer, { useActiveTrack, useProgress } from "react-native-track-player";
+import TrackPlayer, { Event, useActiveTrack, useProgress, useTrackPlayerEvents } from "react-native-track-player";
 import { Dialog, PanningProvider, Text, View } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
+import { audioActionsSelector, setSelectedAudioAction } from "redux/reducers/audio-actions.reducer";
 import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { AudioFile } from "types/interfaces/audios";
 import { COLORS } from "utils/colors";
 import { convertFromSecondsToClock } from "utils/math";
 import BWDivider from "./shared/BWDivider";
@@ -19,20 +21,23 @@ import BWView from "./shared/BWView";
 
 const { height, width } = Dimensions.get("screen");
 
+const speedRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
 const AudioPlayer: React.FC<any> = () => {
+  // ? Hooks
   const [playbackModal, togglePlaybackModal] = useState<boolean>(false);
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
+  const [currentRate, setCurrentRate] = useState<number>(1);
   const { audio, list, visibleModalPlayer } = useSelector(playerSelector);
-
+  const { selectedAudio } = useSelector(audioActionsSelector);
   const { position, duration } = useProgress(300);
   const { isPlaying, onAudioPress, skipTo } = useAudioController();
-  const [currentRate, setCurrentRate] = useState<number>(1);
   const track = useActiveTrack();
   const dispatch = useDispatch();
 
   useEffect(() => {
     const checkIfInFavorites = async () => {
-      const isAudioInFavorites = await FavoriteService.getIsFavoriteApi(audio!.id);
+      const isAudioInFavorites = await FavoriteService.getIsFavoriteApi(selectedAudio!.id);
 
       setIsInFavorites(isAudioInFavorites);
     };
@@ -52,7 +57,24 @@ const AudioPlayer: React.FC<any> = () => {
     }
   }, [playbackModal]);
 
-  const speedRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+  useTrackPlayerEvents([Event.PlaybackActiveTrackChanged], (event) => {
+    if (event && event.track) {
+      const payload: AudioFile = {
+        id: event.track.id,
+        title: event!.track!.title!,
+        about: event.track.about,
+        //@ts-ignore
+        category: event!.track!.genre!,
+        file: event.track.url,
+        poster: event.track.artwork,
+        owner: event.track.owner,
+        duration: event!.track!.duration!,
+      };
+      dispatch(setSelectedAudioAction(payload));
+    }
+  });
+
+  // ? Functions
 
   const stepTimestamp = async (direction: "backward" | "forward") => {
     await skipTo(direction === "backward" ? -10 : 10);
@@ -101,10 +123,6 @@ const AudioPlayer: React.FC<any> = () => {
     return trackIndex;
   };
 
-  const isLastTrack = track ? findTrackIndex(list, audio) === list.length - 1 : false;
-
-  const isFirstTrack = track ? findTrackIndex(list, audio) === 0 : false;
-
   const closePlayer = () => {
     dispatch(setVisibileModalPlayerAction(false));
   };
@@ -116,8 +134,6 @@ const AudioPlayer: React.FC<any> = () => {
 
     return `${rate}x`;
   };
-
-  const isCurrentRate = (rate: number) => currentRate === rate;
 
   const changeSpeedRate = async (rate: number) => {
     try {
@@ -141,6 +157,14 @@ const AudioPlayer: React.FC<any> = () => {
     }
   };
 
+  const isCurrentTrack = track && selectedAudio && track.id === selectedAudio.id;
+
+  const isLastTrack = track ? findTrackIndex(list, audio) === list.length - 1 : false;
+
+  const isFirstTrack = track ? findTrackIndex(list, audio) === 0 : false;
+
+  const isCurrentRate = (rate: number) => currentRate === rate;
+
   return (
     <Dialog
       bottom={true}
@@ -152,25 +176,27 @@ const AudioPlayer: React.FC<any> = () => {
     >
       <View style={styles.dialogContent}>
         <BWView column alignItems="center" gap={16} style={{ paddingHorizontal: 20 }}>
-          <BWImage src={audio?.poster} style={styles.image} placeholder={!audio?.poster} iconName="image" />
+          <BWImage src={selectedAudio?.poster} style={styles.image} placeholder={!selectedAudio?.poster} iconName="image" />
           <BWView column alignItems="center" gap={8}>
-            <Text style={styles.title}>{audio?.title}</Text>
-            <Text style={styles.about}>{audio?.about}</Text>
+            <Text style={styles.title}>{isCurrentTrack ? track.title : selectedAudio?.title}</Text>
+            <Text style={styles.about}>{isCurrentTrack ? track.about : selectedAudio?.about}</Text>
           </BWView>
           <BWDivider orientation="horizontal" thickness={1.2} width="100%" color={COLORS.MUTED[700]} />
+
           <Slider
             style={styles.slider}
             minimumValue={0}
-            maximumValue={duration}
-            value={position}
+            maximumValue={isCurrentTrack ? duration : selectedAudio?.duration}
+            value={isCurrentTrack ? position : 0}
             onSlidingComplete={seekTimeStamp}
             minimumTrackTintColor={COLORS.WARNING[500]}
             maximumTrackTintColor={COLORS.WARNING[500]}
             thumbTintColor={COLORS.WARNING[600]}
           />
           <BWView style={{ width: "100%" }} row justifyContent="space-between">
-            <Text style={styles.position}>{convertFromSecondsToClock(position)} </Text>
-            <Text style={styles.position}>{convertFromSecondsToClock(duration)} </Text>
+            <Text style={styles.position}>{isCurrentTrack ? convertFromSecondsToClock(position) : "00:00"} </Text>
+
+            <Text style={styles.position}>{isCurrentTrack ? convertFromSecondsToClock(duration) : convertFromSecondsToClock(selectedAudio!.duration)} </Text>
           </BWView>
           <BWView row style={{ width: "100%" }} justifyContent="space-between" alignItems="center">
             <BWIconButton
@@ -183,9 +209,13 @@ const AudioPlayer: React.FC<any> = () => {
             <BWIconButton
               style={styles.toggleButton}
               icon={() =>
-                isPlaying ? <Ionicons name="pause" size={22} color={COLORS.MUTED[50]} /> : <FontAwesome5 name="play" size={22} color={COLORS.MUTED[50]} />
+                isCurrentTrack && isPlaying ? (
+                  <Ionicons name="pause" size={22} color={COLORS.MUTED[50]} />
+                ) : (
+                  <FontAwesome5 name="play" size={22} color={COLORS.MUTED[50]} />
+                )
               }
-              onPress={() => onAudioPress(audio!, list)}
+              onPress={() => onAudioPress(selectedAudio!, list)}
             />
             <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("forward")} />
 

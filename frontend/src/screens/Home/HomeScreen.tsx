@@ -1,155 +1,81 @@
-import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import FavoriteService from "api/favorites.api";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import AudioCard from "components/AudioCard";
-import BWBottomSheet from "components/shared/BWBottomSheet";
 import BWButton from "components/shared/BWButton";
-import BWDivider from "components/shared/BWDivider";
-import BWImage from "components/shared/BWImage";
 import BWView from "components/shared/BWView";
 import { StatusBar } from "expo-status-bar";
 import { useFetchLatestAudios, useFetchRecommendedAudios } from "hooks/audios.queries";
 import useAudioController from "hooks/useAudioController";
 import { Skeleton } from "moti/skeleton";
-import React, { ReactNode, useEffect, useState } from "react";
-import { Dimensions, Pressable, SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView, ScrollView, StyleSheet, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useDispatch, useSelector } from "react-redux";
-import { playerSelector } from "redux/reducers/player.reducer";
-import { setToastMessageAction } from "redux/reducers/toast.reducer";
-import AddPlayList from "screens/Home/components/AddPlayList";
-import PlayLists from "screens/Home/components/PlayLists";
+import { setSelectedAudioAction, toggleOptionBottomSheetsAction } from "redux/reducers/audio-actions.reducer";
+import { playerSelector, setLatestAudiosAction, setRecommendedAudiosAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
+import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 import { NoData } from "../../../assets/illustrations";
 
-interface Option {
-  label: string;
-  icon: JSX.Element;
-  onPress: () => void;
-}
-
-const { width, height } = Dimensions.get("screen");
-
 const HomeScreen: React.FC<any> = () => {
-  const [optionsBottomSheet, toggleOptionsBottomSheet] = useState<boolean>(false);
-  const [playlistsBottomSheet, togglePlaylistsBottomSheet] = useState<boolean>(false);
-  const [newPlayListBottomSheet, toggleNewPlayListBottomSheet] = useState<boolean>(false);
-  const [selectedAudio, setSelectedAudio] = useState<AudioFile | undefined>();
+  // ? Hooks
   const [audiosList, setAudiosList] = useState<AudioFile[]>([]);
-  const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
   const { onAudioPress, isPlaying } = useAudioController();
-
+  const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
   const { audio } = useSelector(playerSelector);
-
   const dispatch = useDispatch();
+  const { data: latestAudios, isLoading: areLatestAudiosLoading } = useFetchLatestAudios();
+  const { data: recommendedAudios, isLoading: areRecommendedAudiosLoading } = useFetchRecommendedAudios();
 
-  const latestAudios = useFetchLatestAudios();
-  const recommendedAudios = useFetchRecommendedAudios();
-
-  useEffect(() => {
-    if (optionsBottomSheet) {
-      const checkIfInFavorites = async () => {
-        const isAudioInFavorites = await FavoriteService.getIsFavoriteApi(selectedAudio!.id);
-
-        setIsInFavorites(isAudioInFavorites);
-      };
-
-      checkIfInFavorites();
-    }
-  }, [selectedAudio]);
-
+  // ?Functions
   const openOptionsBottomSheet = (audio: AudioFile, list: "recommended" | "latest") => {
-    setAudiosList(list === "recommended" ? recommendedAudios.data.audios : latestAudios.data.uploads);
-
-    toggleOptionsBottomSheet(true);
-    setSelectedAudio(audio);
+    setAudiosList(list === "recommended" ? recommendedAudios.audios.slice(0, 5) : latestAudios.uploads.slice(0, 5));
+    dispatch(toggleOptionBottomSheetsAction(true));
+    dispatch(setSelectedAudioAction(audio));
   };
 
-  const closeOptionsBottomSheet = () => {
-    toggleOptionsBottomSheet(false);
-    setSelectedAudio(undefined);
+  const goToLatestAudios = async () => {
+    navigation.navigate("Latest_Recommended", { listType: "latest" });
+    dispatch(setLatestAudiosAction(latestAudios.uploads));
   };
 
-  const closePlayListsBottomSheet = () => {
-    togglePlaylistsBottomSheet(false);
-    setSelectedAudio(undefined);
+  const goToRecommendedAudios = () => {
+    navigation.navigate("Latest_Recommended", { listType: "recommended" });
+    dispatch(setRecommendedAudiosAction(recommendedAudios.audios));
   };
 
-  const closeNewPlayListBottomSheet = () => {
-    toggleNewPlayListBottomSheet(false);
-    setSelectedAudio(undefined);
-  };
-
-  const toggleFavoriteAudioAction = async () => {
-    try {
-      setIsInFavorites((prevValue) => !prevValue);
-
-      const data = await FavoriteService.toggleFavoriteAudioApi(selectedAudio!.id);
-
-      if (data.message) {
-        dispatch(setToastMessageAction({ message: isInFavorites ? "Audio removed from favorites !" : "Audio added to favorites !", type: "success" }));
-      }
-    } catch (error) {
-      console.log(error);
-      dispatch(setToastMessageAction({ message: "Something went wrong, please try again !", type: "error" }));
-    }
-  };
-
-  const addToPlaylistAction = () => {
-    toggleOptionsBottomSheet(false);
-    togglePlaylistsBottomSheet(true);
-  };
-
-  const openNewPlayListBottomSheet = () => {
-    togglePlaylistsBottomSheet(false);
-    toggleNewPlayListBottomSheet(true);
-  };
-
-  const options: Option[] = [
-    {
-      label: isPlaying ? "Pause" : "Play",
-      icon: <FontAwesome name={isPlaying ? "pause-circle" : "play-circle"} size={30} color={COLORS.MUTED[50]} />,
-      onPress: () => onAudioPress(selectedAudio!, audiosList),
-    },
-    {
-      label: "Add to playlist",
-      icon: <MaterialCommunityIcons name="playlist-music" size={24} color={COLORS.MUTED[50]} />,
-      onPress: () => addToPlaylistAction(),
-    },
-    {
-      label: isInFavorites ? "Remove from favorites" : "Add to favorites",
-      icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
-      onPress: () => toggleFavoriteAudioAction(),
-    },
-  ];
+  //? Mini components
 
   const renderLatestUploads = () => {
-    if (latestAudios.isLoading) {
+    if (areLatestAudiosLoading) {
       return Array.of(5).map((_, index) => <Skeleton colorMode="dark" width={140} height={140} key={index} />);
     } else {
       return (
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={[styles.list, !latestAudios.data.uploads.length ? { width: "100%" } : null]}
+          contentContainerStyle={[styles.list, !latestAudios.uploads.length ? { width: "100%" } : null]}
         >
-          {!latestAudios.data.uploads.length ? (
+          {!latestAudios.uploads.length ? (
             <BWView column alignItems="center" justifyContent="center" style={styles.noDataContainer} gap={25}>
               <NoData width="100%" height={200} />
               <Text style={styles.notFoundTitle}>No uploads found</Text>
             </BWView>
           ) : (
-            latestAudios.data.uploads.map((upload: AudioFile) => {
-              return (
-                <AudioCard
-                  animation={isPlaying && audio && audio!.id === upload.id}
-                  audio={upload}
-                  key={upload.id}
-                  onPress={() => onAudioPress(upload, latestAudios.data.uploads)}
-                  onLongPress={() => openOptionsBottomSheet(upload, "latest")}
-                />
-              );
-            })
+            latestAudios.uploads.map(
+              (upload: AudioFile, index: number) =>
+                index < 5 && (
+                  <AudioCard
+                    animation={isPlaying && audio && audio!.id === upload.id}
+                    audio={upload}
+                    key={upload.id}
+                    onPress={() => onAudioPress(upload, latestAudios.uploads.slice(0, 5))}
+                    onLongPress={() => openOptionsBottomSheet(upload, "latest")}
+                  />
+                ),
+            )
           )}
         </ScrollView>
       );
@@ -157,57 +83,40 @@ const HomeScreen: React.FC<any> = () => {
   };
 
   const renderRecommendedUploads = () => {
-    if (recommendedAudios.isLoading) {
+    if (areRecommendedAudiosLoading) {
       return Array.of(5).map((_, index) => <Skeleton colorMode="dark" width={140} height={140} key={index} />);
     } else {
       return (
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={[styles.list, !recommendedAudios.data.audios.length ? { width: "100%" } : null]}
+          contentContainerStyle={[styles.list, !recommendedAudios.audios.length ? { width: "100%" } : null]}
         >
-          {!recommendedAudios.data.audios.length ? (
+          {!recommendedAudios.audios.length ? (
             <BWView column alignItems="center" justifyContent="center" style={styles.noDataContainer} gap={25}>
               <NoData width="100%" height={200} />
               <Text style={styles.notFoundTitle}>No uploads found</Text>
             </BWView>
           ) : (
-            recommendedAudios.data.audios.map((upload: AudioFile) => {
-              return (
-                <AudioCard
-                  animation={isPlaying && audio && audio.id === upload.id}
-                  audio={upload}
-                  key={upload.id}
-                  onPress={() => onAudioPress(upload, recommendedAudios.data.audios)}
-                  onLongPress={() => openOptionsBottomSheet(upload, "recommended")}
-                />
-              );
-            })
+            recommendedAudios.audios.map(
+              (upload: AudioFile, index: number) =>
+                index < 5 && (
+                  <AudioCard
+                    animation={isPlaying && audio && audio.id === upload.id}
+                    audio={upload}
+                    key={upload.id}
+                    onPress={() => onAudioPress(upload, recommendedAudios.audios.slice(0, 5))}
+                    onLongPress={() => openOptionsBottomSheet(upload, "recommended")}
+                  />
+                ),
+            )
           )}
         </ScrollView>
       );
     }
   };
 
-  const renderAudioActions = () => (
-    <BWView column gap={20}>
-      <BWView row alignItems="center" gap={20}>
-        <BWImage src={selectedAudio?.poster!} placeholder={!selectedAudio?.poster} iconName="image" style={styles.audioImage} iconSize={34} />
-        <Text style={styles.audioTitle}>{selectedAudio?.title}</Text>
-      </BWView>
-      <BWDivider orientation="horizontal" color={COLORS.DARK[300]} width="100%" thickness={2} />
-      <BWView column gap={30}>
-        {options.map((option: Option) => (
-          <Pressable onPress={option.onPress} key={option.label} style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}>
-            <BWView row alignItems="center" gap={20}>
-              {option.icon}
-              <Text style={styles.labelOption}>{option.label}</Text>
-            </BWView>
-          </Pressable>
-        ))}
-      </BWView>
-    </BWView>
-  );
+  // ? File Component
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -217,7 +126,7 @@ const HomeScreen: React.FC<any> = () => {
           <BWView column gap={25}>
             <BWView row justifyContent="space-between">
               <Text style={styles.sectionTitle}>Latest Uploads</Text>
-              <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
+              <BWButton onPress={goToLatestAudios} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
 
             {renderLatestUploads()}
@@ -225,20 +134,13 @@ const HomeScreen: React.FC<any> = () => {
           <BWView column gap={25}>
             <BWView row justifyContent="space-between">
               <Text style={styles.sectionTitle}>Recommended Uploads</Text>
-              <BWButton onPress={() => {}} title="See all" link labelStyle={styles.sectionBtn} />
+              <BWButton onPress={goToRecommendedAudios} title="See all" link labelStyle={styles.sectionBtn} />
             </BWView>
             {renderRecommendedUploads()}
           </BWView>
         </BWView>
-        <BWBottomSheet height="70%" blurBackground visible={optionsBottomSheet} onPressOut={closeOptionsBottomSheet}>
-          {renderAudioActions() as ReactNode}
-        </BWBottomSheet>
-        <BWBottomSheet height="80%" onPressOut={closePlayListsBottomSheet} blurBackground visible={playlistsBottomSheet}>
-          <PlayLists audio={selectedAudio} onNewPlayList={openNewPlayListBottomSheet} onClose={closePlayListsBottomSheet} />
-        </BWBottomSheet>
-        <BWBottomSheet height="78%" visible={newPlayListBottomSheet} blurBackground onPressOut={closeNewPlayListBottomSheet} keyboardOffSet={1.5}>
-          <AddPlayList audio={selectedAudio} onClose={closeNewPlayListBottomSheet} />
-        </BWBottomSheet>
+
+        <AudioActionsBottomSheet optionsBottomSheetOffSet="60%" playlistsBottomSheetOffset="95%" newPlaylistBottomSheetOffset="78%" list={audiosList} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -270,7 +172,6 @@ const styles = StyleSheet.create({
   list: {
     gap: 15,
     paddingHorizontal: 20,
-    //width: "100%",
   },
 
   audioImage: {

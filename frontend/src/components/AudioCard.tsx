@@ -22,7 +22,7 @@ const AudioCard: React.FC<AudioCard> = ({ audio, onPress, onLongPress, animation
           <BWImage style={styles.image} placeholder={!audio.poster} iconName="image" src={audio.poster!} />
         </View>
 
-        <Text style={styles.imageTitle} numberOfLines={2} ellipsizeMode="tail">
+        <Text style={styles.imageTitle} numberOfLines={1} ellipsizeMode="tail">
           {audio.title}
         </Text>
       </BWView>

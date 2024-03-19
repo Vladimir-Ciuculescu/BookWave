@@ -9,6 +9,7 @@ import store from "redux/store";
 
 LogBox.ignoreLogs([
   "Sending `onAnimatedValueUpdate` with no listeners registered.",
+  "forwardRef render functions accept exactly two parameters: props and ref. Did you forget to use the ref parameter?",
   // "Encountered two children with the same key,",
 ]);
 

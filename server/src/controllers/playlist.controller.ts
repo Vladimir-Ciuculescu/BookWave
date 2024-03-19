@@ -1,10 +1,12 @@
 import { Response } from "express";
 import AudioModel from "models/audio.model";
 import PlayListModel, { PlayListDocument } from "models/playlist.model";
-import { PipelineStage, Schema, isValidObjectId } from "mongoose";
+import { PipelineStage, Schema, Types, isValidObjectId } from "mongoose";
 import {
   AddPlayListRequest,
   GetPlaylistAudiosRequest,
+  GetPlaylistAudiosTotalCountRequest,
+  GetPlaylistAudiosTotalDurationRequest,
   GetPlaylistTotalCountRequest,
   GetPlaylistsRequest,
   RemovePlayListRequest,
@@ -203,6 +205,56 @@ const getPlayListsTotalCount = async (req: GetPlaylistTotalCountRequest, res: Re
   }
 };
 
+export const getPlaylistAudiosTotalCount = async (req: GetPlaylistAudiosTotalCountRequest, res: Response) => {
+  const { playlistId } = req.query;
+  const userId = req.user.id;
+
+  try {
+    if (!isValidObjectId(playlistId)) {
+      return res.status(422).json({ error: "Invalid playlist id !" });
+    }
+    const playlist = await PlayListModel.findOne({ _id: playlistId, owner: userId });
+
+    if (!playlist) {
+      return res.status(404).json({ error: "Playlist not found !" });
+    }
+
+    return res.status(200).json(playlist.items.length);
+  } catch (error) {
+    return res.status(422).json(error);
+  }
+};
+
+export const getPlaylistAudiosTotalDuration = async (req: GetPlaylistAudiosTotalDurationRequest, res: Response) => {
+  const { playlistId } = req.query;
+
+  const userId = req.user.id;
+
+  try {
+    if (!isValidObjectId(playlistId)) {
+      return res.status(422).json({ error: "Invalid playlist id !" });
+    }
+
+    const data = await PlayListModel.aggregate([
+      { $match: { _id: new Types.ObjectId(playlistId) } },
+      { $unwind: "$items" },
+      {
+        $project: {
+          audio: "$items",
+        },
+      },
+      { $lookup: { from: "audios", localField: "audio", foreignField: "_id", as: "audio" } },
+      { $project: { duration: "$audio.duration" } },
+      { $unwind: "$duration" },
+      { $group: { _id: null, duration: { $sum: "$duration" } } },
+    ]);
+
+    return res.status(200).json(data[0].duration);
+  } catch (error) {
+    return res.status(422).json(error);
+  }
+};
+
 const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) => {
   const { playlistId } = req.params;
   const userId = req.user.id;
@@ -225,13 +277,15 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
       return {
         id: audio._id,
         title: audio.title,
+        about: audio.about,
         category: audio.category,
         file: audio.file.url,
-        poster: audio.poster.url,
+        poster: audio.poster ? audio.poster.url : null,
         owner: {
           id: audio.owner.id,
           name: audio.owner.name,
         },
+        duration: audio.duration,
       };
     });
 
@@ -266,6 +320,8 @@ const PlaylistController = {
   getPlaylistsByUser,
   getPlayListsTotalCount,
   getPlayListAudios,
+  getPlaylistAudiosTotalCount,
+  getPlaylistAudiosTotalDuration,
   getIsExistentInPlaylist,
 };
 

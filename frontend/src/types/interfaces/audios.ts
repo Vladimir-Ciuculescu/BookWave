@@ -10,3 +10,9 @@ export interface AudioFile {
   owner: { id: string; name: string };
   duration: number;
 }
+
+export interface AudioAction {
+  label: string;
+  icon: JSX.Element;
+  onPress: () => void;
+}

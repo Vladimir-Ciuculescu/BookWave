@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import TrackPlayer, { RepeatMode, State, Track, usePlaybackState } from "react-native-track-player";
+import TrackPlayer, { State, Track, useActiveTrack, usePlaybackState } from "react-native-track-player";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction, setAudiosListAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
@@ -20,8 +20,6 @@ const updateQueue = async (data: AudioFile[]) => {
   });
 
   await TrackPlayer.add([...lists]);
-
-  await TrackPlayer.setRepeatMode(RepeatMode.Off);
 };
 
 const useAudioController = () => {
@@ -29,6 +27,7 @@ const useAudioController = () => {
 
   const { audio, list } = useSelector(playerSelector);
   const dispatch = useDispatch();
+  const currentTrack = useActiveTrack();
 
   const isPlaying = state === State.Playing;
   const isPlayerReady = state !== State.None && state !== undefined;
@@ -39,10 +38,18 @@ const useAudioController = () => {
     await TrackPlayer.seekTo(position + second);
   };
 
+  const replayList = async (data: AudioFile[]) => {
+    await TrackPlayer.reset();
+    await updateQueue(data);
+    await TrackPlayer.skip(0);
+    await TrackPlayer.play();
+  };
+
   const onAudioPress = async (track: AudioFile, data: AudioFile[]) => {
     if (state === State.Ended) {
       await TrackPlayer.seekTo(0);
       await TrackPlayer.play();
+      return;
     }
 
     if (state === undefined || state === State.None) {
@@ -51,6 +58,23 @@ const useAudioController = () => {
       await TrackPlayer.skip(trackIndex);
       await TrackPlayer.play();
       dispatch(setAudiosListAction(data));
+      dispatch(setAudioAction(track));
+      return;
+    }
+
+    //! Remember, this case was the last one in function
+    if (track.id !== audio!.id || currentTrack!.id !== track.id) {
+      if (!_.isEqual(list, data)) {
+        await TrackPlayer.reset();
+        await updateQueue(data);
+
+        dispatch(setAudiosListAction(data));
+      }
+
+      const trackIndex = data.findIndex((audio) => audio.id === track.id);
+
+      await TrackPlayer.skip(trackIndex);
+      await TrackPlayer.play();
       dispatch(setAudioAction(track));
       return;
     }
@@ -64,24 +88,9 @@ const useAudioController = () => {
       await TrackPlayer.play();
       return;
     }
-
-    if (track.id !== audio!.id) {
-      if (!_.isEqual(list, data)) {
-        await TrackPlayer.reset();
-        await updateQueue(data);
-
-        dispatch(setAudiosListAction(data));
-      }
-
-      const trackIndex = data.findIndex((audio) => audio.id === track.id);
-
-      await TrackPlayer.skip(trackIndex);
-      await TrackPlayer.play();
-      dispatch(setAudioAction(track));
-    }
   };
 
-  return { onAudioPress, isPlaying, isPlayerReady, skipTo };
+  return { onAudioPress, isPlaying, isPlayerReady, skipTo, replayList };
 };
 
 export default useAudioController;

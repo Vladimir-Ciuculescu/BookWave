@@ -5,9 +5,10 @@ import { AudioFile } from "types/interfaces/audios";
 
 interface InitialStateProps {
   audio: AudioFile | undefined;
-
   visibleModalPlayer: boolean;
   list: AudioFile[];
+  latest: AudioFile[];
+  recommended: AudioFile[];
 }
 
 // ? Initial State
@@ -15,6 +16,8 @@ const initialState: InitialStateProps = {
   audio: undefined,
   visibleModalPlayer: false,
   list: [],
+  latest: [],
+  recommended: [],
 };
 
 // ? Reducer
@@ -32,6 +35,12 @@ const playerReducer = createSlice({
     setAudiosList: (state, action: PayloadAction<AudioFile[]>) => {
       state.list = action.payload;
     },
+    setLatestAudios: (state, action: PayloadAction<AudioFile[]>) => {
+      state.latest = action.payload;
+    },
+    setRecommendedAudios: (state, action: PayloadAction<AudioFile[]>) => {
+      state.recommended = action.payload;
+    },
   },
 });
 
@@ -39,6 +48,8 @@ const playerReducer = createSlice({
 export const setAudioAction = playerReducer.actions.setAudio;
 export const setVisibileModalPlayerAction = playerReducer.actions.setVisibileModalPlayer;
 export const setAudiosListAction = playerReducer.actions.setAudiosList;
+export const setLatestAudiosAction = playerReducer.actions.setLatestAudios;
+export const setRecommendedAudiosAction = playerReducer.actions.setRecommendedAudios;
 
 const rootSelector = (state: RootState) => state;
 

@@ -1,20 +1,22 @@
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import BWBottomSheet from "components/shared/BWBottomSheet";
-import BWDivider from "components/shared/BWDivider";
 import BWIconButton from "components/shared/BWIconButton";
 import BWView from "components/shared/BWView";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { StatusBar } from "expo-status-bar";
 import { useFetchPLaylistsTotalCount, useFetchPlaylistsByProfile } from "hooks/playlists.queries";
+import { SafeAreaView } from "moti";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeAreaView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Dimensions, FlatList, Keyboard, Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Chip, Text, TextField, TextFieldRef } from "react-native-ui-lib";
+import { Chip, Dash, Drawer, Text, TextField, TextFieldRef } from "react-native-ui-lib";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import { PlayList } from "types/interfaces/playlists";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import PlayListCard from "./PlayListCard";
+
+const { width } = Dimensions.get("screen");
 
 const PlayListsScreen: React.FC<any> = () => {
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
@@ -97,8 +99,8 @@ const PlayListsScreen: React.FC<any> = () => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.flex}>
+      <SafeAreaView style={styles.flex}>
         <StatusBar style="light" />
         {searchMode ? (
           <View style={styles.editContainer} onTouchStart={Keyboard.dismiss}>
@@ -151,8 +153,25 @@ const PlayListsScreen: React.FC<any> = () => {
                     onEndReachedThreshold={0.1}
                     showsVerticalScrollIndicator={false}
                     data={playlists}
-                    renderItem={({ item }) => <PlayListCard playlist={item} />}
-                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                      <View style={{ paddingRight: 20 }}>
+                        <Drawer
+                          useNativeAnimations
+                          itemsTintColor={COLORS.DANGER[500]}
+                          rightItems={[
+                            {
+                              text: "Delete",
+                              onPress: () => console.log("read pressed"),
+                              icon: require("../../../assets/icons/delete.png"),
+                              background: COLORS.DARK[50],
+                            },
+                          ]}
+                        >
+                          <PlayListCard style={{ paddingHorizontal: 20 }} playlist={item} />
+                        </Drawer>
+                      </View>
+                    )}
+                    keyExtractor={(_, index) => index.toString()}
                     contentContainerStyle={[styles.searchingListContainer]}
                   />
                 )}
@@ -161,7 +180,7 @@ const PlayListsScreen: React.FC<any> = () => {
           </View>
         ) : (
           <BWView column gap={24} style={styles.viewContainer}>
-            <BWView row alignItems="center" gap={20} justifyContent="space-between">
+            <BWView row alignItems="center" gap={20} justifyContent="space-between" style={{ paddingHorizontal: 20 }}>
               <BWView row alignItems="center" gap={20}>
                 <Entypo name="folder-music" size={45} color={COLORS.WARNING[500]} />
 
@@ -170,7 +189,7 @@ const PlayListsScreen: React.FC<any> = () => {
               <BWIconButton onPress={() => toggleSearchMode(true)} icon={() => <Feather name="search" size={26} color={COLORS.MUTED[50]} />} link />
             </BWView>
             {searchText && (
-              <BWView row>
+              <BWView row style={{ paddingHorizontal: 20 }}>
                 <Chip
                   borderRadius={22}
                   label={`Results for: ${title}`}
@@ -190,10 +209,10 @@ const PlayListsScreen: React.FC<any> = () => {
               <BWView column gap={15}>
                 {playlists && playlists.length ? (
                   <BWView column gap={16}>
-                    <BWView row justifyContent="space-between">
+                    <BWView row justifyContent="space-between" style={{ paddingHorizontal: 20 }}>
                       <Text style={styles.playlistsCount}>{totalCount} playlists</Text>
                     </BWView>
-                    <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
+                    <Dash thickness={2} length={width - 20} color={COLORS.MUTED[700]} containerStyle={{ alignSelf: "center" }} />
 
                     <FlatList
                       refreshControl={<RefreshControl tintColor={COLORS.WARNING[400]} refreshing={refresh} onRefresh={refreshList} />}
@@ -202,7 +221,24 @@ const PlayListsScreen: React.FC<any> = () => {
                       onEndReachedThreshold={0.1}
                       data={playlists}
                       showsVerticalScrollIndicator={false}
-                      renderItem={({ item }) => <PlayListCard playlist={item} />}
+                      renderItem={({ item }) => (
+                        <View style={{ paddingRight: 20 }}>
+                          <Drawer
+                            useNativeAnimations
+                            itemsTintColor={COLORS.DANGER[500]}
+                            rightItems={[
+                              {
+                                text: "Delete",
+                                onPress: () => console.log("read pressed"),
+                                icon: require("../../../assets/icons/delete.png"),
+                                background: COLORS.DARK[50],
+                              },
+                            ]}
+                          >
+                            <PlayListCard style={{ paddingHorizontal: 20 }} playlist={item} />
+                          </Drawer>
+                        </View>
+                      )}
                       keyExtractor={(_, index) => index.toString()}
                       contentContainerStyle={styles.listContainer}
                     />
@@ -238,7 +274,6 @@ export default PlayListsScreen;
 const styles = StyleSheet.create({
   viewContainer: {
     flex: 1,
-    paddingHorizontal: 30,
     paddingTop: 20,
   },
 
@@ -279,7 +314,6 @@ const styles = StyleSheet.create({
   searchingListContainer: {
     gap: 20,
     paddingBottom: TAB_BAR_HEIGHT - 20,
-    paddingHorizontal: 20,
   },
 
   listContainer: {

@@ -86,7 +86,7 @@ const updateAudioFile = async (req: AddAudioRequest, res: Response) => {
 };
 
 const getLatestUploads = async (req: GetLatestUploadsRequest, res: Response) => {
-  const { limit = "5" } = req.query;
+  const { limit = "20" } = req.query;
 
   try {
     const uploads = await AudioModel.find()
@@ -103,6 +103,7 @@ const getLatestUploads = async (req: GetLatestUploadsRequest, res: Response) => 
         file: upload.file.url,
         poster: upload.poster?.url,
         owner: { id: upload.owner._id, name: upload.owner.name },
+        duration: upload.duration,
       };
     });
 

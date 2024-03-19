@@ -2,6 +2,9 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import {
   AddPlayListRequest,
+  GetPlaylistAudiosTotalCountRequest,
+  GetPlaylistAudiosTotalDurationRequest,
+  GetPlaylistaudiosRequest,
   GetPlaylistsRequest,
   GetPlaylistsTotalCountRequest,
   RemoveFromPlaylistRequest,
@@ -23,6 +26,18 @@ const getPlayListsByProfileApi = async (payload: GetPlaylistsRequest) => {
   }
 };
 
+const getPlaylistAudiosApi = async (payload: GetPlaylistaudiosRequest) => {
+  const { playlistId } = payload;
+
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/${playlistId}`, { headers: { Authorization: `Bearer=${await getToken()}` } });
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const getPlayListsTotalCountApi = async (payload: GetPlaylistsTotalCountRequest) => {
   try {
     const { data } = await axios.get(`${apiUrl}/playlist/total-count`, { params: payload, headers: { Authorization: `Bearer=${await getToken()}` } });
@@ -30,6 +45,29 @@ const getPlayListsTotalCountApi = async (payload: GetPlaylistsTotalCountRequest)
     return data;
   } catch (error: any) {
     throw new Error(error.response.data.error);
+  }
+};
+
+const getPlaylistsAudiosTotalCountApi = async (payload: GetPlaylistAudiosTotalCountRequest) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/audios-total-count`, { params: payload, headers: { Authorization: `Bearer=${await getToken()}` } });
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+const getPlaylistAudiosTotalDurationApi = async (payload: GetPlaylistAudiosTotalDurationRequest) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/audios-total-duration`, {
+      params: payload,
+      headers: { Authorization: `Bearer=${await getToken()}` },
+    });
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.errro);
   }
 };
 
@@ -88,7 +126,10 @@ const getIsExistentInPlaylist = async (payload: getIsExistentInPlaylistRequest) 
 
 const PlayListService = {
   getPlayListsByProfileApi,
+  getPlaylistAudiosApi,
   getPlayListsTotalCountApi,
+  getPlaylistsAudiosTotalCountApi,
+  getPlaylistAudiosTotalDurationApi,
   addPlayListApi,
   updatePlayListApi,
   removeFromPlaylist,
