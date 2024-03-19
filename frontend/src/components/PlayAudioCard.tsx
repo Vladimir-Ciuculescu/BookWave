@@ -4,8 +4,8 @@ import { memo } from "react";
 import { StyleSheet } from "react-native";
 import { useActiveTrack } from "react-native-track-player";
 import { Text, View } from "react-native-ui-lib";
-import { useDispatch, useSelector } from "react-redux";
-import { playerSelector, setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
+import { useDispatch } from "react-redux";
+import { setAudioAction, setVisibileModalPlayerAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { COLORS } from "utils/colors";
 import { convertFromSecondsToClock } from "utils/math";
@@ -18,27 +18,17 @@ import BWView from "./shared/BWView";
 interface PlayAudioCardProps {
   audio: AudioFile;
   onPlay: () => void;
-  //isPlaying?: boolean;
   onSelect: () => void;
 }
 
-const PlayAudioCard: React.FC<PlayAudioCardProps> = ({
-  audio,
-  onPlay,
-  //isPlaying,
-  onSelect,
-}) => {
+const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPlay, onSelect }) => {
   const dispatch = useDispatch();
-  const { onAudioPress, isPlaying } = useAudioController();
-  const { list } = useSelector(playerSelector);
+  const { isPlaying } = useAudioController();
   const track = useActiveTrack();
 
   const openAudioPlayer = async () => {
-    //await onAudioPress(audio, list);
     dispatch(setVisibileModalPlayerAction(true));
-    // dispatch(setAudiosListAction())
     dispatch(setAudioAction(audio));
-    // onAudioPress(audio, list);
   };
 
   return (
@@ -81,8 +71,6 @@ const PlayAudioCard: React.FC<PlayAudioCardProps> = ({
 };
 
 export default memo(PlayAudioCard);
-
-// export default PlayAudioCard;
 
 const styles = StyleSheet.create({
   imageContainer: {
