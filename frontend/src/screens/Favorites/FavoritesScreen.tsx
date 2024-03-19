@@ -14,8 +14,7 @@ import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeA
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
-import { useDispatch, useSelector } from "react-redux";
-import { playerSelector } from "redux/reducers/player.reducer";
+import { useDispatch } from "react-redux";
 import { Category } from "types/enums/categories.enum";
 import { AudioFile } from "types/interfaces/audios";
 import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
@@ -35,7 +34,6 @@ const FavoritesScreen: React.FC<any> = () => {
   const textRef = useRef<TextFieldRef>(null);
   const flatListRef = useRef<any>(null);
   const dispatch = useDispatch();
-  const { audio } = useSelector(playerSelector);
   const { onAudioPress, isPlaying } = useAudioController();
   const track = useActiveTrack();
 

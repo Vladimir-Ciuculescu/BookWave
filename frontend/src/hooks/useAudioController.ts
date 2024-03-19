@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import TrackPlayer, { RepeatMode, State, Track, useActiveTrack, usePlaybackState } from "react-native-track-player";
+import TrackPlayer, { State, Track, useActiveTrack, usePlaybackState } from "react-native-track-player";
 import { useDispatch, useSelector } from "react-redux";
 import { playerSelector, setAudioAction, setAudiosListAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
@@ -20,8 +20,6 @@ const updateQueue = async (data: AudioFile[]) => {
   });
 
   await TrackPlayer.add([...lists]);
-
-  await TrackPlayer.setRepeatMode(RepeatMode.Off);
 };
 
 const useAudioController = () => {
@@ -38,6 +36,13 @@ const useAudioController = () => {
     const { position } = await TrackPlayer.getProgress();
 
     await TrackPlayer.seekTo(position + second);
+  };
+
+  const replayList = async (data: AudioFile[]) => {
+    await TrackPlayer.reset();
+    await updateQueue(data);
+    await TrackPlayer.skip(0);
+    await TrackPlayer.play();
   };
 
   const onAudioPress = async (track: AudioFile, data: AudioFile[]) => {
@@ -85,7 +90,7 @@ const useAudioController = () => {
     }
   };
 
-  return { onAudioPress, isPlaying, isPlayerReady, skipTo };
+  return { onAudioPress, isPlaying, isPlayerReady, skipTo, replayList };
 };
 
 export default useAudioController;

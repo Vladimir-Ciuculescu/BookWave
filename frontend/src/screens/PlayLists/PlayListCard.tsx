@@ -1,12 +1,10 @@
-import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import BWIconButton from "components/shared/BWIconButton";
 import BWImage from "components/shared/BWImage";
 import BWPressable from "components/shared/BWPressable";
 import BWView from "components/shared/BWView";
 import { memo } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { Text } from "react-native-ui-lib";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { PlayList } from "types/interfaces/playlists";
@@ -14,9 +12,10 @@ import { COLORS } from "utils/colors";
 
 interface PlayListCardProps {
   playlist: PlayList;
+  style?: ViewStyle | ViewStyle[];
 }
 
-const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
+const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style }) => {
   const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
 
   const goToPlaylistAudios = () => {
@@ -29,7 +28,7 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
   };
 
   return (
-    <BWPressable onPress={goToPlaylistAudios}>
+    <BWPressable style={style || undefined} onPress={goToPlaylistAudios}>
       <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
         <BWView row gap={20}>
           <BWImage
@@ -49,7 +48,7 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist }) => {
             </BWView>
           </BWView>
         </BWView>
-        <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} />
+        {/* <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} /> */}
       </BWView>
     </BWPressable>
   );

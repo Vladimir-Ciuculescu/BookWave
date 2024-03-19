@@ -24,6 +24,10 @@ export interface GetPlaylistsRequest {
   pageNumber?: string;
 }
 
+export interface GetPlaylistaudiosRequest {
+  playlistId: string;
+}
+
 export interface GetPlaylistsTotalCountRequest {
   title: string;
 }

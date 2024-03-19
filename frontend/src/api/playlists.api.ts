@@ -4,6 +4,7 @@ import {
   AddPlayListRequest,
   GetPlaylistAudiosTotalCountRequest,
   GetPlaylistAudiosTotalDurationRequest,
+  GetPlaylistaudiosRequest,
   GetPlaylistsRequest,
   GetPlaylistsTotalCountRequest,
   RemoveFromPlaylistRequest,
@@ -20,6 +21,18 @@ const getPlayListsByProfileApi = async (payload: GetPlaylistsRequest) => {
       params: payload,
     });
     return data.playlists;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
+const getPlaylistAudiosApi = async (payload: GetPlaylistaudiosRequest) => {
+  const { playlistId } = payload;
+
+  try {
+    const { data } = await axios.get(`${apiUrl}/playlist/${playlistId}`, { headers: { Authorization: `Bearer=${await getToken()}` } });
+
+    return data;
   } catch (error: any) {
     throw new Error(error.response.data.error);
   }
@@ -51,8 +64,6 @@ const getPlaylistAudiosTotalDurationApi = async (payload: GetPlaylistAudiosTotal
       params: payload,
       headers: { Authorization: `Bearer=${await getToken()}` },
     });
-
-    console.log(555, data);
 
     return data;
   } catch (error: any) {
@@ -115,6 +126,7 @@ const getIsExistentInPlaylist = async (payload: getIsExistentInPlaylistRequest) 
 
 const PlayListService = {
   getPlayListsByProfileApi,
+  getPlaylistAudiosApi,
   getPlayListsTotalCountApi,
   getPlaylistsAudiosTotalCountApi,
   getPlaylistAudiosTotalDurationApi,

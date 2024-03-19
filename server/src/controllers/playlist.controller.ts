@@ -277,6 +277,7 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
       return {
         id: audio._id,
         title: audio.title,
+        about: audio.about,
         category: audio.category,
         file: audio.file.url,
         poster: audio.poster ? audio.poster.url : null,
@@ -284,6 +285,7 @@ const getPlayListAudios = async (req: GetPlaylistAudiosRequest, res: Response) =
           id: audio.owner.id,
           name: audio.owner.name,
         },
+        duration: audio.duration,
       };
     });
 
