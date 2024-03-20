@@ -1,7 +1,6 @@
-import { RequestHandler } from "express";
-import * as Yup from "yup";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { convertFormData } from "utils/convertFormData";
+import * as Yup from "yup";
 
 export const validateMiddleware = (schema: any): RequestHandler => {
   return async (req: Request, res: Response, next: NextFunction) => {

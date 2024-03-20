@@ -42,10 +42,7 @@ const updateHistory = async (req: UpdateHistoryRequest, res: Response) => {
       const sameDayHistory = histories.find((item) => item.audio.toString() === audio);
 
       if (sameDayHistory) {
-        await HistoryModel.findOneAndUpdate(
-          { owner: userId, "all.audio": audio },
-          { $set: { "all.$.progress": progress, "all.$.date": new Date(date) } },
-        );
+        await HistoryModel.findOneAndUpdate({ owner: userId, "all.audio": audio }, { $set: { "all.$.progress": progress, "all.$.date": new Date(date) } });
       } else {
         await HistoryModel.findByIdAndUpdate(oldHistory._id, {
           $push: { all: { $each: [history], $position: 0 } },
