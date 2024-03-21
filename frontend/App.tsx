@@ -24,7 +24,7 @@ export default function App() {
     const setupPlayer = async () => {
       await TrackPlayer.setupPlayer();
       await TrackPlayer.updateOptions({
-        progressUpdateEventInterval: 1,
+        progressUpdateEventInterval: 10,
 
         capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious],
       });

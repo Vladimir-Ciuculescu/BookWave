@@ -1,5 +1,5 @@
-import HistoryController from "../controllers/history.controller";
 import { Router } from "express";
+import HistoryController from "../controllers/history.controller";
 import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
 import { isVerifiedMiddleware } from "../middlewares/is-verified.middleware";
 import { validateMiddleware } from "../middlewares/validate.middleware";

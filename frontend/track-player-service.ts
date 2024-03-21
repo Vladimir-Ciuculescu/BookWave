@@ -1,12 +1,21 @@
 import HistoryService from "api/history.api";
-import TrackPlayer, { Event } from "react-native-track-player";
+import TrackPlayer, { Event, PlaybackProgressUpdatedEvent } from "react-native-track-player";
 
 module.exports = async function () {
-  TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
-  TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
-  TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
-  TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
-  TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, async (e) => {
+  let timeoutId: any;
+  const debounce = (func: Function, delay: number) => {
+    return (...args: any) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(() => {
+        func.apply(null, args);
+      }, delay);
+    };
+  };
+
+  const updateHistory = async (e: PlaybackProgressUpdatedEvent) => {
     const list = await TrackPlayer.getQueue();
 
     const audio = list[e.track];
@@ -18,5 +27,15 @@ module.exports = async function () {
     };
 
     await HistoryService.updateAudioHistoryApi(payload);
+  };
+
+  TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+  TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
+  TrackPlayer.addEventListener(Event.RemoteNext, () => TrackPlayer.skipToNext());
+  TrackPlayer.addEventListener(Event.RemotePrevious, () => TrackPlayer.skipToPrevious());
+  TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, async (e) => {
+    const debounceUpdateHistory = debounce(updateHistory, 200);
+
+    debounceUpdateHistory(e);
   });
 };

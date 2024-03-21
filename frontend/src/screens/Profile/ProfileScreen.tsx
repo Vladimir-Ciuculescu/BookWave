@@ -7,7 +7,7 @@ import { View } from "react-native-ui-lib";
 import { useSelector } from "react-redux";
 import { authSelector } from "redux/reducers/auth.reducer";
 import AudiosTab from "screens/Profile/Tabs/AudiosTab";
-import HistoryTab from "screens/Profile/Tabs/HistoryTab";
+import HistoryTab from "screens/Profile/Tabs/History/HistoryTab";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 import ProfileInfo from "./components/ProfileInfo";

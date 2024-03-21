@@ -1,9 +1,8 @@
-import PlayAudioCard from "components/PlayAudioCard";
 import BWDivider from "components/shared/BWDivider";
 import BWView from "components/shared/BWView";
 import { TAB_BAR_HEIGHT } from "consts/dimensions";
 import { useFetchAudiosByProfile } from "hooks/audios.queries";
-import { FlatList, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
 
@@ -23,13 +22,13 @@ const AudiosTab = () => {
           <>
             <Text style={styles.audioCounter}>{data.length} audios</Text>
             <BWDivider orientation="horizontal" thickness={1.5} width="100%" color={COLORS.MUTED[700]} />
-            <FlatList
+            {/* <FlatList
               showsVerticalScrollIndicator={false}
               data={copy}
               contentContainerStyle={styles.listContainer}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <PlayAudioCard onSelect={() => {}} onPlay={() => {}} audio={item} />}
-            />
+            /> */}
           </>
         )}
       </BWView>

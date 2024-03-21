@@ -61,8 +61,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     let result: ImagePicker.ImagePickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      // allowsEditing: true,
-
       aspect: [4, 3],
       quality: 1,
     });

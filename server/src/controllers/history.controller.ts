@@ -95,7 +95,7 @@ const getHistories = async (req: Request, res: Response) => {
       { $unwind: "$all" },
       { $lookup: { from: "audios", localField: "all.audio", foreignField: "_id", as: "audioInfo" } },
       { $unwind: "$audioInfo" },
-      { $project: { _id: 0, id: "$all._id", audioId: "$audioInfo._id", title: "$audioInfo.title", date: "$all.date" } },
+      { $project: { _id: 0, id: "$all._id", audioId: "$audioInfo._id", title: "$audioInfo.title", date: "$all.date", poster: "$audioInfo.poster.url" } },
       { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }, audios: { $push: "$$ROOT" } } },
       { $project: { _id: 0, date: "$_id", audios: "$$ROOT.audios" } },
       { $sort: { date: -1 } },
