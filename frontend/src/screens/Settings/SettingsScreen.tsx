@@ -2,6 +2,7 @@ import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import HistoryService from "api/history.api";
 import UserService from "api/users.api";
 import BWButton from "components/shared/BWButton";
 import BWForm from "components/shared/BWForm";
@@ -12,12 +13,13 @@ import BWSubmitButton from "components/shared/BWSubmitButton";
 import BWView from "components/shared/BWView";
 import * as ImagePicker from "expo-image-picker";
 import { useLayoutEffect, useState } from "react";
-import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, AlertButton, AlertOptions, Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { Text } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
+import { RemoveHistoryRequest } from "types/interfaces/requests/history-requests.interfaces";
 import { COLORS } from "utils/colors";
 import { updateProfileSchema } from "yup/app.schemas";
 import Action from "./components/Action";
@@ -26,6 +28,13 @@ import Section from "./components/Section";
 interface ProfileData {
   name: string;
   avatar?: string;
+}
+
+interface AlertProps {
+  title: string;
+  message: string;
+  buttons?: AlertButton[];
+  options?: AlertOptions;
 }
 
 interface SettingsScreenProps {
@@ -70,7 +79,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     }
   };
 
-  const handleUpdate = async (values: ProfileData) => {
+  const updateProfile = async (values: ProfileData) => {
     const { name, avatar } = values;
 
     setLoading(true);
@@ -102,11 +111,34 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     setLoading(false);
   };
 
-  const openLogOutPopUp = (fromAll: "yes" | "no") => {
-    Alert.alert("Log out", `Are you sure you want to log out ${fromAll === "yes" ? "from all devices" : ""} ?`, [
-      { text: "Yes", style: "destructive", onPress: () => logOut(fromAll) },
-      { text: "No" },
-    ]);
+  const openPopup = (payload: AlertProps) => {
+    const { title, message, buttons } = payload;
+
+    Alert.alert(title, message, buttons);
+  };
+
+  const openLogOutPopUp = () => {
+    openPopup({
+      title: "Log out",
+      message: "Are you sure you want to log out ?",
+      buttons: [{ text: "Yes", style: "destructive", onPress: () => logOut("yes") }, { text: "No" }],
+    });
+  };
+
+  const openLogoutFromAllPopUp = () => {
+    openPopup({
+      title: "Log out",
+      message: "Are you sure you want to log out from all devices ?",
+      buttons: [{ text: "Yes", style: "destructive", onPress: () => logOut("yes") }, { text: "No" }],
+    });
+  };
+
+  const openClearHistoryPopUp = () => {
+    openPopup({
+      title: "Clear history",
+      message: "This action will clear all your history",
+      buttons: [{ text: "Confirm", style: "destructive", onPress: () => clearHistory() }, { text: "Cancel" }],
+    });
   };
 
   const logOut = async (fromAll: "yes" | "no") => {
@@ -128,6 +160,15 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     dispatch(setLoggedInAction(false));
   };
 
+  const clearHistory = async () => {
+    const payload: RemoveHistoryRequest = {
+      histories: [],
+      all: "yes",
+    };
+
+    await HistoryService.removeHistory(payload);
+  };
+
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, flexDirection: "column", paddingTop: 30, paddingHorizontal: 20 }}>
@@ -135,7 +176,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           <Section
             title="Profile info"
             content={
-              <BWForm initialValues={initialValues} validationSchema={updateProfileSchema} onSubmit={(values) => handleUpdate(values)}>
+              <BWForm initialValues={initialValues} validationSchema={updateProfileSchema} onSubmit={(values) => updateProfile(values)}>
                 {/* @ts-ignore */}
                 {({ setFieldValue, values, dirty }) => {
                   return (
@@ -172,18 +213,18 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
           <BWView column gap={35}>
             <Section
               title="History"
-              content={<Action onPress={() => {}} title="Clear all" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />}
+              content={<Action onPress={openClearHistoryPopUp} title="Clear all" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />}
             />
             <Section
               title="Sign out"
               content={
                 <BWView column gap={25}>
                   <Action
-                    onPress={() => openLogOutPopUp("yes")}
+                    onPress={openLogoutFromAllPopUp}
                     title="Logout from all devices"
                     icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
                   />
-                  <Action onPress={() => openLogOutPopUp("no")} title="Logout" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />
+                  <Action onPress={openLogOutPopUp} title="Logout" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />
                 </BWView>
               }
             />

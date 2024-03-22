@@ -1,18 +1,33 @@
 import { AntDesign } from "@expo/vector-icons";
+import HistoryService from "api/history.api";
 import BWDivider from "components/shared/BWDivider";
+import BWIconButton from "components/shared/BWIconButton";
 import BWImage from "components/shared/BWImage";
 import BWView from "components/shared/BWView";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-ui-lib";
 import { AudioFile } from "types/interfaces/audios";
+import { RemoveHistoryRequest } from "types/interfaces/requests/history-requests.interfaces";
 import { COLORS } from "utils/colors";
 
 interface HistoryItemProps {
   date: Date;
   audios: AudioFile[];
+  onPress: (audioId: string) => void;
 }
 
-const HistoryItem: React.FC<HistoryItemProps> = ({ date, audios }) => {
+const HistoryItem: React.FC<HistoryItemProps> = ({ date, audios, onPress }) => {
+  const clearHistory = async (audioId: string) => {
+    const payload: RemoveHistoryRequest = {
+      //@ts-ignore
+      histories: JSON.stringify([audioId]),
+      all: "no",
+    };
+
+    await HistoryService.removeHistory(payload);
+    onPress(audioId);
+  };
+
   return (
     <BWView column gap={20}>
       <Text style={styles.date}>{date.toString()}</Text>
@@ -27,7 +42,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ date, audios }) => {
                 {audio.title}
               </Text>
             </BWView>
-            <AntDesign name="close" size={26} color={COLORS.MUTED[50]} />
+            <BWIconButton link onPress={() => clearHistory(audio.audioId)} icon={() => <AntDesign name="close" size={26} color={COLORS.MUTED[50]} />} />
           </BWView>
         );
       })}

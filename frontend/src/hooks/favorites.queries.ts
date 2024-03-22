@@ -11,6 +11,7 @@ export const useFetchFavorites = (payload: GetFavoritesRequest) => {
     onError: () => {
       dispatch(setToastMessageAction({ message: "Something went wrong !", type: "error" }));
     },
+    keepPreviousData: true,
   });
   return query;
 };

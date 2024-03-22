@@ -3,3 +3,8 @@ export interface UpdateAudioHistoryRequest {
   progress: number;
   date: Date;
 }
+
+export interface RemoveHistoryRequest {
+  histories: string[];
+  all: "yes" | "no";
+}

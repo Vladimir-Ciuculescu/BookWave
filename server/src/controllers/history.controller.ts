@@ -60,6 +60,7 @@ const updateHistory = async (req: UpdateHistoryRequest, res: Response) => {
 
 const removeHistory = async (req: RemoveHistoryRequest, res: Response) => {
   const { all, histories } = req.query;
+
   const userId = req.user.id;
 
   try {
@@ -74,7 +75,7 @@ const removeHistory = async (req: RemoveHistoryRequest, res: Response) => {
         {
           owner: userId,
         },
-        { $pull: { all: { _id: { $in: ids } } } },
+        { $pull: { all: { audio: { $in: ids } } } },
       );
 
       return res.status(200).json({ message: "Record(s) from history deleted !" });

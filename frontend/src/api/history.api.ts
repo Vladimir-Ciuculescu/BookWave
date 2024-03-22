@@ -1,6 +1,6 @@
 import { apiUrl, getToken } from "api";
 import axios from "axios";
-import { UpdateAudioHistoryRequest } from "types/interfaces/requests/history-requests.interfaces";
+import { RemoveHistoryRequest, UpdateAudioHistoryRequest } from "types/interfaces/requests/history-requests.interfaces";
 
 const getHistory = async () => {
   try {
@@ -13,7 +13,7 @@ const getHistory = async () => {
 
 const updateAudioHistoryApi = async (payload: UpdateAudioHistoryRequest) => {
   try {
-    const { data } = await axios.post(`${apiUrl}/history`, payload, {
+    await axios.post(`${apiUrl}/history`, payload, {
       headers: {
         Authorization: `Bearer=${await getToken()}`,
       },
@@ -23,9 +23,18 @@ const updateAudioHistoryApi = async (payload: UpdateAudioHistoryRequest) => {
   }
 };
 
+const removeHistory = async (payload: RemoveHistoryRequest) => {
+  try {
+    await axios.delete(`${apiUrl}/history`, { headers: { Authorization: `Bearer=${await getToken()}` }, params: payload });
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const HistoryService = {
   getHistory,
   updateAudioHistoryApi,
+  removeHistory,
 };
 
 export default HistoryService;
