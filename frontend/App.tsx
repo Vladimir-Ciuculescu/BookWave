@@ -7,10 +7,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import store from "redux/store";
 
-LogBox.ignoreLogs([
-  "Sending `onAnimatedValueUpdate` with no listeners registered.",
-  // "Encountered two children with the same key,",
-]);
+LogBox.ignoreLogs(["Sending `onAnimatedValueUpdate` with no listeners registered."]);
 
 const queryClient = new QueryClient();
 

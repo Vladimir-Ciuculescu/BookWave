@@ -26,29 +26,15 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ profile }) => {
     <BWView column style={{ width: width, paddingHorizontal: 20 }} gap={30}>
       <BWView justifyContent="space-between" row>
         <BWView alignItems="center" gap={20}>
-          <BWImage
-            src={profile?.avatar!}
-            placeholder={!profile?.avatar}
-            iconName="user"
-            iconSize={50}
-            style={{ width: 80, height: 80, borderRadius: 50 }}
-          />
+          <BWImage src={profile?.avatar!} placeholder={!profile?.avatar} iconName="user" iconSize={50} style={{ width: 80, height: 80, borderRadius: 50 }} />
           <BWView column gap={5}>
-            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[50], fontSize: 26 }}>
-              {profile!.name}
-            </Text>
-            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[700], fontSize: 14 }}>
-              {profile!.email}
-            </Text>
+            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[50], fontSize: 26 }}>{profile!.name}</Text>
+            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[700], fontSize: 14 }}>{profile!.email}</Text>
           </BWView>
         </BWView>
-        <BWIconButton
-          onPress={openSettings}
-          link
-          icon={() => <Ionicons name="settings-outline" size={24} color={COLORS.MUTED[50]} />}
-        />
+        <BWIconButton onPress={openSettings} link icon={() => <Ionicons name="settings-outline" size={24} color={COLORS.MUTED[50]} />} />
       </BWView>
-      <BWView row justifyContent="space-between">
+      {/* <BWView row justifyContent="space-between">
         <Text style={{ color: COLORS.MUTED[50], fontSize: 16, fontFamily: "MinomuBold" }}>
           {profile!.followers}{" "}
           <Text style={{ color: COLORS.DARK[300], fontFamily: "Minomu", fontSize: 14 }}>
@@ -61,7 +47,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ profile }) => {
             Followings
           </Text>
         </Text>
-      </BWView>
+      </BWView> */}
     </BWView>
   );
 };

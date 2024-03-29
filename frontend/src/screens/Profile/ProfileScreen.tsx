@@ -1,6 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import { Dimensions, SafeAreaView, StyleSheet } from "react-native";
 import { View } from "react-native-ui-lib";
@@ -8,7 +6,6 @@ import { useSelector } from "react-redux";
 import { authSelector } from "redux/reducers/auth.reducer";
 import AudiosTab from "screens/Profile/Tabs/AudiosTab";
 import HistoryTab from "screens/Profile/Tabs/History/HistoryTab";
-import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 import ProfileInfo from "./components/ProfileInfo";
 
@@ -16,17 +13,8 @@ const { width } = Dimensions.get("screen");
 
 const Tab = createMaterialTopTabNavigator();
 
-interface ProfileScreenProps {
-  navigation: NavigationProp<StackNavigatorProps>;
-}
-
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+const ProfileScreen: React.FC<any> = () => {
   const { profile } = useSelector(authSelector);
-
-  const logOut = async () => {
-    await AsyncStorage.removeItem("token");
-    navigation.navigate("Login");
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
