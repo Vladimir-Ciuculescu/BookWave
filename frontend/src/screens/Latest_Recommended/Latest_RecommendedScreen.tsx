@@ -54,7 +54,7 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
           renderItem={({ item }) => (
             <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, queue)} />
           )}
-          contentContainerStyle={{ gap: 25 }}
+          contentContainerStyle={{ gap: 25, paddingBottom: 50 }}
         />
 
         <AudioActionsBottomSheet optionsBottomSheetOffSet="50%" playlistsBottomSheetOffset="60%" newPlaylistBottomSheetOffset="90%" list={queue} />

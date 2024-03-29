@@ -12,3 +12,9 @@ export interface PlayList {
   visibility: Visibilites;
   audios: AudioFile[];
 }
+
+export interface PlayListElement {
+  id: string;
+  title: string;
+  itemsCount: number;
+}
