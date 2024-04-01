@@ -5,15 +5,12 @@ interface BWPressableProps {
   children: ReactNode;
   style?: ViewStyle | ViewStyle[];
   onPress: () => void;
+  disabled?: boolean;
 }
 
-const BWPressable: React.FC<BWPressableProps> = ({ children, onPress, style }) => {
+const BWPressable: React.FC<BWPressableProps> = ({ children, onPress, style, disabled }) => {
   return (
-    <Pressable
-      onPress={onPress}
-      // style={({ pressed }) => (pressed ?  styles.pressed : styles.unpressed)}
-      style={({ pressed }) => [pressed ? styles.pressed : styles.unpressed, style]}
-    >
+    <Pressable disabled={disabled || false} onPress={onPress} style={({ pressed }) => [pressed ? styles.pressed : styles.unpressed, style]}>
       {children}
     </Pressable>
   );

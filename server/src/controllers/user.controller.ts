@@ -1,16 +1,11 @@
-import UserModel, { UserDocument } from "models/user.model";
-import { sendEmail } from "utils/sendEmail";
-import { generateToken } from "utils/generateToken";
-import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "models/email-vertification.model";
-import path from "path";
-import { isValidObjectId } from "mongoose";
-import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
 import crypto from "crypto";
-import { verifyEmailTemplate } from "../mail/verify-email.template";
-import { resetPasswordTemplate } from "../mail/reset-password.template";
 import { Request, RequestHandler, Response } from "express";
 import jwt from "jsonwebtoken";
-import cloudinary from "../cloud/cloud";
+import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "models/email-vertification.model";
+import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
+import UserModel, { UserDocument } from "models/user.model";
+import { isValidObjectId } from "mongoose";
+import path from "path";
 import {
   AddUserRequest,
   ChangePasswordRequest,
@@ -20,6 +15,11 @@ import {
   VerifyEmailRequest,
   VerifyPasswordResetTokenRequest,
 } from "types/requests/user.requests";
+import { generateToken } from "utils/generateToken";
+import { sendEmail } from "utils/sendEmail";
+import cloudinary from "../cloud/cloud";
+import { resetPasswordTemplate } from "../mail/reset-password.template";
+import { verifyEmailTemplate } from "../mail/verify-email.template";
 
 const addUser = async (req: AddUserRequest, res: Response) => {
   const { name, email, password } = req.body;
@@ -337,15 +337,19 @@ const changePassword = async (req: ChangePasswordRequest, res: Response) => {
 
 const updateProfile = async (req: any, res: Response) => {
   try {
-    const { name } = req.body;
+    const { name, email } = req.body;
+
     const avatar = req.files?.avatar;
     const userId = req.user.id;
 
-    const jsonString = JSON.stringify(name);
+    const nameJson = JSON.stringify(name);
+    const emailJson = JSON.stringify(email);
 
-    const stringValue = jsonString.substring(1, jsonString.length - 1);
+    const nameString = nameJson.substring(1, nameJson.length - 1);
+    const emailString = emailJson.substring(1, emailJson.length - 1);
 
-    const nameValue = stringValue.replace(/"/g, "");
+    const nameValue = nameString.replace(/"/g, "");
+    const emailValue = emailString.replace(/"/g, "");
 
     const user = await UserModel.findById(userId);
 
@@ -353,7 +357,7 @@ const updateProfile = async (req: any, res: Response) => {
       throw new Error("User not found !");
     }
 
-    if (stringValue.trim().length < 3) {
+    if (nameString.trim().length < 3) {
       return res.status(422).json({ error: "Invalid name !" });
     }
 
@@ -369,11 +373,16 @@ const updateProfile = async (req: any, res: Response) => {
         gravity: "face",
       });
 
-      await user.updateOne({ name: nameValue, avatar: { url: secure_url, publicId: public_id } });
+      await user.updateOne({ name: nameValue, email: emailValue, avatar: { url: secure_url, publicId: public_id } });
       return res.status(200).json({ avatar: user.avatar });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
+
+    if (error.message && error.message.includes("File size too large")) {
+      return res.status(422).json({ error: "Image size is too big !" });
+    }
+
     return res.status(422).json({ error: req.files.avatar[0].filepath });
   }
 };
@@ -392,7 +401,6 @@ const logOut = async (req: Request, res: Response) => {
 
     let tokens;
     let message;
-
 
     if (fromAll === "yes") {
       tokens = [];

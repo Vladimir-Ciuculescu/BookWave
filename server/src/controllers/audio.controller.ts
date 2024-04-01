@@ -43,7 +43,13 @@ const addAudioFile: RequestHandler = async (req: AddAudioRequest, res: Response)
     await AudioModel.create(audio);
 
     return res.status(201).json({ message: "Audio file uploaded succesfully !" });
-  } catch (error) {
+  } catch (error: any) {
+    console.log(error);
+
+    if (error.message && error.message.includes("File size too large")) {
+      return res.status(422).json({ error: "Image size is too big !" });
+    }
+
     return res.status(422).json({ error });
   }
 };
