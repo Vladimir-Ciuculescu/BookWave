@@ -18,15 +18,17 @@ module.exports = async function () {
   const updateHistory = async (e: PlaybackProgressUpdatedEvent) => {
     const list = await TrackPlayer.getQueue();
 
-    const audio = list[e.track];
+    if (list.length) {
+      const audio = list[e.track];
 
-    const payload = {
-      audio: audio.id,
-      progress: e.position,
-      date: new Date(Date.now()),
-    };
+      const payload = {
+        audio: audio.id,
+        progress: e.position,
+        date: new Date(Date.now()),
+      };
 
-    await HistoryService.updateAudioHistoryApi(payload);
+      await HistoryService.updateAudioHistoryApi(payload);
+    }
   };
 
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());

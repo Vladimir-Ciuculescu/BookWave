@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import { StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
-import { Text, View } from "react-native-ui-lib";
-import { COLORS } from "utils/colors";
-import BWAuthInput from "components/shared/BWAuthInput";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import BWForm from "components/shared/BWForm";
-import BWSubmitButton from "components/shared/BWSubmitButton";
-import BWBackButton from "components/shared/BWBackButton";
 import { NavigationProp } from "@react-navigation/native";
+import UserService from "api/users.api";
+import BWAuthInput from "components/shared/BWAuthInput";
 import BWAuthScreenContainer from "components/shared/BWAuthScreenContainer";
+import BWBackButton from "components/shared/BWBackButton";
 import BWButton from "components/shared/BWButton";
 import BWFadeInContainer from "components/shared/BWFadeInContainer";
+import BWForm from "components/shared/BWForm";
+import BWSubmitButton from "components/shared/BWSubmitButton";
 import { StatusBar } from "expo-status-bar";
-import UserService from "api/users.api";
-import { forgotPasswordSchema } from "yup/auth.schemas";
+import React, { useState } from "react";
+import { Alert, Dimensions, Keyboard, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Text, View } from "react-native-ui-lib";
 import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
+import { forgotPasswordSchema } from "yup/auth.schemas";
 
 const { width, height } = Dimensions.get("window");
 
@@ -64,10 +64,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
   };
 
   return (
-    <BWAuthScreenContainer
-      image="https://images.pexels.com/photos/5703540/pexels-photo-5703540.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-      navigation={navigation}
-    >
+    <BWAuthScreenContainer image={require("../../../assets/images/forgot-password_background_image.webp")} navigation={navigation}>
       <StatusBar style="light" />
       <BWBackButton navigation={navigation} />
       <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} enableOnAndroid={true}>
@@ -76,33 +73,14 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
             <View style={styles.content}>
               <Text style={styles.title}>Fill in your email to get a new password</Text>
 
-              <BWForm
-                initialValues={initialValues}
-                onSubmit={handleSubmit}
-                validationSchema={forgotPasswordSchema}
-              >
+              <BWForm initialValues={initialValues} onSubmit={handleSubmit} validationSchema={forgotPasswordSchema}>
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
-                    <BWAuthInput
-                      name="email"
-                      autoCapitalize="sentences"
-                      placeholder="Email"
-                      placeholderTextColor={COLORS.MUTED[50]}
-                    />
+                    <BWAuthInput name="email" autoCapitalize="none" placeholder="Email" placeholderTextColor={COLORS.MUTED[50]} />
                   </View>
                   <View style={styles.options}>
-                    <BWButton
-                      link
-                      title="Sign In"
-                      onPress={goToSignIn}
-                      labelStyle={styles.linkOption}
-                    />
-                    <BWButton
-                      link
-                      title="Sign Up"
-                      onPress={goToSignUp}
-                      labelStyle={styles.linkOption}
-                    />
+                    <BWButton link title="Sign In" onPress={goToSignIn} labelStyle={styles.linkOption} />
+                    <BWButton link title="Sign Up" onPress={goToSignUp} labelStyle={styles.linkOption} />
                   </View>
                   <BWSubmitButton style={styles.sendLinkBtn} title="Send link" />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}

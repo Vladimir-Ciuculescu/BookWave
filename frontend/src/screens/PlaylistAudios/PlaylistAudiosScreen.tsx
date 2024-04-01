@@ -3,7 +3,7 @@ import { NavigationProp, RouteProp } from "@react-navigation/native";
 import PlayListService from "api/playlists.api";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import AudioPlayer from "components/AudioPlayer";
-import PlayCardTest from "components/PlayCardTest";
+import PlayAudioCard from "components/PlayAudioCard";
 import BWButton from "components/shared/BWButton";
 import { useFetchPlaylistAudios } from "hooks/playlists.queries";
 import useAudioController from "hooks/useAudioController";
@@ -153,7 +153,7 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
               keyExtractor={(item: AudioFile) => item.id}
               contentContainerStyle={styles.contentContainer}
               renderItem={({ item }) => (
-                <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, audios.audios)} />
+                <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, audios.audios)} />
               )}
             />
           )}

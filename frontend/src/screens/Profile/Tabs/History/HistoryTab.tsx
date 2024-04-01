@@ -12,7 +12,7 @@ const HistoryTab = () => {
   const isFocused = useIsFocused();
 
   //@ts-ignore
-  const { data, isLoading } = useFetchHistory(isFocused);
+  const { data, isLoading } = useFetchHistory({ isFocused });
 
   const [audios, setAudios] = useState([]);
 

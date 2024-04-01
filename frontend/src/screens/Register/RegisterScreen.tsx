@@ -11,13 +11,7 @@ import BWSubmitButton from "components/shared/BWSubmitButton";
 import { StatusBar } from "expo-status-bar";
 import { FormikProps, FormikValues } from "formik";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Dimensions,
-  Keyboard,
-  Pressable,
-  StyleSheet,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { Dimensions, Keyboard, Pressable, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Text, View } from "react-native-ui-lib";
 import { StackNavigatorProps } from "types/interfaces/navigation";
@@ -90,10 +84,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <BWAuthScreenContainer
-      image="https://images.pexels.com/photos/3756766/pexels-photo-3756766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-      navigation={navigation}
-    >
+    <BWAuthScreenContainer image={require("../../../assets/images/register_background_image.jpeg")} navigation={navigation}>
       <BWBackButton navigation={navigation} />
       <StatusBar style="light" />
       <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} enableOnAndroid={true}>
@@ -102,12 +93,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
             <View style={styles.content}>
               <Text style={styles.title}>Witness the best audio experience</Text>
               <Text style={styles.subtitle}>Let's get you started by creating your account</Text>
-              <BWForm
-                initialValues={initialValues}
-                onSubmit={handleRegister}
-                validationSchema={registerSchema}
-                innerRef={formRef}
-              >
+              <BWForm initialValues={initialValues} onSubmit={handleRegister} validationSchema={registerSchema} innerRef={formRef}>
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
                     <BWAuthInput name="name" autoCapitalize="sentences" placeholder="Name" />
@@ -119,28 +105,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
                       placeholder="Password"
                       rightIcon={
                         <Pressable onPress={() => setPasswordVisible((oldValue) => !oldValue)}>
-                          <Feather
-                            name={passwordVisible ? "eye" : "eye-off"}
-                            size={24}
-                            color={COLORS.MUTED[200]}
-                          />
+                          <Feather name={passwordVisible ? "eye" : "eye-off"} size={24} color={COLORS.MUTED[200]} />
                         </Pressable>
                       }
                     />
                   </View>
                   <View style={styles.options}>
-                    <BWButton
-                      title="Forgot Password"
-                      link
-                      onPress={goToForgotPassword}
-                      labelStyle={styles.linkOption}
-                    />
-                    <BWButton
-                      title="Sign In"
-                      link
-                      onPress={goToSignIn}
-                      labelStyle={styles.linkOption}
-                    />
+                    <BWButton title="Forgot Password" link onPress={goToForgotPassword} labelStyle={styles.linkOption} />
+                    <BWButton title="Sign In" link onPress={goToSignIn} labelStyle={styles.linkOption} />
                   </View>
                   <BWSubmitButton title="Sign Up" loading={loading} style={styles.signUpBtn} />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}

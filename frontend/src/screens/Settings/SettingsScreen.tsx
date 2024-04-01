@@ -171,7 +171,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
 
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={styles.innerContainer}>
           <Section
             title="Profile info"
@@ -234,9 +234,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
                   <Action
                     onPress={openLogoutFromAllPopUp}
                     title="Logout from all devices"
-                    icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />}
+                    icon={<Feather name="log-out" size={26} color={COLORS.MUTED[50]} />}
                   />
-                  <Action onPress={openLogOutPopUp} title="Logout" icon={<MaterialIcons name="history" size={26} color={COLORS.MUTED[50]} />} />
+                  <Action onPress={openLogOutPopUp} title="Logout" icon={<Feather name="log-out" size={26} color={COLORS.MUTED[50]} />} />
                 </BWView>
               }
             />

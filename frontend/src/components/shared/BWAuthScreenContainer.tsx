@@ -1,12 +1,7 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { ReactNode, useEffect } from "react";
-import { SafeAreaView, StyleSheet, Dimensions } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import { Dimensions, ImageProps, SafeAreaView, StyleSheet } from "react-native";
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 
 const { width, height } = Dimensions.get("window");
@@ -14,14 +9,10 @@ const { width, height } = Dimensions.get("window");
 interface BWAuthScreenContainerProps {
   navigation: NavigationProp<StackNavigatorProps>;
   children: ReactNode;
-  image: string;
+  image: ImageProps["source"];
 }
 
-const BWAuthScreenContainer: React.FC<BWAuthScreenContainerProps> = ({
-  children,
-  navigation,
-  image,
-}) => {
+const BWAuthScreenContainer: React.FC<BWAuthScreenContainerProps> = ({ children, navigation, image }) => {
   const opacity = useSharedValue(0);
   const scale = useSharedValue(1);
 
@@ -46,13 +37,7 @@ const BWAuthScreenContainer: React.FC<BWAuthScreenContainerProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <Animated.Image
-        style={[styles.background, imageStyle]}
-        source={{
-          uri: image,
-        }}
-        resizeMode="cover"
-      />
+      <Animated.Image style={[styles.background, imageStyle]} resizeMode="cover" source={image} />
       {children}
     </SafeAreaView>
   );
