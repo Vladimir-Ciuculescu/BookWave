@@ -9,13 +9,13 @@ interface useFetchHistoryProps {
 
 export const useFetchHistory = (payload: useFetchHistoryProps) => {
   const dispatch = useDispatch();
-  const query = useQuery(["history", payload], {
+  const query = useQuery(["history"], {
     queryFn: () => HistoryService.getHistory(),
     onError: () => {
       dispatch(setToastMessageAction({ message: "Something went wrong !", type: "error" }));
     },
     //@ts-ignore
-    enabled: payload === true,
+    enabled: payload.isFocused === true,
   });
 
   return query;

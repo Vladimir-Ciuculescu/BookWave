@@ -1,10 +1,11 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { Dimensions, SafeAreaView, StyleSheet } from "react-native";
 import { View } from "react-native-ui-lib";
 import { useSelector } from "react-redux";
 import { authSelector } from "redux/reducers/auth.reducer";
-import AudiosTab from "screens/Profile/Tabs/AudiosTab";
+import AudiosTab from "screens/Profile/Tabs/Audios/AudiosTab";
 import HistoryTab from "screens/Profile/Tabs/History/HistoryTab";
 import { COLORS } from "utils/colors";
 import ProfileInfo from "./components/ProfileInfo";
@@ -18,6 +19,7 @@ const ProfileScreen: React.FC<any> = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar style="light" />
       <View style={{ flex: 1, paddingTop: 30, gap: 20, justifyContent: "center", display: "flex" }}>
         <ProfileInfo profile={profile} />
         <Tab.Navigator

@@ -1,7 +1,8 @@
 import { AntDesign, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
-import PlayCardTest from "components/PlayCardTest";
+import PlayAudioCard from "components/PlayAudioCard";
 import BWDivider from "components/shared/BWDivider";
+
 import BWIconButton from "components/shared/BWIconButton";
 import BWView from "components/shared/BWView";
 import { categories } from "consts/categories";
@@ -14,7 +15,6 @@ import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeA
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
-import { useDispatch } from "react-redux";
 import { Category } from "types/enums/categories.enum";
 import { AudioFile } from "types/interfaces/audios";
 import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
@@ -33,7 +33,6 @@ const FavoritesScreen: React.FC<any> = () => {
   const [reachedEnd, setReachedEnd] = useState<boolean>(false);
   const textRef = useRef<TextFieldRef>(null);
   const flatListRef = useRef<any>(null);
-  const dispatch = useDispatch();
   const { onAudioPress, isPlaying } = useAudioController();
   const track = useActiveTrack();
 
@@ -176,7 +175,7 @@ const FavoritesScreen: React.FC<any> = () => {
                 <Categories selectedCategories={selectedCategories} categories={categories} onToggle={toggleCategory} />
                 {isLoading ? (
                   <View style={{ marginTop: 50 }}>
-                    <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
+                    <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadingSpinner} />
                   </View>
                 ) : !favorites.length ? (
                   <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
@@ -196,7 +195,7 @@ const FavoritesScreen: React.FC<any> = () => {
                     showsVerticalScrollIndicator={false}
                     data={favorites}
                     renderItem={({ item }) => (
-                      <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
+                      <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
                     )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.searchingListContainer}
@@ -271,7 +270,7 @@ const FavoritesScreen: React.FC<any> = () => {
                     showsVerticalScrollIndicator={false}
                     data={favorites}
                     renderItem={({ item }) => (
-                      <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
+                      <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
                     )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContainer}
@@ -376,7 +375,7 @@ const styles = StyleSheet.create({
     fontFamily: "Minomu",
     paddingHorizontal: 20,
   },
-  loadinngSpinner: {
+  loadingSpinner: {
     transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
   },
   notFoundTitle: {

@@ -90,10 +90,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <BWAuthScreenContainer
-      image="https://images.pexels.com/photos/7241298/pexels-photo-7241298.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-      navigation={navigation}
-    >
+    <BWAuthScreenContainer image={require("../../../assets/images/login_background_image.webp")} navigation={navigation}>
       <StatusBar style="dark" />
       <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }} enableOnAndroid={true}>
         <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -101,36 +98,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.content}>
               <Text style={styles.title}>Witness the best audio experience</Text>
               <Text style={styles.subtitle}>Hello, sign in to continue</Text>
-              <BWForm
-                initialValues={initialValues}
-                onSubmit={handleLogin}
-                validationSchema={loginSchema}
-                innerRef={formRef}
-              >
+              <BWForm initialValues={initialValues} onSubmit={handleLogin} validationSchema={loginSchema} innerRef={formRef}>
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
-                    <BWAuthInput name="email" autoCapitalize="sentences" placeholder="Email" />
-                    <BWAuthInput
-                      name="password"
-                      autoCapitalize="none"
-                      placeholder="Password"
-                      secureTextEntry
-                    />
+                    <BWAuthInput name="email" autoCapitalize="none" placeholder="Email" />
+                    <BWAuthInput name="password" autoCapitalize="none" placeholder="Password" secureTextEntry />
                   </View>
 
                   <View style={styles.options}>
-                    <BWButton
-                      title="Forgot Password"
-                      link
-                      onPress={goToForgotPassword}
-                      labelStyle={styles.linkOption}
-                    />
-                    <BWButton
-                      title="Sign Up"
-                      link
-                      onPress={goToRegister}
-                      labelStyle={styles.linkOption}
-                    />
+                    <BWButton title="Forgot Password" link onPress={goToForgotPassword} labelStyle={styles.linkOption} />
+                    <BWButton title="Sign Up" link onPress={goToRegister} labelStyle={styles.linkOption} />
                   </View>
                   <BWSubmitButton title="Log in" style={styles.signInBtn} />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}

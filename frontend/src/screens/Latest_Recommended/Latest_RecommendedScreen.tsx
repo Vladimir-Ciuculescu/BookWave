@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import AudioPlayer from "components/AudioPlayer";
-import PlayCardTest from "components/PlayCardTest";
+import PlayAudioCard from "components/PlayAudioCard";
 import useAudioController from "hooks/useAudioController";
 import { useLayoutEffect } from "react";
 import { FlatList, StyleSheet } from "react-native";
@@ -32,7 +32,11 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
     navigation.setOptions({
       headerStyle: styles.header,
       headerShadowVisible: false,
-      headerTitle: () => <Text style={{ fontFamily: "MinomuBold", color: COLORS.WARNING[500], fontSize: 20 }}>Latest uploads</Text>,
+      headerTitle: () => (
+        <Text style={{ fontFamily: "MinomuBold", color: COLORS.WARNING[500], fontSize: 20 }}>
+          {listType === "latest" ? "Latest Uploads" : "Recommended Uploads"}
+        </Text>
+      ),
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.WARNING[500]} />
@@ -52,7 +56,7 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
           initialNumToRender={20}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => (
-            <PlayCardTest isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, queue)} />
+            <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, queue)} />
           )}
           contentContainerStyle={{ gap: 25, paddingBottom: 50 }}
         />

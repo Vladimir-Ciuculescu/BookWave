@@ -1,13 +1,7 @@
 import { useFormikContext } from "formik";
 import React, { useEffect } from "react";
 import { StyleSheet, TextInputProps } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import { TextField, View } from "react-native-ui-lib";
 import { COLORS } from "utils/colors";
 
@@ -21,8 +15,7 @@ interface BWAuthInputProps extends TextInputProps {
 }
 
 const BWAuthInput: React.FC<BWAuthInputProps> = (props) => {
-  const { name, placeholder, secureTextEntry, autoCapitalize, rightIcon, placeholderTextColor } =
-    props;
+  const { name, placeholder, secureTextEntry, autoCapitalize, rightIcon, placeholderTextColor } = props;
 
   const { handleChange, errors, values, handleBlur, touched } = useFormikContext<{
     [key: string]: string;
@@ -48,10 +41,7 @@ const BWAuthInput: React.FC<BWAuthInputProps> = (props) => {
 
   // ? Functions
   const shakeInput = () => {
-    xOffSet.value = withSequence(
-      withTiming(-10, { duration: 50 }),
-      withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 }),
-    );
+    xOffSet.value = withSequence(withTiming(-10, { duration: 50 }), withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 }));
   };
 
   return (

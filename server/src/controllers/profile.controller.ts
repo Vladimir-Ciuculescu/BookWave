@@ -64,6 +64,19 @@ const unfollowProfile = async (req: UnfollowRequest, res: Response) => {
   }
 };
 
+const getAudiosTotalCount = async (req: Request, res: Response) => {
+  const userId = req.user.id;
+
+  try {
+    const response = await AudioModel.countDocuments({ owner: userId });
+
+    return res.status(200).json(response);
+  } catch (error: any) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const getAudios = async (req: getAudiosRequest, res: Response) => {
   const userId = req.user.id;
   const { limit = "20", pageNumber = "0" } = req.query;
@@ -84,6 +97,7 @@ const getAudios = async (req: getAudiosRequest, res: Response) => {
         poster: audio.poster?.url,
         date: audio.createdAt,
         owner: { id: userId, name: req.user.name },
+        duration: audio.duration,
       };
     });
 
@@ -464,6 +478,7 @@ const getPrivatePlaylistAudios = async (req: GetPlaylistAudios, res: Response) =
 const ProfileController = {
   followProfile,
   unfollowProfile,
+  getAudiosTotalCount,
   getAudios,
   getPublicProfile,
   getPublicPlaylists,
