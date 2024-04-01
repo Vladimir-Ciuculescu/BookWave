@@ -1,38 +1,28 @@
-import React, { useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, Dimensions, Alert } from "react-native";
-import {
-  RadioButton,
-  RadioGroup,
-  Text,
-  View,
-  Image,
-  AnimatedImage,
-  Chip,
-} from "react-native-ui-lib";
-import { COLORS } from "utils/colors";
-import { FontAwesome } from "@expo/vector-icons";
-import BWFileSelector from "components/shared/BWFilerSelector";
-import BWView from "components/shared/BWView";
-import BWInput from "components/shared/BWInput";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { AntDesign, FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import AudioService from "api/audios.api";
+import BWBottomSheet from "components/shared/BWBottomSheet";
 import BWButton from "components/shared/BWButton";
+import BWFileSelector from "components/shared/BWFilerSelector";
+import BWForm from "components/shared/BWForm";
+import BWIconButton from "components/shared/BWIconButton";
+import BWInput from "components/shared/BWInput";
+import BWSubmitButton from "components/shared/BWSubmitButton";
+import BWView from "components/shared/BWView";
+import { categories } from "consts/categories";
+import { TAB_BAR_HEIGHT } from "consts/dimensions";
+import { DocumentPickerAsset } from "expo-document-picker";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import { Dimensions, SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { MaterialIcons } from "@expo/vector-icons";
-import { categories } from "consts/categories";
-import { Category } from "types/enums/categories.enum";
-import { DocumentPickerAsset } from "expo-document-picker";
-import BWBottomSheet from "components/shared/BWBottomSheet";
-import BWForm from "components/shared/BWForm";
-import BWSubmitButton from "components/shared/BWSubmitButton";
-import { uploadAudioSchema } from "yup/app.schemas";
-import { StatusBar } from "expo-status-bar";
-import { TAB_BAR_HEIGHT } from "consts/dimensions";
-import BWIconButton from "components/shared/BWIconButton";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
-import AudioService from "api/audios.api";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { AnimatedImage, Chip, RadioButton, RadioGroup, Text, View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
+import { Category } from "types/enums/categories.enum";
+import { COLORS } from "utils/colors";
+import { uploadAudioSchema } from "yup/app.schemas";
 
 const { width, height } = Dimensions.get("window");
 
@@ -109,15 +99,14 @@ const UploadAudioScreen: React.FC<any> = () => {
 
       await AudioService.uploadAudioApi(formData);
 
-      dispatch(
-        setToastMessageAction({ message: "Audio file succesfully uploaded", type: "success" }),
-      );
+      dispatch(setToastMessageAction({ message: "Audio file succesfully uploaded", type: "success" }));
 
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       dispatch(
         setToastMessageAction({
-          message: "Something gone wrong, please try again !",
+          //message: "Something gone wrong, please try again !",
+          message: error.message,
           type: "error",
         }),
       );
@@ -132,38 +121,26 @@ const UploadAudioScreen: React.FC<any> = () => {
       <SafeAreaView style={{ flex: 1 }}>
         <StatusBar style="light" />
 
-        <BWForm
-          initialValues={initialValues}
-          onSubmit={(values, { resetForm }) => handleUploadAudio(values, resetForm)}
-          validationSchema={uploadAudioSchema}
-        >
+        <BWForm initialValues={initialValues} onSubmit={(values, { resetForm }) => handleUploadAudio(values, resetForm)} validationSchema={uploadAudioSchema}>
           {/* @ts-ignore */}
           {({ values, errors, setFieldValue, touched }) => {
             return (
               <View style={{ flex: 1 }}>
-                <KeyboardAwareScrollView
-                  contentContainerStyle={styles.scrollContainer}
-                  showsVerticalScrollIndicator={false}
-                  style={styles.container}
-                >
+                <KeyboardAwareScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false} style={styles.container}>
                   <BWView column gap={30}>
                     <Text style={styles.title}>Upload new audio</Text>
                     <BWView row gap={30}>
                       <BWFileSelector
                         label="Select a poster"
                         name="poster"
-                        icon={() => (
-                          <FontAwesome name="image" size={24} color={COLORS.WARNING[500]} />
-                        )}
+                        icon={() => <FontAwesome name="image" size={24} color={COLORS.WARNING[500]} />}
                         style={styles.fileSelector}
                         options={{ type: "image/*" }}
                       />
                       <BWFileSelector
                         label="Select an audio"
                         name="audio"
-                        icon={() => (
-                          <FontAwesome name="file-audio-o" size={24} color={COLORS.WARNING[500]} />
-                        )}
+                        icon={() => <FontAwesome name="file-audio-o" size={24} color={COLORS.WARNING[500]} />}
                         style={styles.fileSelector}
                         options={{ type: "audio/*" }}
                       />
@@ -185,16 +162,12 @@ const UploadAudioScreen: React.FC<any> = () => {
                         <Chip
                           borderRadius={22}
                           label={values.audio.name}
-                          leftElement={
-                            <Ionicons name="ios-musical-notes" size={24} color="black" />
-                          }
+                          leftElement={<Ionicons name="ios-musical-notes" size={24} color="black" />}
                           rightElement={
                             <BWIconButton
                               onPress={() => removeAudio(setFieldValue)}
                               style={{ backgroundColor: "transparent" }}
-                              icon={() => (
-                                <AntDesign name="close" size={20} color={COLORS.DARK[50]} />
-                              )}
+                              icon={() => <AntDesign name="close" size={20} color={COLORS.DARK[50]} />}
                             />
                           }
                           labelStyle={styles.audioChipLabel}
@@ -203,9 +176,7 @@ const UploadAudioScreen: React.FC<any> = () => {
                       </BWView>
                     )}
 
-                    {touched.audio && errors.audio && (
-                      <Text style={styles.errorMessage}>{errors.audio.uri}</Text>
-                    )}
+                    {touched.audio && errors.audio && <Text style={styles.errorMessage}>{errors.audio.uri}</Text>}
 
                     <BWInput keyboardAppearance="dark" enablerError name="title" label="Title" />
 
@@ -218,37 +189,18 @@ const UploadAudioScreen: React.FC<any> = () => {
                         fontSize: 24,
                         fontFamily: "MinomuBold",
                       }}
-                      iconSource={() => (
-                        <MaterialIcons
-                          name="keyboard-arrow-down"
-                          size={26}
-                          color={COLORS.MUTED[50]}
-                        />
-                      )}
+                      iconSource={() => <MaterialIcons name="keyboard-arrow-down" size={26} color={COLORS.MUTED[50]} />}
                       iconOnRight
                       onPress={() => toggleCategoryBottomSheet(true)}
                     />
 
                     {values.category && <Text style={styles.categoryLabel}>{values.category}</Text>}
-                    {touched.category && errors.category && (
-                      <Text style={styles.errorMessage}>{errors.category}</Text>
-                    )}
-                    <BWInput
-                      keyboardAppearance="dark"
-                      enablerError
-                      name="description"
-                      label="Description"
-                      multiline
-                      numberOfLines={4}
-                    />
+                    {touched.category && errors.category && <Text style={styles.errorMessage}>{errors.category}</Text>}
+                    <BWInput keyboardAppearance="dark" enablerError name="description" label="Description" multiline numberOfLines={4} />
                     <BWSubmitButton title="Upload" loading={loading} full />
                   </BWView>
                 </KeyboardAwareScrollView>
-                <BWBottomSheet
-                  visible={categoryBottomSheet}
-                  onPressOut={closeBottomSheet}
-                  height="60%"
-                >
+                <BWBottomSheet visible={categoryBottomSheet} onPressOut={closeBottomSheet} height="60%">
                   <Text style={styles.bottomSheetTitle}>Choose a category</Text>
                   <View style={styles.bottomSheetContainer}>
                     <View style={{ height: "80%", width: "100%" }}>

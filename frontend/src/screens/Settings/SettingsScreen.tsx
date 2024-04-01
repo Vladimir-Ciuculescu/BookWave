@@ -13,7 +13,7 @@ import BWSubmitButton from "components/shared/BWSubmitButton";
 import BWView from "components/shared/BWView";
 import * as ImagePicker from "expo-image-picker";
 import { useLayoutEffect, useState } from "react";
-import { Alert, AlertButton, AlertOptions, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, AlertButton, AlertOptions, Keyboard, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { Text } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
@@ -28,6 +28,7 @@ import Section from "./components/Section";
 interface ProfileData {
   name: string;
   avatar?: string;
+  email: string;
 }
 
 interface AlertProps {
@@ -50,9 +51,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
   const initialValues: ProfileData = {
     name: profile.name,
     avatar: profile.avatar,
+    email: profile.email,
   };
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [updateProfileError, setUpdateProfileError] = useState<string>("");
 
   const dispatch = useDispatch();
 
@@ -80,7 +83,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
   };
 
   const updateProfile = async (values: ProfileData) => {
-    const { name, avatar } = values;
+    const { name, email, avatar } = values;
 
     setLoading(true);
 
@@ -88,6 +91,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       const formData = new FormData();
 
       formData.append("name", name);
+      //TEST
+      formData.append("email", email);
       formData.append("avatar", {
         name: `${profile.name}'s profile photo`,
         type: "image/jpeg",
@@ -95,17 +100,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       } as any);
 
       await UserService.updateProfileApi(formData);
+      setUpdateProfileError("");
 
       closeSettings();
-      dispatch(setProfileAction({ ...profile, name, avatar }));
+      dispatch(setProfileAction({ ...profile, name, email, avatar }));
       dispatch(setToastMessageAction({ message: "Profile updated !", type: "success" }));
-    } catch (error) {
-      dispatch(
-        setToastMessageAction({
-          message: "Something went wrong, please try again !",
-          type: "error",
-        }),
-      );
+    } catch (error: any) {
+      setUpdateProfileError(error.message);
     }
 
     setLoading(false);
@@ -171,8 +172,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
 
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <View style={{ flex: 1, flexDirection: "column", paddingTop: 30, paddingHorizontal: 20 }}>
-        <View style={{ flex: 1, flexDirection: "column", gap: 15 }}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+        <View style={styles.innerContainer}>
           <Section
             title="Profile info"
             content={
@@ -182,28 +183,40 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
                   return (
                     <BWView column gap={20}>
                       <BWView row gap={20}>
-                        <BWImage
-                          src={values.avatar}
-                          placeholder={!values.avatar}
-                          iconName="user"
-                          iconSize={50}
-                          style={{ width: 80, height: 80, borderRadius: 50 }}
-                        />
-
+                        <BWImage src={values.avatar} placeholder={!values.avatar} iconName="user" iconSize={50} style={styles.profileImage} />
                         <BWButton
                           onPress={() => pickImage(setFieldValue)}
                           link
                           title="Edit profile picture"
-                          labelStyle={{ fontSize: 14, color: COLORS.MUTED[50] }}
-                          iconSource={() => <Feather name="edit-2" size={20} color={COLORS.MUTED[50]} />}
+                          labelStyle={styles.editBtnLabel}
+                          iconSource={() => <Feather name="edit-2" size={20} color={COLORS.WARNING[500]} />}
                         />
                       </BWView>
-
-                      <BWInput placeholder="Edit your name" name="name" enablerError keyboardAppearance="dark" />
+                      <BWInput
+                        label="Name"
+                        placeholderTextColor={COLORS.WARNING[300]}
+                        selectionColor={COLORS.WARNING[500]}
+                        placeholder="Name"
+                        name="name"
+                        enablerError
+                        keyboardAppearance="dark"
+                        inputStyle={{ color: COLORS.WARNING[500], fontSize: 18, fontFamily: "Minomu" }}
+                      />
                       <BWView row justifyContent="space-between" alignItems="center">
-                        <Text style={{ color: COLORS.WARNING[500], fontSize: 18, fontFamily: "Minomu" }}>{profile.email}</Text>
-                        <BWSubmitButton disabled={!dirty} title="Save" loading={loading} />
+                        <BWInput
+                          label="Email"
+                          placeholder="Email"
+                          placeholderTextColor={COLORS.WARNING[300]}
+                          selectionColor={COLORS.WARNING[500]}
+                          enablerError
+                          keyboardAppearance="dark"
+                          name="email"
+                          style={{ flex: 1 }}
+                          inputStyle={{ color: COLORS.WARNING[500], fontSize: 18, fontFamily: "Minomu" }}
+                        />
                       </BWView>
+                      <BWSubmitButton style={{ width: "100%" }} disabled={!dirty} title="Save" loading={loading} />
+                      {updateProfileError && <Text style={{ color: COLORS.DANGER[500], fontSize: 18, fontFamily: "MinomuBold" }}>{updateProfileError}</Text>}
                     </BWView>
                   );
                 }}
@@ -230,9 +243,42 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
             />
           </BWView>
         </View>
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 };
 
 export default SettingsScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    paddingTop: 30,
+    paddingHorizontal: 20,
+  },
+
+  innerContainer: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 15,
+  },
+
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+  },
+
+  editBtnLabel: {
+    fontSize: 16,
+    color: COLORS.WARNING[500],
+  },
+
+  email: {
+    color: COLORS.WARNING[500],
+    fontSize: 18,
+    fontFamily: "Minomu",
+    maxWidth: "55%",
+  },
+});

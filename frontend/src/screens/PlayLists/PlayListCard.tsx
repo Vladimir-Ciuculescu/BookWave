@@ -27,8 +27,10 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style }) => {
     });
   };
 
+  const isEmpty = playlist.audios.length ? false : true;
+
   return (
-    <BWPressable style={style || undefined} onPress={goToPlaylistAudios}>
+    <BWPressable style={style || undefined} disabled={isEmpty} onPress={goToPlaylistAudios}>
       <BWView row justifyContent="space-between" alignItems="center" style={{ height: 80 }}>
         <BWView row gap={20}>
           <BWImage
@@ -48,7 +50,6 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style }) => {
             </BWView>
           </BWView>
         </BWView>
-        {/* <BWIconButton link onPress={() => {}} icon={() => <Entypo name="dots-three-vertical" size={16} color={COLORS.MUTED[50]} />} /> */}
       </BWView>
     </BWPressable>
   );

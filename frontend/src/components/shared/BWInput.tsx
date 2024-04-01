@@ -1,15 +1,9 @@
-import { useEffect } from "react";
 import { useFormikContext } from "formik";
-import { TextInputProps, StyleSheet, ViewStyle } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
-import { COLORS } from "utils/colors";
+import { useEffect } from "react";
+import { StyleSheet, TextInputProps, TextStyle, ViewStyle } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import { Text, TextField } from "react-native-ui-lib";
+import { COLORS } from "utils/colors";
 
 interface BWInputProps extends TextInputProps {
   name: string;
@@ -17,12 +11,13 @@ interface BWInputProps extends TextInputProps {
   autoCapitalize?: TextInputProps["autoCapitalize"];
   keyboardAppearance?: TextInputProps["keyboardAppearance"];
   rightIcon?: any;
-  placeholderTextColor?: string;
   label?: string;
   style?: ViewStyle;
-  inputStyle?: ViewStyle;
+  inputStyle?: ViewStyle | TextStyle;
   enablerError?: boolean;
   placeholder?: string;
+  selectionColor?: TextInputProps["selectionColor"];
+  placeholderTextColor?: TextInputProps["placeholderTextColor"];
 }
 
 const BWInput: React.FC<BWInputProps> = (props) => {
@@ -37,6 +32,8 @@ const BWInput: React.FC<BWInputProps> = (props) => {
     inputStyle,
     enablerError,
     placeholder,
+    selectionColor,
+    placeholderTextColor,
   } = props;
 
   const { handleChange, errors, values, handleBlur, touched } = useFormikContext<{
@@ -63,19 +60,18 @@ const BWInput: React.FC<BWInputProps> = (props) => {
 
   // ? Functions
   const shakeInput = () => {
-    xOffSet.value = withSequence(
-      withTiming(-10, { duration: 50 }),
-      withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 }),
-    );
+    xOffSet.value = withSequence(withTiming(-10, { duration: 50 }), withSpring(0, { damping: 8, mass: 0.5, stiffness: 1000, restDisplacementThreshold: 0.1 }));
   };
 
   return (
     <Animated.View style={[animatedStyle, styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextField
+        selectionColor={selectionColor || COLORS.MUTED[50]}
         keyboardAppearance={keyboardAppearance || "light"}
         placeholder={placeholder}
-        placeholderTextColor={COLORS.MUTED[500]}
+        //@ts-ignore
+        placeholderTextColor={placeholderTextColor || COLORS.MUTED[500]}
         autoCapitalize={autoCapitalize || "sentences"}
         textContentType="oneTimeCode"
         style={[styles.input, multiline ? styles.multiLine : null, inputStyle]}
