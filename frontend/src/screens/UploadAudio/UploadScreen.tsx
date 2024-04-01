@@ -105,7 +105,6 @@ const UploadAudioScreen: React.FC<any> = () => {
     } catch (error: any) {
       dispatch(
         setToastMessageAction({
-          //message: "Something gone wrong, please try again !",
           message: error.message,
           type: "error",
         }),

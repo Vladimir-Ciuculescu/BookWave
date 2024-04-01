@@ -10,12 +10,7 @@ interface BWPressableProps {
 
 const BWPressable: React.FC<BWPressableProps> = ({ children, onPress, style, disabled }) => {
   return (
-    <Pressable
-      disabled={disabled || false}
-      onPress={onPress}
-      // style={({ pressed }) => (pressed ?  styles.pressed : styles.unpressed)}
-      style={({ pressed }) => [pressed ? styles.pressed : styles.unpressed, style]}
-    >
+    <Pressable disabled={disabled || false} onPress={onPress} style={({ pressed }) => [pressed ? styles.pressed : styles.unpressed, style]}>
       {children}
     </Pressable>
   );

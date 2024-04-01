@@ -91,7 +91,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
       const formData = new FormData();
 
       formData.append("name", name);
-      //TEST
       formData.append("email", email);
       formData.append("avatar", {
         name: `${profile.name}'s profile photo`,
