@@ -1,5 +1,7 @@
+import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import BWIconButton from "components/shared/BWIconButton";
 import BWImage from "components/shared/BWImage";
 import BWPressable from "components/shared/BWPressable";
 import BWView from "components/shared/BWView";
@@ -13,9 +15,10 @@ import { COLORS } from "utils/colors";
 interface PlayListCardProps {
   playlist: PlayList;
   style?: ViewStyle | ViewStyle[];
+  onSelect: () => void;
 }
 
-const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style }) => {
+const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style, onSelect }) => {
   const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
 
   const goToPlaylistAudios = () => {
@@ -50,6 +53,7 @@ const PlayListCard: React.FC<PlayListCardProps> = ({ playlist, style }) => {
             </BWView>
           </BWView>
         </BWView>
+        <BWIconButton link onPress={onSelect} icon={() => <Entypo name="dots-three-vertical" size={22} color={COLORS.MUTED[50]} />} />
       </BWView>
     </BWPressable>
   );

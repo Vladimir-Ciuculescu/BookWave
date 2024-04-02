@@ -18,6 +18,10 @@ export interface RemoveFromPlaylistRequest {
   audioId: string;
 }
 
+export interface DeletePlaylistRequest {
+  playlistId: string;
+}
+
 export interface GetPlaylistsRequest {
   title: string;
   limit?: string;

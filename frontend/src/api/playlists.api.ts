@@ -2,6 +2,7 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import {
   AddPlayListRequest,
+  DeletePlaylistRequest,
   GetPlaylistAudiosTotalCountRequest,
   GetPlaylistAudiosTotalDurationRequest,
   GetPlaylistaudiosRequest,
@@ -108,6 +109,21 @@ const removeFromPlaylist = async (payload: RemoveFromPlaylistRequest) => {
   }
 };
 
+const deletePlaylist = async (payload: DeletePlaylistRequest) => {
+  const { playlistId } = payload;
+
+  try {
+    const { data } = await axios.delete(`${apiUrl}/playlist/delete?playlistId=${playlistId}&all=yes`, {
+      headers: {
+        Authorization: `Bearer=${await getToken()}`,
+      },
+    });
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const getIsExistentInPlaylist = async (payload: getIsExistentInPlaylistRequest) => {
   const { playlistId, audioId } = payload;
 
@@ -133,6 +149,7 @@ const PlayListService = {
   addPlayListApi,
   updatePlayListApi,
   removeFromPlaylist,
+  deletePlaylist,
   getIsExistentInPlaylist,
 };
 
