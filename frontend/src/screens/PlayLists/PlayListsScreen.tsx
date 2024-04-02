@@ -9,12 +9,13 @@ import { SafeAreaView } from "moti";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Dimensions, FlatList, Keyboard, Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Chip, Dash, Drawer, Text, TextField, TextFieldRef } from "react-native-ui-lib";
+import { Chip, Dash, Text, TextField, TextFieldRef } from "react-native-ui-lib";
 import AddPlayList from "screens/Home/components/AddPlayList";
 import { PlayList } from "types/interfaces/playlists";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import PlayListCard from "./PlayListCard";
+import PlayListOptions from "./components/PlayListOptions";
 
 const { width } = Dimensions.get("screen");
 
@@ -27,6 +28,9 @@ const PlayListsScreen: React.FC<any> = () => {
   const [playlists, setPlaylists] = useState<PlayList[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [reachedEnd, setReachedEnd] = useState<boolean>(false);
+  const [optionsModal, toggleOptionsModal] = useState<boolean>(false);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<PlayList>();
+  const [total, setTotal] = useState<number>(0);
 
   const textRef = useRef<TextFieldRef>(null);
   const { data, isLoading, refetch, isFetching } = useFetchPlaylistsByProfile({ title: searchText, pageNumber: (pageNumber - 1).toString() });
@@ -55,6 +59,10 @@ const PlayListsScreen: React.FC<any> = () => {
 
     setReachedEnd(false);
   }, [data]);
+
+  useEffect(() => {
+    setTotal(totalCount);
+  }, [totalCount]);
 
   useEffect(() => {
     if (!title && !searchMode) {
@@ -96,6 +104,20 @@ const PlayListsScreen: React.FC<any> = () => {
     if (!isFetching && !isLoading) {
       setRefresh(false);
     }
+  };
+
+  const closeModal = () => {
+    toggleOptionsModal(false);
+  };
+
+  const openOptionsModal = (playlist: PlayList) => {
+    toggleOptionsModal(true);
+    setSelectedPlaylist(playlist);
+  };
+
+  const removePlaylist = (id: string) => {
+    setPlaylists((oldValue: PlayList[]) => oldValue.filter((item) => item._id !== id));
+    setTotal((oldValue: number) => oldValue - 1);
   };
 
   return (
@@ -153,24 +175,7 @@ const PlayListsScreen: React.FC<any> = () => {
                     onEndReachedThreshold={0.1}
                     showsVerticalScrollIndicator={false}
                     data={playlists}
-                    renderItem={({ item }) => (
-                      <View style={{ paddingRight: 20 }}>
-                        <Drawer
-                          useNativeAnimations
-                          itemsTintColor={COLORS.DANGER[500]}
-                          rightItems={[
-                            {
-                              text: "Delete",
-                              onPress: () => console.log("read pressed"),
-                              icon: require("../../../assets/icons/delete.png"),
-                              background: COLORS.DARK[50],
-                            },
-                          ]}
-                        >
-                          <PlayListCard style={{ paddingHorizontal: 20 }} playlist={item} />
-                        </Drawer>
-                      </View>
-                    )}
+                    renderItem={({ item }) => <PlayListCard onSelect={() => openOptionsModal(item)} style={{ paddingHorizontal: 20 }} playlist={item} />}
                     keyExtractor={(_, index) => index.toString()}
                     contentContainerStyle={[styles.searchingListContainer]}
                   />
@@ -210,7 +215,7 @@ const PlayListsScreen: React.FC<any> = () => {
                 {playlists && playlists.length ? (
                   <BWView column gap={16}>
                     <BWView row justifyContent="space-between" style={{ paddingHorizontal: 20 }}>
-                      <Text style={styles.playlistsCount}>{totalCount} playlists</Text>
+                      <Text style={styles.playlistsCount}>{total} playlists</Text>
                     </BWView>
                     <Dash thickness={2} length={width - 20} color={COLORS.MUTED[700]} containerStyle={{ alignSelf: "center" }} />
 
@@ -221,24 +226,7 @@ const PlayListsScreen: React.FC<any> = () => {
                       onEndReachedThreshold={0.1}
                       data={playlists}
                       showsVerticalScrollIndicator={false}
-                      renderItem={({ item }) => (
-                        <View style={{ paddingRight: 20 }}>
-                          <Drawer
-                            useNativeAnimations
-                            itemsTintColor={COLORS.DANGER[500]}
-                            rightItems={[
-                              {
-                                text: "Delete",
-                                onPress: () => console.log("read pressed"),
-                                icon: require("../../../assets/icons/delete.png"),
-                                background: COLORS.DARK[50],
-                              },
-                            ]}
-                          >
-                            <PlayListCard style={{ paddingHorizontal: 20 }} playlist={item} />
-                          </Drawer>
-                        </View>
-                      )}
+                      renderItem={({ item }) => <PlayListCard onSelect={() => openOptionsModal(item)} style={{ paddingHorizontal: 20 }} playlist={item} />}
                       keyExtractor={(_, index) => index.toString()}
                       contentContainerStyle={styles.listContainer}
                     />
@@ -263,6 +251,9 @@ const PlayListsScreen: React.FC<any> = () => {
         />
         <BWBottomSheet height="80%" visible={playlistBottomSheet} blurBackground onPressOut={() => togglePlaylistsBottomSheet(false)} keyboardOffSet={1.5}>
           <AddPlayList onClose={() => togglePlaylistsBottomSheet(false)} />
+        </BWBottomSheet>
+        <BWBottomSheet height="50%" visible={optionsModal} blurBackground onPressOut={closeModal}>
+          <PlayListOptions playlist={selectedPlaylist} onClose={closeModal} onRemove={removePlaylist} />
         </BWBottomSheet>
       </SafeAreaView>
     </GestureHandlerRootView>
@@ -313,12 +304,12 @@ const styles = StyleSheet.create({
 
   searchingListContainer: {
     gap: 20,
-    paddingBottom: TAB_BAR_HEIGHT - 20,
+    paddingBottom: TAB_BAR_HEIGHT + 100,
   },
 
   listContainer: {
     gap: 20,
-    paddingBottom: TAB_BAR_HEIGHT * 2 + 10,
+    paddingBottom: TAB_BAR_HEIGHT * 2 + 100,
   },
 
   editContainer: {
