@@ -1,4 +1,5 @@
 import PlayListService from "api/playlists.api";
+import moment from "moment";
 import { StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { RadioButton, RadioGroup, Text } from "react-native-ui-lib";
@@ -26,20 +27,26 @@ const initialValues: NewPlayListData = {
   visibility: "",
 };
 
+interface PlaylistPayload {
+  title: string;
+  visibility: Visibilites | "";
+  createdAt: string;
+  updatedAt: string;
+  audios: any[];
+}
+
 interface AddPlayListProps {
   onClose: () => void;
   audio?: AudioFile | undefined;
+  onAdd?: (e: PlaylistPayload) => void;
 }
 
 const radioOptions: Visibilites[] = [Visibilites.public, Visibilites.private];
 
-const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
+const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio, onAdd }) => {
   const dispatch = useDispatch();
 
-  const handleVisibility = (
-    setFieldValue: (label: string, value: string) => void,
-    value: string,
-  ) => {
+  const handleVisibility = (setFieldValue: (label: string, value: string) => void, value: string) => {
     setFieldValue("visibility", value);
   };
 
@@ -58,6 +65,20 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
     try {
       await PlayListService.addPlayListApi(payload);
       dispatch(setToastMessageAction({ message: "Playlist added succesfully !", type: "success" }));
+
+      const currentDate = moment();
+
+      const formattedDate = currentDate.format("YY-MM-DDTHH:mm:ss.SSS[Z]");
+
+      const newPlaylist: PlaylistPayload = {
+        title,
+        visibility,
+        createdAt: formattedDate,
+        updatedAt: formattedDate,
+        audios: [],
+      };
+
+      onAdd!(newPlaylist);
       onClose();
     } catch (error) {
       console.log(error);
@@ -65,25 +86,14 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
   };
 
   return (
-    <BWForm
-      onSubmit={(values) => handleAddPlaylist(values)}
-      initialValues={initialValues}
-      validationSchema={newPlayListSchema}
-    >
+    <BWForm onSubmit={(values) => handleAddPlaylist(values)} initialValues={initialValues} validationSchema={newPlayListSchema}>
       {/* @ts-ignore */}
       {({ setFieldValue, errors, touched }) => {
         return (
           <KeyboardAwareScrollView scrollEnabled={false}>
             <BWView column alignItems="center" gap={20} style={{ flex: 1 }}>
-              <Text style={{ fontSize: 24, color: COLORS.MUTED[50], fontFamily: "MinomuBold" }}>
-                New Playlist
-              </Text>
-              <BWDivider
-                width="100%"
-                thickness={2}
-                orientation="horizontal"
-                color={COLORS.DARK[300]}
-              />
+              <Text style={{ fontSize: 24, color: COLORS.MUTED[50], fontFamily: "MinomuBold" }}>New Playlist</Text>
+              <BWDivider width="100%" thickness={2} orientation="horizontal" color={COLORS.DARK[300]} />
               <BWInput
                 keyboardAppearance="dark"
                 placeholder="Title"
@@ -92,16 +102,8 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
                 name="title"
                 enablerError
               />
-              <BWDivider
-                width="100%"
-                thickness={2}
-                orientation="horizontal"
-                color={COLORS.DARK[300]}
-              />
-              <RadioGroup
-                style={styles.radioGroup}
-                onValueChange={(value: string) => handleVisibility(setFieldValue, value)}
-              >
+              <BWDivider width="100%" thickness={2} orientation="horizontal" color={COLORS.DARK[300]} />
+              <RadioGroup style={styles.radioGroup} onValueChange={(value: string) => handleVisibility(setFieldValue, value)}>
                 {radioOptions.map((option: Visibilites) => (
                   <RadioButton
                     style={styles.radioBtn}
@@ -119,11 +121,7 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio }) => {
                 </BWView>
               )}
               <BWView row style={{ width: "100%", gap: 10 }} justifyContent="space-between">
-                <BWButton
-                  onPress={onClose}
-                  title="Cancel"
-                  style={[styles.optionBtn, styles.cancelBtn]}
-                />
+                <BWButton onPress={onClose} title="Cancel" style={[styles.optionBtn, styles.cancelBtn]} />
 
                 <BWSubmitButton title="Create" style={[styles.optionBtn, styles.saveBtn]} />
               </BWView>

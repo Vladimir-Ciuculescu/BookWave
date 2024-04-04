@@ -12,7 +12,6 @@ export const useFetchPlaylistsByProfile = (payload?: GetPlaylistsRequest) => {
     onError: (error: any) => {
       dispatch(setToastMessageAction({ message: error.message, type: "error" }));
     },
-    // keepPreviousData: true,
   });
 
   return query;
@@ -25,7 +24,6 @@ export const useFetchPlaylistAudios = (payload: GetPlaylistaudiosRequest) => {
     onError: (error: any) => {
       dispatch(setToastMessageAction({ message: error.message, type: "error" }));
     },
-    keepPreviousData: true,
   });
 
   return query;
@@ -38,7 +36,6 @@ export const useFetchPLaylistsTotalCount = (payload: GetPlaylistsTotalCountReque
     onError: (error: any) => {
       dispatch(setToastMessageAction({ message: error.message, type: "error" }));
     },
-    keepPreviousData: true,
   });
 
   return query;

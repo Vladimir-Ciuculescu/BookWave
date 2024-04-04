@@ -120,6 +120,11 @@ const PlayListsScreen: React.FC<any> = () => {
     setTotal((oldValue: number) => oldValue - 1);
   };
 
+  const addPlaylistToUI = (playlist: any) => {
+    setPlaylists((oldValue) => [playlist, ...oldValue]);
+    setTotal((oldValue) => oldValue + 1);
+  };
+
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
@@ -250,7 +255,7 @@ const PlayListsScreen: React.FC<any> = () => {
           style={styles.plusBtn}
         />
         <BWBottomSheet height="80%" visible={playlistBottomSheet} blurBackground onPressOut={() => togglePlaylistsBottomSheet(false)} keyboardOffSet={1.5}>
-          <AddPlayList onClose={() => togglePlaylistsBottomSheet(false)} />
+          <AddPlayList onAdd={addPlaylistToUI} onClose={() => togglePlaylistsBottomSheet(false)} />
         </BWBottomSheet>
         <BWBottomSheet height="50%" visible={optionsModal} blurBackground onPressOut={closeModal}>
           <PlayListOptions playlist={selectedPlaylist} onClose={closeModal} onRemove={removePlaylist} />
