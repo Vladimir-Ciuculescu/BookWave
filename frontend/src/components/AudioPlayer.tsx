@@ -34,6 +34,7 @@ const AudioPlayer: React.FC<any> = () => {
   const { isPlaying, onAudioPress, skipTo } = useAudioController();
   const track = useActiveTrack();
   const dispatch = useDispatch();
+  const { queue } = useSelector(playerSelector);
 
   useEffect(() => {
     const checkIfInFavorites = async () => {
@@ -82,6 +83,32 @@ const AudioPlayer: React.FC<any> = () => {
 
   const seekTimeStamp = async (second: number) => {
     await TrackPlayer.seekTo(second);
+  };
+
+  const play = async () => {
+    const currentQueue = await TrackPlayer.getQueue();
+
+    if (!currentQueue.length) {
+      const newQueue = queue.map((track) => {
+        return {
+          id: track.id,
+          title: track.title,
+          url: track.file,
+          artwork: track.poster,
+          artist: track.owner.name,
+          genre: track.category,
+          isLiveStream: true,
+          about: track.about,
+          owner: track.owner,
+        };
+      });
+
+      await TrackPlayer.setQueue(newQueue);
+      onAudioPress(selectedAudio!, queue);
+      return;
+    }
+
+    onAudioPress(selectedAudio!, list);
   };
 
   const stepBackWard = async () => {
@@ -215,7 +242,7 @@ const AudioPlayer: React.FC<any> = () => {
                   <FontAwesome5 name="play" size={22} color={COLORS.MUTED[50]} />
                 )
               }
-              onPress={() => onAudioPress(selectedAudio!, list)}
+              onPress={play}
             />
             <BWIconButton link icon={() => <MaterialIcons name="forward-10" size={40} color={COLORS.MUTED[50]} />} onPress={() => stepTimestamp("forward")} />
 

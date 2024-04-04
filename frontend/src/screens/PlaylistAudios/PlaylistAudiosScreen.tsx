@@ -13,8 +13,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { Extrapolate, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useActiveTrack } from "react-native-track-player";
 import { Dash, Text, View } from "react-native-ui-lib";
-import { useSelector } from "react-redux";
-import { playerSelector } from "redux/reducers/player.reducer";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setQueueAction } from "redux/reducers/player.reducer";
 import { AudioFile } from "types/interfaces/audios";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
@@ -39,6 +39,7 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
   const scrollYOffset = useSharedValue(0);
   const { onAudioPress, isPlaying, replayList } = useAudioController();
   const track = useActiveTrack();
+  const dispatch = useDispatch();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,6 +95,10 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
 
   const replay = async () => {
     await replayList(audios.audios);
+  };
+
+  const setQueue = () => {
+    dispatch(setQueueAction(audios.audios));
   };
 
   return (
@@ -153,7 +158,12 @@ const YourScreen: React.FC<PlaylistAudiosScreenProps> = ({ route, navigation }) 
               keyExtractor={(item: AudioFile) => item.id}
               contentContainerStyle={styles.contentContainer}
               renderItem={({ item }) => (
-                <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, audios.audios)} />
+                <PlayAudioCard
+                  onSelect={setQueue}
+                  isPlaying={isPlaying && track! && track!.id === item.id}
+                  audio={item}
+                  onPress={() => onAudioPress(item, audios.audios)}
+                />
               )}
             />
           )}

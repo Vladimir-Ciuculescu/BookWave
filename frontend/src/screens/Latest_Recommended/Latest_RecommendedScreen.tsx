@@ -9,8 +9,8 @@ import { FlatList, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
-import { useSelector } from "react-redux";
-import { playerSelector } from "redux/reducers/player.reducer";
+import { useDispatch, useSelector } from "react-redux";
+import { playerSelector, setQueueAction } from "redux/reducers/player.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
 
@@ -27,6 +27,7 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
   const { visibleModalPlayer, latest, recommended } = useSelector(playerSelector);
   const { isPlaying, onAudioPress } = useAudioController();
   const track = useActiveTrack();
+  const dispatch = useDispatch();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -47,6 +48,10 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
 
   const queue = listType === "recommended" ? recommended : latest;
 
+  const setQueue = () => {
+    dispatch(setQueueAction(queue));
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -56,7 +61,12 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
           initialNumToRender={20}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => (
-            <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, queue)} />
+            <PlayAudioCard
+              onSelect={setQueue}
+              isPlaying={isPlaying && track! && track!.id === item.id}
+              audio={item}
+              onPress={() => onAudioPress(item, queue)}
+            />
           )}
           contentContainerStyle={{ gap: 25, paddingBottom: 50 }}
         />

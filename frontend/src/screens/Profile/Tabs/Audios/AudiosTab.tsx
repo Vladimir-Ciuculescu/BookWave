@@ -10,15 +10,22 @@ import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Text, View } from "react-native-ui-lib";
+import { useDispatch } from "react-redux";
+import { setQueueAction } from "redux/reducers/player.reducer";
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../../../assets/illustrations";
 
 const AudiosTab = () => {
   const isFocused = useIsFocused();
+  const dispatch = useDispatch();
   const { isPlaying, onAudioPress } = useAudioController();
   const track = useActiveTrack();
   const { data: totalCount } = useFetchAudiosTotalCountByProfile({ isFocused });
   const { data: audios, isLoading } = useFetchAudiosByProfile({ isFocused });
+
+  const setQueue = () => {
+    dispatch(setQueueAction(audios));
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -38,7 +45,12 @@ const AudiosTab = () => {
                 contentContainerStyle={styles.listContainer}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, audios)} />
+                  <PlayAudioCard
+                    onSelect={setQueue}
+                    isPlaying={isPlaying && track! && track!.id === item.id}
+                    audio={item}
+                    onPress={() => onAudioPress(item, audios)}
+                  />
                 )}
               />
             </>

@@ -7,6 +7,7 @@ interface InitialStateProps {
   audio: AudioFile | undefined;
   visibleModalPlayer: boolean;
   list: AudioFile[];
+  queue: AudioFile[];
   latest: AudioFile[];
   recommended: AudioFile[];
 }
@@ -16,6 +17,7 @@ const initialState: InitialStateProps = {
   audio: undefined,
   visibleModalPlayer: false,
   list: [],
+  queue: [],
   latest: [],
   recommended: [],
 };
@@ -38,6 +40,9 @@ const playerReducer = createSlice({
     setLatestAudios: (state, action: PayloadAction<AudioFile[]>) => {
       state.latest = action.payload;
     },
+    setQueue: (state, action: PayloadAction<AudioFile[]>) => {
+      state.queue = action.payload;
+    },
     setRecommendedAudios: (state, action: PayloadAction<AudioFile[]>) => {
       state.recommended = action.payload;
     },
@@ -48,6 +53,7 @@ const playerReducer = createSlice({
 export const setAudioAction = playerReducer.actions.setAudio;
 export const setVisibileModalPlayerAction = playerReducer.actions.setVisibileModalPlayer;
 export const setAudiosListAction = playerReducer.actions.setAudiosList;
+export const setQueueAction = playerReducer.actions.setQueue;
 export const setLatestAudiosAction = playerReducer.actions.setLatestAudios;
 export const setRecommendedAudiosAction = playerReducer.actions.setRecommendedAudios;
 

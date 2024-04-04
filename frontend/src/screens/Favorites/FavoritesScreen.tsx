@@ -15,6 +15,8 @@ import { ActivityIndicator, FlatList, Keyboard, Pressable, RefreshControl, SafeA
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Chip, Text, TextField, TextFieldRef, View } from "react-native-ui-lib";
+import { useDispatch } from "react-redux";
+import { setQueueAction } from "redux/reducers/player.reducer";
 import { Category } from "types/enums/categories.enum";
 import { AudioFile } from "types/interfaces/audios";
 import { GetFavoritesRequest } from "types/interfaces/requests/favorites-requests.interfaces";
@@ -35,6 +37,7 @@ const FavoritesScreen: React.FC<any> = () => {
   const flatListRef = useRef<any>(null);
   const { onAudioPress, isPlaying } = useAudioController();
   const track = useActiveTrack();
+  const dispatch = useDispatch();
 
   const payload: GetFavoritesRequest = {
     pageNumber: (pageNumber - 1).toString(),
@@ -136,6 +139,10 @@ const FavoritesScreen: React.FC<any> = () => {
     toggleSelectedCategories((oldValues) => oldValues.filter((item: Category) => category !== item));
   };
 
+  const setQueue = () => {
+    dispatch(setQueueAction(favorites));
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
@@ -195,7 +202,12 @@ const FavoritesScreen: React.FC<any> = () => {
                     showsVerticalScrollIndicator={false}
                     data={favorites}
                     renderItem={({ item }) => (
-                      <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
+                      <PlayAudioCard
+                        isPlaying={isPlaying && track! && track!.id === item.id}
+                        onSelect={setQueue}
+                        audio={item}
+                        onPress={() => onAudioPress(item, favorites)}
+                      />
                     )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.searchingListContainer}
@@ -270,7 +282,12 @@ const FavoritesScreen: React.FC<any> = () => {
                     showsVerticalScrollIndicator={false}
                     data={favorites}
                     renderItem={({ item }) => (
-                      <PlayAudioCard isPlaying={isPlaying && track! && track!.id === item.id} audio={item} onPress={() => onAudioPress(item, favorites)} />
+                      <PlayAudioCard
+                        onSelect={setQueue}
+                        isPlaying={isPlaying && track! && track!.id === item.id}
+                        audio={item}
+                        onPress={() => onAudioPress(item, favorites)}
+                      />
                     )}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContainer}

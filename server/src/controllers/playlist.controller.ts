@@ -188,15 +188,16 @@ const getPlaylistsByUser = async (req: GetPlaylistsRequest, res: Response) => {
 
 const getPlayListsTotalCount = async (req: GetPlaylistTotalCountRequest, res: Response) => {
   const { title } = req.query;
+  const userId = req.user.id;
 
   try {
-    let filter = {};
+    const filter: any[] = [{ owner: userId, visibility: { $in: ["public", "private"] } }];
 
     if (title) {
-      filter = { title: { $regex: title } };
+      filter.push({ title: { $regex: title } });
     }
 
-    const totalCount = await PlayListModel.collection.countDocuments(filter);
+    const totalCount = await PlayListModel.collection.countDocuments({ $and: filter });
 
     return res.status(200).json(totalCount);
   } catch (error) {

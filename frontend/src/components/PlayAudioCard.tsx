@@ -18,15 +18,18 @@ interface PlayAudioCardProps {
   audio: AudioFile;
   onPress: () => void;
   onLongPress?: () => void;
+  onSelect: () => void;
+
   isPlaying: boolean;
 }
 
-const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying }) => {
+const PlayAudioCard: React.FC<PlayAudioCardProps> = ({ audio, onPress, isPlaying, onSelect }) => {
   const dispatch = useDispatch();
 
   const openAudioPlayer = async () => {
     dispatch(setVisibileModalPlayerAction(true));
     dispatch(setSelectedAudioAction(audio));
+    onSelect();
   };
 
   const openAudioActions = () => {
