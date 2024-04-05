@@ -29,7 +29,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ profile }) => {
           <BWImage src={profile?.avatar!} placeholder={!profile?.avatar} iconName="user" iconSize={50} style={{ width: 80, height: 80, borderRadius: 50 }} />
           <BWView column gap={5}>
             <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[50], fontSize: 26 }}>{profile!.name}</Text>
-            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[700], fontSize: 14 }}>{profile!.email}</Text>
+            <Text style={{ fontFamily: "MinomuBold", color: COLORS.MUTED[400], fontSize: 14 }}>{profile!.email}</Text>
           </BWView>
         </BWView>
         <BWIconButton onPress={openSettings} link icon={() => <Ionicons name="settings-outline" size={24} color={COLORS.MUTED[50]} />} />
