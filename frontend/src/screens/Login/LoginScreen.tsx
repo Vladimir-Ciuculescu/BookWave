@@ -69,9 +69,33 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     navigation.navigate("App", { screen: "Home" });
   };
 
+  const goToOTPVerification = (userId: string) => {
+    navigation.navigate("OTPVerification", { userId, isLoggedIn: true });
+  };
+
   const handleLogin = async (values: LoginData) => {
+    // try {
+    //   const userInfo = await UserService.loginApi(values);
+
+    // await AsyncStorage.setItem("token", userInfo.token);
+
+    // let profileData = {
+    //   ...userInfo.user,
+    //   avatar: userInfo.user.avatar ? userInfo.user.avatar.url : "",
+    // };
+
+    // dispatch(setProfileAction(profileData));
+
+    // dispatch(setLoggedInAction(true));
+    // goToHome();
+    // } catch (error: any) {
+    //   setErrorMessage(error.message);
+    // }
+
     try {
       const userInfo = await UserService.loginApi(values);
+
+      const isUserVerified = await UserService.isVerifiedApi(userInfo.user.id);
 
       await AsyncStorage.setItem("token", userInfo.token);
 
@@ -83,7 +107,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       dispatch(setProfileAction(profileData));
 
       dispatch(setLoggedInAction(true));
-      goToHome();
+
+      if (isUserVerified) {
+        goToHome();
+      } else {
+        await UserService.resendVerificationTokenApi(userInfo.user.id);
+        goToOTPVerification(userInfo.user.id);
+      }
     } catch (error: any) {
       setErrorMessage(error.message);
     }

@@ -2,10 +2,7 @@ import { apiUrl, getToken } from "api";
 import axios from "axios";
 import { LoginData } from "screens/Login/LoginScreen";
 import { RegisterData } from "screens/Register/RegisterScreen";
-import {
-  LogOutRequest,
-  SendVerificationEmailRequest,
-} from "types/interfaces/requests/auth-requests.interfaces";
+import { ChangePasswordRequest, LogOutRequest, SendVerificationEmailRequest } from "types/interfaces/requests/auth-requests.interfaces";
 
 const registerApi = async (payload: RegisterData) => {
   try {
@@ -24,6 +21,14 @@ const loginApi = async (payload: LoginData) => {
     if (error.response) {
       throw new Error(error.response.data.error);
     }
+  }
+};
+
+const changePassword = async (payload: ChangePasswordRequest) => {
+  try {
+    await axios.post(`${apiUrl}/users/change-password`, payload);
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
   }
 };
 
@@ -80,6 +85,15 @@ const updateProfileApi = async (formData: FormData) => {
   }
 };
 
+const isVerifiedApi = async (userId: string) => {
+  try {
+    const { data } = await axios.get(`${apiUrl}/users/is-verified/${userId}`);
+    return data;
+  } catch (error: any) {
+    throw new Error(error.response.data.error);
+  }
+};
+
 const logOutApi = async (data: LogOutRequest) => {
   try {
     await axios.post(`${apiUrl}/users/log-out`, null, {
@@ -94,11 +108,13 @@ const logOutApi = async (data: LogOutRequest) => {
 const UserService = {
   registerApi,
   loginApi,
+  changePassword,
   isAuthApi,
   sendVerificationTokenApi,
   resendVerificationTokenApi,
   forgotPasswordApi,
   updateProfileApi,
+  isVerifiedApi,
   logOutApi,
 };
 

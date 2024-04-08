@@ -48,6 +48,15 @@ export const COLORS = {
     800: "#065f46",
     900: "#064e3b",
   },
+  VIOLET: {
+    300: "#c4b5fd",
+    400: "#a78bfa",
+    500: "#8b5cf6",
+    600: "#7c3aed",
+    700: "#6d28d9",
+    800: "#5b21b6",
+    900: "#4c1d95",
+  },
   // TODO : Dark colors are not definitive yet
   DARK: {
     50: "#181a20",

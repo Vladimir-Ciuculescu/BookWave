@@ -67,16 +67,22 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
     navigation.navigate("Login");
   };
 
-  const goToOTPVerification = (userInfo: any) => {
-    navigation.navigate("OTPVerification", { userInfo });
+  // const goToOTPVerification = (userInfo: any) => {
+  //   navigation.navigate("OTPVerification", { userInfo });
+  // };
+
+  const goToOTPVerification = (userId: string) => {
+    navigation.navigate("OTPVerification", { userId, isLoggedIn: false });
   };
 
   const handleRegister = async (values: RegisterData) => {
     try {
       setLoading(true);
       const data = await UserService.registerApi(values);
+
       setErrorMessage("");
-      goToOTPVerification(data);
+      goToOTPVerification(data.user._id);
+      // goToOTPVerification(data);
     } catch (error: any) {
       setErrorMessage(error.message);
     }

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { Request, RequestHandler, Response } from "express";
+import fs from "fs";
 import jwt from "jsonwebtoken";
 import EmailVerificationTokenModel, { EmailVertificationTokenDocument } from "models/email-vertification.model";
 import PasswordResetTokenModel, { PasswordResetTokenDocument } from "models/password-reset-token.model";
@@ -10,6 +11,7 @@ import {
   AddUserRequest,
   ChangePasswordRequest,
   ForgotPasswordRequest,
+  IsUserVerifiedRequest,
   ReVerifyEmailRequest,
   SignInRequest,
   VerifyEmailRequest,
@@ -54,10 +56,30 @@ const addUser = async (req: AddUserRequest, res: Response) => {
 
     await EmailVerificationTokenModel.create<EmailVertificationTokenDocument>(emailVerificationToken);
 
+    const logoImage = fs.readFileSync(path.join(__dirname, "../assets/logo.png"));
+    const passwordResetImage = fs.readFileSync(path.join(__dirname, "../assets/password_reset.png"));
+
+    const attachments = [
+      {
+        filename: "logo.png",
+        content_id: "logo",
+        disposition: "inline",
+        content: logoImage,
+        type: "image/png",
+      },
+      {
+        filename: "password_reset.png",
+        content_id: "password_reset",
+        disposition: "inline",
+        content: passwordResetImage,
+        type: "image/png",
+      },
+    ];
+
     sendEmail(
       user.email,
-      "vladimir.ciuculescu@gmail.com",
-      `Welcome, ${user.name}`,
+      process.env.MAILTRAP_SENDER,
+      "BookWave registration",
       verifyEmailTemplate({
         title: "Welcome to BookWave",
         message: "Welcome again",
@@ -66,18 +88,7 @@ const addUser = async (req: AddUserRequest, res: Response) => {
         link: "#",
         btnTitle: token,
       }),
-      [
-        {
-          filename: "logo.png",
-          path: path.join(__dirname, "../assets/logo.png"),
-          cid: "logo",
-        },
-        {
-          filename: "password_reset.png",
-          path: path.join(__dirname, "../assets/password_reset.png"),
-          cid: "password_reset",
-        },
-      ],
+      attachments,
     );
 
     return res.status(201).json({
@@ -178,11 +189,15 @@ const sendVerificationToken = async (req: VerifyEmailRequest, res: Response) => 
 const resendVerificationToken = async (req: ReVerifyEmailRequest, res: Response) => {
   const { userId } = req.body;
 
+  console.log(111, userId);
+
   try {
     if (!isValidObjectId(userId)) {
       return res.status(403).json({ error: "Invalid user Id" });
     }
     const user = await UserModel.findById(userId);
+
+    console.log(222, user);
 
     if (user?.verified) {
       return res.status(200).json({ message: "This user already has their email verified !" });
@@ -204,30 +219,39 @@ const resendVerificationToken = async (req: ReVerifyEmailRequest, res: Response)
 
     await EmailVerificationTokenModel.create<EmailVertificationTokenDocument>(emailVerificationToken);
 
+    const logoImage = fs.readFileSync(path.join(__dirname, "../assets/logo.png"));
+    const passwordResetImage = fs.readFileSync(path.join(__dirname, "../assets/password_reset.png"));
+
+    const attachments = [
+      {
+        filename: "logo.png",
+        content_id: "logo",
+        disposition: "inline",
+        content: logoImage,
+        type: "image/png",
+      },
+      {
+        filename: "password_reset.png",
+        content_id: "password_reset",
+        disposition: "inline",
+        content: passwordResetImage,
+        type: "image/png",
+      },
+    ];
+
     sendEmail(
       user!.email,
-      "vladimir.ciuculescu@gmail.com",
-      `Welcome, ${user!.name}`,
+      process.env.MAILTRAP_SENDER,
+      "Account verification",
       verifyEmailTemplate({
-        title: "Welcome to BookWave",
+        title: "Account verification",
         message: "Welcome again",
         logo: "cid:logo",
         banner: "cid:password_reset",
         link: "#",
         btnTitle: token,
       }),
-      [
-        {
-          filename: "logo.png",
-          path: path.join(__dirname, "../assets/logo.png"),
-          cid: "logo",
-        },
-        {
-          filename: "password_reset.png",
-          path: path.join(__dirname, "../assets/password_reset.png"),
-          cid: "password_reset",
-        },
-      ],
+      attachments,
     );
 
     return res.status(201).json({
@@ -307,32 +331,48 @@ const verifyPasswordResetToken = async (req: VerifyPasswordResetTokenRequest, re
 };
 
 const changePassword = async (req: ChangePasswordRequest, res: Response) => {
-  const { password, userId } = req.body;
+  // const { password, userId } = req.body;
+
+  // try {
+  //   const user = await UserModel.findById(userId);
+
+  //   if (!user) {
+  //     return res.status(404).json({ error: "User not found !" });
+  //   }
+
+  //   const isTheSamePassword = await user.comparePassword(password);
+
+  //   if (isTheSamePassword) {
+  //     return res.status(422).json({ error: "The new password cannot be the same as the old one !" });
+  //   }
+
+  //   await PasswordResetTokenModel.findByIdAndDelete(userId);
+
+  //   await user.updateOne({ password: password });
+
+  //   // TODO Send email that password was changed
+
+  //   return res.status(201).json({ message: "Password was succesfully changed !" });
+  // } catch (error) {
+  //   console.log(error);
+  //   return res.status(422).json({ error: error });
+  // }
+
+  const { email, password } = req.body;
+
+  const user = await UserModel.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ error: "This user does not exist !" });
+  }
+
+  await UserModel.findOneAndUpdate({ _id: user._id }, { password: password });
+
+  return res.status(200).json({ message: "Password changed succesfully !" });
 
   try {
-    const user = await UserModel.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found !" });
-    }
-
-    const isTheSamePassword = await user.comparePassword(password);
-
-    if (isTheSamePassword) {
-      return res.status(422).json({ error: "The new password cannot be the same as the old one !" });
-    }
-
-    await PasswordResetTokenModel.findByIdAndDelete(userId);
-
-    await user.updateOne({ password: password });
-
-    // TODO Send email that password was changed
-
-    return res.status(201).json({ message: "Password was succesfully changed !" });
-  } catch (error) {
-    console.log(error);
-    return res.status(422).json({ error: error });
-  }
+    await UserModel.findByIdAndUpdate();
+  } catch (error) {}
 };
 
 const updateProfile = async (req: any, res: Response) => {
@@ -387,6 +427,27 @@ const updateProfile = async (req: any, res: Response) => {
   }
 };
 
+const isVerified = async (req: IsUserVerifiedRequest, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+    if (!isValidObjectId(userId)) {
+      return res.status(422).json({ error: "Invalid user id" });
+    }
+
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found !" });
+    }
+
+    return res.status(200).json(user.verified);
+  } catch (error) {
+    console.log(error);
+    return res.status(422).json({ error });
+  }
+};
+
 const logOut = async (req: Request, res: Response) => {
   const { fromAll } = req.query;
   const token = req.token;
@@ -428,6 +489,7 @@ const UserController = {
   verifyPasswordResetToken,
   changePassword,
   updateProfile,
+  isVerified,
   logOut,
 };
 

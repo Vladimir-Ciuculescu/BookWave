@@ -10,3 +10,8 @@ export interface ResendVerificationEmailRequest {
 export interface LogOutRequest {
   fromAll: "yes" | "no";
 }
+
+export interface ChangePasswordRequest {
+  email: string;
+  password: string;
+}

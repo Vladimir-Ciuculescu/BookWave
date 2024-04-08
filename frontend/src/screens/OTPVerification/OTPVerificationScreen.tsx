@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { SafeAreaView, StyleSheet, Dimensions, FlatList, Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { Alert, Dimensions, FlatList, SafeAreaView, StyleSheet } from "react-native";
 
-import { Button, Text, View } from "react-native-ui-lib";
-import { COLORS } from "utils/colors";
-import { MotiView } from "moti";
-import { StatusBar } from "expo-status-bar";
-import BWButton from "components/shared/BWButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
-import BWFadeInContainer from "components/shared/BWFadeInContainer";
 import UserService from "api/users.api";
+import BWButton from "components/shared/BWButton";
+import BWFadeInContainer from "components/shared/BWFadeInContainer";
+import BWView from "components/shared/BWView";
+import { StatusBar } from "expo-status-bar";
+import { MotiView } from "moti";
+import { Button, Text, View } from "react-native-ui-lib";
+import { useDispatch } from "react-redux";
+import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,36 +24,43 @@ const DIAL_PAD = [1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "del"];
 interface DialButtonProps {
   dial: string;
   onPress: (item: any) => void;
+  disabled: boolean;
 }
 
-const DialButton: React.FC<DialButtonProps> = ({ dial, onPress }) => {
+const DialButton: React.FC<DialButtonProps> = ({ dial, onPress, disabled }) => {
   return (
     <Button
       onPress={() => onPress(dial)}
-      disabled={dial === ""}
+      disabled={disabled}
+      disabledBackgroundColor={COLORS.VIOLET[500]}
       style={[styles.dialBtn, { opacity: dial === "" ? 0 : 1 }]}
       label={dial !== "del" ? dial : undefined}
       round
       labelStyle={styles.dialBtnLabel}
       //@ts-ignore
-      iconSource={() =>
-        dial === "del" ? <Feather name="delete" size={24} color={COLORS.MUTED[50]} /> : null
-      }
+      iconSource={() => (dial === "del" ? <Feather name="delete" size={24} color={COLORS.MUTED[50]} /> : null)}
     />
   );
 };
 
 interface OTPVerification {
-  navigation: NavigationProp<StackNavigatorProps>;
-  route: RouteProp<StackNavigatorProps>;
+  navigation: NavigationProp<StackNavigatorProps, "OTPVerification", undefined>;
+  route: RouteProp<StackNavigatorProps, "OTPVerification">;
 }
 
 const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route }) => {
+  const {
+    params: { userId, isLoggedIn },
+  } = route;
+  // const userInfo = params?.userInfo;
+
   // ? Hooks
   const [loading, setLoading] = useState<boolean>(false);
   const [code, setCode] = useState<number[]>([]);
   const [timer, setTimer] = useState<number>(10);
   const [isResendActive, setIsResendActive] = useState<boolean>(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isResendActive) {
@@ -58,9 +69,6 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
 
     startTimer();
   }, [isResendActive]);
-
-  const { params } = route;
-  const userInfo = params?.userInfo;
 
   const handleCode = (item: any) => {
     if (item === "del") {
@@ -84,25 +92,15 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
     }, 1000);
   };
 
-  const resetTimer = () => {
-    setTimer(10);
-    setIsResendActive(false);
-    startTimer();
-  };
-
-  const goToSignIn = () => {
-    navigation.navigate("Login");
+  const goNext = () => {
+    navigation.navigate(isLoggedIn ? "App" : "Login");
   };
 
   const resendOTP = async () => {
     try {
-      const data = await UserService.resendVerificationTokenApi(userInfo!.user._id);
-      Alert.alert("Success", data.message, [
-        {
-          text: "Ok",
-          onPress: () => resetTimer(),
-        },
-      ]);
+      await UserService.resendVerificationTokenApi(userId);
+      setIsResendActive(false);
+      setTimer(10);
     } catch (error) {
       console.log(error);
     }
@@ -114,14 +112,14 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
 
       const token = code.join("");
       const data = await UserService.sendVerificationTokenApi({
-        userId: userInfo!.user._id,
+        userId: userId,
         token: token.toString(),
       });
 
       Alert.alert("Success", data.message, [
         {
           text: "OK",
-          onPress: () => goToSignIn(),
+          onPress: () => goNext(),
         },
       ]);
       setLoading(false);
@@ -135,6 +133,27 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
       ]);
     }
   };
+
+  const logOut = async () => {
+    await UserService.logOutApi({ fromAll: "no" });
+    await AsyncStorage.removeItem("token");
+    navigation.navigate("Login");
+    dispatch(
+      setProfileAction({
+        id: "",
+        name: "",
+        email: "",
+        verified: false,
+        avatar: "",
+        followers: 0,
+        followings: 0,
+      }),
+    );
+    dispatch(setLoggedInAction(false));
+  };
+
+  const isDialBtnDisabled = (dial: string | number) =>
+    (typeof dial === "number" && code.length === 6) || (dial === "del" && code.length === 0) ? true : false;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -162,22 +181,17 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
             columnWrapperStyle={styles.listWrapper}
             contentContainerStyle={styles.listWrapper}
             keyExtractor={(_, index) => index.toString()}
-            renderItem={({ item }) => (
-              <DialButton onPress={(item) => handleCode(item)} dial={item.toString()} />
-            )}
+            renderItem={({ item }) => <DialButton disabled={isDialBtnDisabled(item)} onPress={(item) => handleCode(item)} dial={item.toString()} />}
           />
-          <BWButton
-            loading={loading}
-            disabled={code.length < 6}
-            onPress={submitToken}
-            title="Submit"
-            style={styles.submitOTPBtn}
-          />
+          <BWButton loading={loading} disabled={code.length < 6} onPress={submitToken} title="Submit" style={styles.submitOTPBtn} />
 
-          <View style={styles.resendOtpContainer}>
-            {timer > 0 && <Text style={styles.timer}>{timer} sec.</Text>}
-            <BWButton onPress={resendOTP} title="Re-send OTP" link disabled={!isResendActive} />
-          </View>
+          <BWView row justifyContent="space-between" style={{ width: "100%" }}>
+            <View style={styles.resendOtpContainer}>
+              {timer > 0 && <Text style={styles.timer}>{timer} sec.</Text>}
+              <BWButton onPress={resendOTP} title="Re-send OTP" link disabled={!isResendActive} />
+            </View>
+            {isLoggedIn && <BWButton onPress={logOut} title="Log out" link />}
+          </BWView>
         </View>
       </BWFadeInContainer>
     </SafeAreaView>
@@ -207,7 +221,6 @@ const styles = StyleSheet.create({
   resendOtpContainer: {
     display: "flex",
     flexDirection: "row",
-    width: "100%",
     gap: 20,
   },
 
@@ -250,6 +263,7 @@ const styles = StyleSheet.create({
   dialBtn: {
     width: 80,
     height: 80,
+    //backgroundColor: COLORS.VIOLET[700],
   },
   dialBtnLabel: {
     fontFamily: "Minomu",

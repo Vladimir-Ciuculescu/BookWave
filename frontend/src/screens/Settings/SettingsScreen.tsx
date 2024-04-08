@@ -61,7 +61,9 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => <BWIconButton link onPress={closeSettings} icon={() => <AntDesign name="close" size={24} color={COLORS.MUTED[50]} />} />,
+      headerRight: () => (
+        <BWIconButton style={{ marginRight: 3 }} link onPress={closeSettings} icon={() => <AntDesign name="close" size={24} color={COLORS.MUTED[50]} />} />
+      ),
     });
   }, [navigation]);
 

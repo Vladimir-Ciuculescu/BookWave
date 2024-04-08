@@ -1,10 +1,10 @@
-import { validateMiddleware } from "../middlewares/validate.middleware";
+import { Response, Router } from "express";
 import UserController from "../controllers/user.controller";
-import { userSchema, changePasswordSchema, signInSchema, passwordResetTokenSchem, tokenSchema } from "../yup/user.schemas";
-import { Router, Response } from "express";
-import { validateTokenMiddleware } from "../middlewares/validate-token.middleware";
-import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
 import { fileParserMiddleware } from "../middlewares/file-parser.middleware";
+import { isAuthenticatedMiddleware } from "../middlewares/is-authenticated.middleware";
+import { validateTokenMiddleware } from "../middlewares/validate-token.middleware";
+import { validateMiddleware } from "../middlewares/validate.middleware";
+import { changePasswordSchema, passwordResetTokenSchem, signInSchema, tokenSchema, userSchema } from "../yup/user.schemas";
 
 const router: any = Router();
 
@@ -16,12 +16,7 @@ router.post("/re-verify-email", UserController.resendVerificationToken);
 
 router.post("/forgot-password", UserController.forgotPassword);
 
-router.post(
-  "/verify-password-reset-token",
-  validateMiddleware(passwordResetTokenSchem),
-  validateTokenMiddleware(),
-  UserController.verifyPasswordResetToken,
-);
+router.post("/verify-password-reset-token", validateMiddleware(passwordResetTokenSchem), validateTokenMiddleware(), UserController.verifyPasswordResetToken);
 
 router.post("/change-password", validateMiddleware(changePasswordSchema), UserController.changePassword);
 
@@ -32,6 +27,8 @@ router.get("/is-auth", isAuthenticatedMiddleware, (req: any, res: Response) => {
     user: req.user,
   });
 });
+
+router.get("/is-verified/:userId", UserController.isVerified);
 
 router.post("/update-profile", isAuthenticatedMiddleware, fileParserMiddleware, UserController.updateProfile);
 

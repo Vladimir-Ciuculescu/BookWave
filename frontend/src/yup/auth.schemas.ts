@@ -13,4 +13,5 @@ export const registerSchema = Yup.object().shape({
 
 export const forgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("This is not a valid email !").required("Email required !"),
+  password: Yup.string().min(8, "Password must have at least 8 characters").required("Please provide a new password !"),
 });

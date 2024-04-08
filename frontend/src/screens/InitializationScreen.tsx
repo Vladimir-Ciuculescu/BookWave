@@ -16,9 +16,18 @@ const InitializationScreen: React.FC<any> = () => {
       const data = await UserService.isAuthApi();
 
       if (data.user) {
+        const isUserVerified = await UserService.isVerifiedApi(data.user.id);
+
         dispatch(setProfileAction(data.user));
         dispatch(setLoggedInAction(true));
-        navigation.replace("App");
+
+        // navigation.replace("App");
+
+        if (isUserVerified) {
+          navigation.replace("App");
+        } else {
+          navigation.replace("OTPVerification", { userId: data.user.id, isLoggedIn: true });
+        }
       } else {
         navigation.replace("Login");
       }

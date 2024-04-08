@@ -20,10 +20,12 @@ const { width, height } = Dimensions.get("window");
 
 interface ForgotPasswordData {
   email: string;
+  password: string;
 }
 
 const initialValues: ForgotPasswordData = {
   email: "",
+  password: "",
 };
 
 interface ForgotPasswordScreenProps {
@@ -43,24 +45,20 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
   };
 
   const handleSubmit = async (values: ForgotPasswordData) => {
-    setLoading(true);
-    const { email } = values;
+    try {
+      setLoading(true);
+      await UserService.changePassword(values);
 
-    const data = await UserService.forgotPasswordApi(email);
+      if (errorMessage) {
+        setErrorMessage("");
+      }
 
-    setLoading(false);
-
-    if (data.error) {
-      setErrorMessage(data.error);
-      return;
+      Alert.alert("Success", "Your password was succesfully changed !", [{ text: "Ok", onPress: () => goToSignIn() }]);
+    } catch (error: any) {
+      setErrorMessage(error.message);
     }
 
-    setErrorMessage("");
-    Alert.alert("Success", "An email was sent to your address!. \nPlease verify it", [
-      {
-        text: "Ok",
-      },
-    ]);
+    setLoading(false);
   };
 
   return (
@@ -71,18 +69,20 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navigation 
         <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
           <BWFadeInContainer>
             <View style={styles.content}>
-              <Text style={styles.title}>Fill in your email to get a new password</Text>
+              {/* <Text style={styles.title}>Fill in your email to get a new password</Text> */}
+              <Text style={styles.title}>Choose a new password</Text>
 
               <BWForm initialValues={initialValues} onSubmit={handleSubmit} validationSchema={forgotPasswordSchema}>
                 <View style={styles.formContainer}>
                   <View style={styles.inputsContainer}>
                     <BWAuthInput name="email" autoCapitalize="none" placeholder="Email" placeholderTextColor={COLORS.MUTED[50]} />
+                    <BWAuthInput name="password" autoCapitalize="none" placeholder="New password" secureTextEntry />
                   </View>
                   <View style={styles.options}>
                     <BWButton link title="Sign In" onPress={goToSignIn} labelStyle={styles.linkOption} />
                     <BWButton link title="Sign Up" onPress={goToSignUp} labelStyle={styles.linkOption} />
                   </View>
-                  <BWSubmitButton style={styles.sendLinkBtn} title="Send link" />
+                  <BWSubmitButton loading={loading} style={styles.sendLinkBtn} title="Update" />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}
                 </View>
               </BWForm>

@@ -49,7 +49,7 @@ const BWAuthInput: React.FC<BWAuthInputProps> = (props) => {
       <TextField
         {...props}
         textContentType="oneTimeCode"
-        autoCapitalize={autoCapitalize || "sentences"}
+        autoCapitalize={autoCapitalize || "none"}
         secureTextEntry={secureTextEntry || false}
         style={styles.input}
         placeholder={placeholder}

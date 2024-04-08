@@ -21,8 +21,7 @@ export const verifyEmailTemplate = (options: Options) => {
         <meta content="width=device-width, initial-scale=1.0" name="viewport" />
         <!--[if mso
           ]><xml
-            ><o:OfficeDocumentSettings
-              ><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG /></o:OfficeDocumentSettings></xml
+            ><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG /></o:OfficeDocumentSettings></xml
         ><![endif]-->
         <style>
           * {
@@ -147,9 +146,7 @@ export const verifyEmailTemplate = (options: Options) => {
           }
         </style>
       </head>
-      <body
-        style="background-color: #fff0e3; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;"
-      >
+      <body style="background-color: #fff0e3; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
         <table
           border="0"
           cellpadding="0"
@@ -192,9 +189,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="100%"
                               >
-                                <div class="spacer_block block-1" style="height:30px;line-height:30px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:30px;line-height:30px;font-size:1px;"> </div>
                               </td>
                             </tr>
                           </tbody>
@@ -233,9 +228,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="33.333333333333336%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                               <td
                                 class="column column-2"
@@ -271,9 +264,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="33.333333333333336%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                             </tr>
                           </tbody>
@@ -312,9 +303,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="100%"
                               >
-                                <div class="spacer_block block-1" style="height:10px;line-height:10px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:10px;line-height:10px;font-size:1px;"> </div>
                               </td>
                             </tr>
                           </tbody>
@@ -430,9 +419,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                     </td>
                                   </tr>
                                 </table>
-                                <div class="spacer_block block-2" style="height:35px;line-height:35px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-2" style="height:35px;line-height:35px;font-size:1px;"> </div>
                                 <table
                                   border="0"
                                   cellpadding="0"
@@ -490,9 +477,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="16.666666666666668%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                               <td
                                 class="column column-2"
@@ -509,26 +494,18 @@ export const verifyEmailTemplate = (options: Options) => {
                                   width="100%"
                                 >
                                   <tr>
-                                    <td
-                                      class="pad"
-                                      style="padding-bottom:10px;padding-left:20px;padding-right:10px;padding-top:10px;"
-                                    >
+                                    <td class="pad" style="padding-bottom:10px;padding-left:20px;padding-right:10px;padding-top:10px;">
                                       <div
                                         style="color:#848484;font-family:Arial, Helvetica Neue, Helvetica, sans-serif;font-size:14px;line-height:180%;text-align:center;mso-line-height-alt:25.2px;"
                                       >
                                         <p style="margin: 0; word-break: break-word;">
-                                          <span
-                                            >Hello and welcome to BookWave. Please use the following OTP to verify your
-                                            email</span
-                                          >
+                                          <span>Hello and welcome to BookWave. Please use the following OTP to verify your account</span>
                                         </p>
                                       </div>
                                     </td>
                                   </tr>
                                 </table>
-                                <div class="spacer_block block-2" style="height:10px;line-height:10px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-2" style="height:10px;line-height:10px;font-size:1px;"> </div>
                                 <table
                                   border="0"
                                   cellpadding="10"
@@ -546,29 +523,22 @@ export const verifyEmailTemplate = (options: Options) => {
                                           href="www.example.com"
                                           style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#101;border-radius:4px;width:auto;border-top:1px solid #101;font-weight:undefined;border-right:1px solid #101;border-bottom:1px solid #101;border-left:1px solid #101;padding-top:5px;padding-bottom:5px;font-family:Arial, Helvetica Neue, Helvetica, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;"
                                           target="_blank"
-                                          ><span
-                                            style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"
-                                            ><span style="word-break: break-word; line-height: 32px;"
-                                              >${btnTitle}</span
-                                            ></span
+                                          ><span style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"
+                                            ><span style="word-break: break-word; line-height: 32px;">${btnTitle}</span></span
                                           ></a
-                                        >><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                        ><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                       </div>
                                     </td>
                                   </tr>
                                 </table>
-                                <div class="spacer_block block-4" style="height:20px;line-height:20px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-4" style="height:20px;line-height:20px;font-size:1px;"> </div>
                               </td>
                               <td
                                 class="column column-3"
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="16.666666666666668%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                             </tr>
                           </tbody>
@@ -660,9 +630,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="100%"
                               >
-                                <div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;"> </div>
                                 <table
                                   border="0"
                                   cellpadding="0"
@@ -673,10 +641,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                   width="100%"
                                 >
                                   <tr>
-                                    <td
-                                      class="pad"
-                                      style="padding-bottom:15px;padding-left:10px;padding-right:10px;padding-top:10px;text-align:center;"
-                                    >
+                                    <td class="pad" style="padding-bottom:15px;padding-left:10px;padding-right:10px;padding-top:10px;text-align:center;">
                                       <div align="center" class="alignment">
                                         <table
                                           border="0"
@@ -701,10 +666,7 @@ export const verifyEmailTemplate = (options: Options) => {
                                   width="100%"
                                 >
                                   <tr>
-                                    <td
-                                      class="pad"
-                                      style="color:#101010;font-family:inherit;font-size:14px;text-align:center;"
-                                    >
+                                    <td class="pad" style="color:#101010;font-family:inherit;font-size:14px;text-align:center;">
                                       <table
                                         border="0"
                                         cellpadding="0"
@@ -722,23 +684,13 @@ export const verifyEmailTemplate = (options: Options) => {
                                               style="display:none !important;max-height:0;visibility:hidden;"
                                               type="checkbox"
                                             /><!--<![endif]-->
-                                            <div
-                                              class="menu-trigger"
-                                              style="display:none;max-height:0px;max-width:0px;font-size:0px;overflow:hidden;"
-                                            >
+                                            <div class="menu-trigger" style="display:none;max-height:0px;max-width:0px;font-size:0px;overflow:hidden;">
                                               <label
                                                 class="menu-label"
                                                 for="memu-r7c0m2"
                                                 style="height: 36px; width: 36px; display: inline-block; cursor: pointer; mso-hide: all; user-select: none; align: center; text-align: center; color: #ffffff; text-decoration: none; background-color: #000000; border-radius: 0;"
-                                                ><span
-                                                  class="menu-open"
-                                                  style="mso-hide:all;font-size:26px;line-height:31.5px;"
-                                                  >☰</span
-                                                ><span
-                                                  class="menu-close"
-                                                  style="display:none;mso-hide:all;font-size:26px;line-height:36px;"
-                                                  >✕</span
-                                                ></label
+                                                ><span class="menu-open" style="mso-hide:all;font-size:26px;line-height:31.5px;">☰</span
+                                                ><span class="menu-close" style="display:none;mso-hide:all;font-size:26px;line-height:36px;">✕</span></label
                                               >
                                             </div>
                                           </td>
@@ -785,27 +737,21 @@ export const verifyEmailTemplate = (options: Options) => {
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="16.666666666666668%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                               <td
                                 class="column column-2"
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="66.66666666666667%"
                               >
-                                <div class="spacer_block block-1" style="height:35px;line-height:35px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:35px;line-height:35px;font-size:1px;"> </div>
                               </td>
                               <td
                                 class="column column-3"
                                 style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;"
                                 width="16.666666666666668%"
                               >
-                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;">
-                                   
-                                </div>
+                                <div class="spacer_block block-1" style="height:0px;line-height:0px;font-size:1px;"> </div>
                               </td>
                             </tr>
                           </tbody>

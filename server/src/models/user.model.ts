@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import mongoose, { Schema, ObjectId, Model, models } from "mongoose";
+import mongoose, { Model, ObjectId, Schema, models } from "mongoose";
 
 // ? Interfaces
 export interface UserDocument {
@@ -72,6 +72,16 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await hash(this.password, 10);
+  }
+
+  next();
+});
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as any;
+
+  if (update!.password) {
+    (this as any)._update.password = await hash((this as any)._update.password, 10);
   }
 
   next();

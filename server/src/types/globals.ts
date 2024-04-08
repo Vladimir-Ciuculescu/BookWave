@@ -12,6 +12,8 @@ declare global {
       CLOUDINARY_CLOUD_NAME: string;
       CLOUDINARY_API_KEY: string;
       CLOUDINARY_SECRET_KEY: string;
+      MAILTRAP_TOKEN: string;
+      MAILTRAP_SENDER: string;
     }
   }
 }

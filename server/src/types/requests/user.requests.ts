@@ -9,9 +9,14 @@ export interface AddUserRequest extends RequestHandler {
 }
 
 export interface ChangePasswordRequest extends RequestHandler {
+  // body: {
+  //   password: string;
+  //   userId: string;
+  // };
+
   body: {
+    email: string;
     password: string;
-    userId: string;
   };
 }
 
@@ -44,6 +49,12 @@ export interface VerifyEmailRequest extends RequestHandler {
 export interface VerifyPasswordResetTokenRequest extends RequestHandler {
   body: {
     token: string;
+    userId: string;
+  };
+}
+
+export interface IsUserVerifiedRequest extends Request {
+  params: {
     userId: string;
   };
 }
