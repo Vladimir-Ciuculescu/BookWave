@@ -101,6 +101,12 @@ const OTPVerificationScreen: React.FC<OTPVerification> = ({ navigation, route })
       await UserService.resendVerificationTokenApi(userId);
       setIsResendActive(false);
       setTimer(10);
+
+      Alert.alert("Success", "Please check your email !", [
+        {
+          text: "OK",
+        },
+      ]);
     } catch (error) {
       console.log(error);
     }

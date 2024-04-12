@@ -63,15 +63,15 @@ const resendVerificationTokenApi = async (userId: string) => {
   }
 };
 
-const forgotPasswordApi = async (email: string) => {
-  try {
-    const response = await axios.post(`${apiUrl}/users/forgot-password`, { email });
-    return response.data;
-  } catch (error: any) {
-    console.log(error.response.data);
-    return error.response.data;
-  }
-};
+// const forgotPasswordApi = async (email: string) => {
+//   try {
+//     const response = await axios.post(`${apiUrl}/users/forgot-password`, { email });
+//     return response.data;
+//   } catch (error: any) {
+//     console.log(error.response.data);
+//     return error.response.data;
+//   }
+// };
 
 const updateProfileApi = async (formData: FormData) => {
   try {
@@ -112,7 +112,7 @@ const UserService = {
   isAuthApi,
   sendVerificationTokenApi,
   resendVerificationTokenApi,
-  forgotPasswordApi,
+  // forgotPasswordApi,
   updateProfileApi,
   isVerifiedApi,
   logOutApi,

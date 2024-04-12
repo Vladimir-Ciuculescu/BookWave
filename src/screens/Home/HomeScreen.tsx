@@ -60,7 +60,10 @@ const HomeScreen: React.FC<any> = () => {
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={[styles.list, !latestAudios.uploads.length ? { width: "100%" } : null]}
+          contentContainerStyle={[
+            styles.list,
+            //!latestAudios.uploads.length ? { width: "100%" } : null
+          ]}
         >
           {!latestAudios.uploads.length ? (
             <BWView column alignItems="center" justifyContent="center" style={styles.noDataContainer} gap={25}>
