@@ -44,9 +44,7 @@ const InitializationScreen: React.FC<any> = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      getIsLoggedIn();
-    }, 5000);
+    getIsLoggedIn();
   }, []);
 
   return (
