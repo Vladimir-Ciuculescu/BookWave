@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ForgotPasswordScreen from "screens/ForgotPassword/ForgotPasswordScreen";
-import InitializationScreen from "screens/InitializationScreen";
+import InitializationScreen from "screens/InitializationScreen/InitializationScreen";
 import Latest_RecommendedScreen from "screens/Latest_Recommended/Latest_RecommendedScreen";
 import LoginScreen from "screens/Login/LoginScreen";
 import OTPVerificationScreen from "screens/OTPVerification/OTPVerificationScreen";

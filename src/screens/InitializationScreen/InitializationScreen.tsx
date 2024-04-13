@@ -1,10 +1,18 @@
+import { Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import UserService from "api/users.api";
 import { useEffect } from "react";
+import { View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
+import { StyleSheet, Dimensions } from "react-native";
 import { setLoggedInAction, setProfileAction } from "redux/reducers/auth.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
+import { COLORS } from "utils/colors";
+import AnimatedLottieView from "lottie-react-native";
+import { StatusBar } from "expo-status-bar";
+
+const { width } = Dimensions.get("screen");
 
 const InitializationScreen: React.FC<any> = () => {
   const dispatch = useDispatch();
@@ -21,8 +29,6 @@ const InitializationScreen: React.FC<any> = () => {
         dispatch(setProfileAction(data.user));
         dispatch(setLoggedInAction(true));
 
-        // navigation.replace("App");
-
         if (isUserVerified) {
           navigation.replace("App");
         } else {
@@ -38,10 +44,37 @@ const InitializationScreen: React.FC<any> = () => {
   };
 
   useEffect(() => {
-    getIsLoggedIn();
+    setTimeout(() => {
+      getIsLoggedIn();
+    }, 5000);
   }, []);
 
-  return null;
+  return (
+    <View style={styles.container}>
+      <StatusBar style="light" />
+      <Image style={styles.image} source={require("../../../assets/splash-icon.png")} />
+      <View style={styles.loadingContainer}>
+        <AnimatedLottieView autoPlay loop source={require("../../../assets/animations/loading.json")} />
+      </View>
+    </View>
+  );
 };
 
 export default InitializationScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.DARK[50],
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: width / 2.5,
+    height: width / 2.5,
+  },
+  loadingContainer: {
+    width: width,
+    height: 100,
+  },
+});

@@ -1,0 +1,12 @@
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:EDED630B-F5B0-4569-BFFA-97814277EB6B, OS:17.2, name:iPhone 15 Pro Max }
+{ platform:iOS Simulator, id:EDED630B-F5B0-4569-BFFA-97814277EB6B, OS:17.2, name:iPhone 15 Pro Max }
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, id:EDED630B-F5B0-4569-BFFA-97814277EB6B, OS:17.2, name:iPhone 15 Pro Max }
+{ platform:iOS Simulator, id:EDED630B-F5B0-4569-BFFA-97814277EB6B, OS:17.2, name:iPhone 15 Pro Max }
+** BUILD FAILED **
+
+
+The following build commands failed:
+	PhaseScriptExecution [CP-User]\ Generate\ Specs /Users/ciuculescuvladimir/Library/Developer/Xcode/DerivedData/BookWaveApp-clqjfyvkgsdrpibiiaicfqyahhwo/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/React-rncore.build/Script-46EB2E0001DD90.sh (in target 'React-rncore' from project 'Pods')
+(1 failure)
