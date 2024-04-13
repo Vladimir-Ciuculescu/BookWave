@@ -12,15 +12,7 @@ const SoundWave: React.FC<any> = () => {
     });
   }, []);
 
-  return (
-    <LottieView
-      ref={animationRef}
-      autoPlay
-      loop
-      style={styles.container}
-      source={require("../../assets/animations/SoundWave.json")}
-    />
-  );
+  return <LottieView ref={animationRef} autoPlay loop style={styles.container} source={require("../../assets/animations/SoundWave.json")} />;
 };
 
 const styles = StyleSheet.create({

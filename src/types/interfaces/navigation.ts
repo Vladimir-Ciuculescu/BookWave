@@ -1,10 +1,10 @@
 import { UserProfile } from "./users";
 
 export type StackNavigatorProps = {
+  Splash: undefined;
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
-  // OTPVerification: { userInfo: any };
   OTPVerification: { userId: string; isLoggedIn: boolean };
 
   Settings: { profile: UserProfile };
