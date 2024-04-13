@@ -12,7 +12,7 @@ import TabNavigator from "./TabNavigator";
 
 const Stack = createNativeStackNavigator<StackNavigatorProps>();
 
-const StackNavigator: React.FC<any> = ({ appReady }) => {
+const StackNavigator: React.FC<any> = () => {
   return (
     <Stack.Navigator initialRouteName="InitialScreen">
       <Stack.Group screenOptions={{ headerShown: false, animation: "fade" }}>

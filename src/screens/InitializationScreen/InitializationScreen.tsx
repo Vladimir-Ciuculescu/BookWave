@@ -12,7 +12,7 @@ import { COLORS } from "utils/colors";
 import AnimatedLottieView from "lottie-react-native";
 import { StatusBar } from "expo-status-bar";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
 const InitializationScreen: React.FC<any> = () => {
   const dispatch = useDispatch();
@@ -44,14 +44,16 @@ const InitializationScreen: React.FC<any> = () => {
   };
 
   useEffect(() => {
-    getIsLoggedIn();
+    setTimeout(() => {
+      getIsLoggedIn();
+    }, 5000);
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.DARK[50], justifyContent: "center", alignItems: "center" }}>
+    <View style={styles.container}>
       <StatusBar style="light" />
-      <Image style={{ width: width / 2.5, height: width / 2.5 }} source={require("../../../assets/splash-icon.png")} />
-      <View style={{ width: width / 1, height: 100 }}>
+      <Image style={styles.image} source={require("../../../assets/splash-icon.png")} />
+      <View style={styles.loadingContainer}>
         <AnimatedLottieView autoPlay loop source={require("../../../assets/animations/loading.json")} />
       </View>
     </View>
@@ -63,12 +65,16 @@ export default InitializationScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.DARK[50],
+    justifyContent: "center",
+    alignItems: "center",
   },
-  background: {
-    position: "absolute",
-    top: 0,
-    left: 0,
+  image: {
+    width: width / 2.5,
+    height: width / 2.5,
+  },
+  loadingContainer: {
     width: width,
-    height: height,
+    height: 100,
   },
 });
