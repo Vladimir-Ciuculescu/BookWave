@@ -67,10 +67,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
     navigation.navigate("Login");
   };
 
-  // const goToOTPVerification = (userInfo: any) => {
-  //   navigation.navigate("OTPVerification", { userInfo });
-  // };
-
   const goToOTPVerification = (userId: string) => {
     navigation.navigate("OTPVerification", { userId, isLoggedIn: false });
   };
@@ -82,7 +78,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
 
       setErrorMessage("");
       goToOTPVerification(data.user._id);
-      // goToOTPVerification(data);
     } catch (error: any) {
       setErrorMessage(error.message);
     }
