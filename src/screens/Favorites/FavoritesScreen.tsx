@@ -2,7 +2,6 @@ import { AntDesign, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import PlayAudioCard from "components/PlayAudioCard";
 import BWDivider from "components/shared/BWDivider";
-
 import BWIconButton from "components/shared/BWIconButton";
 import BWView from "components/shared/BWView";
 import { categories } from "consts/categories";
@@ -23,8 +22,13 @@ import { GetFavoritesRequest } from "types/interfaces/requests/favorites-request
 import { COLORS } from "utils/colors";
 import { NoResultsFound } from "../../../assets/illustrations";
 import Categories from "./Categories";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackNavigatorProps } from "types/interfaces/navigation";
+import { toggleNewPlaylistBottomSheetAction, toggleOptionBottomSheetsAction, togglePlaylistsBottomSheetAction } from "redux/reducers/audio-actions.reducer";
 
 const FavoritesScreen: React.FC<any> = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<StackNavigatorProps>>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [favorites, setFavorites] = useState<AudioFile[]>([]);
   const [searchMode, toggleSearchMode] = useState<boolean>(false);
@@ -52,6 +56,14 @@ const FavoritesScreen: React.FC<any> = () => {
   const { data, refetch, isLoading, isFetching } = useFetchFavorites(payload);
 
   const { data: total } = useFetchFavoritesTotalCount({ title: searchText, categories: selectedCategories.join(",") });
+
+  useEffect(() => {
+    navigation.addListener("blur", (e) => {
+      dispatch(toggleOptionBottomSheetsAction(false));
+      dispatch(togglePlaylistsBottomSheetAction(false));
+      dispatch(toggleNewPlaylistBottomSheetAction(false));
+    });
+  }, []);
 
   useEffect(() => {
     if (searchMode) {
@@ -129,6 +141,10 @@ const FavoritesScreen: React.FC<any> = () => {
     }
   };
 
+  const closeOptionsBottomSheet = () => {
+    dispatch(toggleOptionBottomSheetsAction(false));
+  };
+
   const toggleCategory = (category: Category) => {
     const isCategorySelected = selectedCategories.includes(category);
 
@@ -141,6 +157,11 @@ const FavoritesScreen: React.FC<any> = () => {
 
   const setQueue = () => {
     dispatch(setQueueAction(favorites));
+  };
+
+  const removeAudio = (audioId: string, isInFavorites: boolean) => {
+    setFavorites((oldValue) => oldValue.filter((favorite: AudioFile) => favorite.id !== audioId));
+    closeOptionsBottomSheet();
   };
 
   return (
@@ -180,7 +201,7 @@ const FavoritesScreen: React.FC<any> = () => {
             <View style={styles.flex}>
               <BWView column gap={15}>
                 <Categories selectedCategories={selectedCategories} categories={categories} onToggle={toggleCategory} />
-                {isLoading ? (
+                {isFetching ? (
                   <View style={{ marginTop: 50 }}>
                     <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadingSpinner} />
                   </View>
@@ -266,7 +287,11 @@ const FavoritesScreen: React.FC<any> = () => {
               </BWView>
             )}
             <View style={[styles.flex, { paddingHorizontal: 15 }]}>
-              {favorites && favorites.length ? (
+              {isFetching ? (
+                <View style={{ marginTop: 50 }}>
+                  <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadingSpinner} />
+                </View>
+              ) : favorites && favorites.length ? (
                 <BWView column gap={15}>
                   <BWView row justifyContent="space-between">
                     <Text style={styles.favoritesCount}>{total} favorites</Text>
@@ -305,7 +330,13 @@ const FavoritesScreen: React.FC<any> = () => {
             </View>
           </BWView>
         )}
-        <AudioActionsBottomSheet optionsBottomSheetOffSet="60%" playlistsBottomSheetOffset="95%" newPlaylistBottomSheetOffset="90%" list={favorites} />
+        <AudioActionsBottomSheet
+          onRemove={removeAudio}
+          optionsBottomSheetOffSet="60%"
+          playlistsBottomSheetOffset="95%"
+          newPlaylistBottomSheetOffset="90%"
+          list={favorites}
+        />
       </SafeAreaView>
     </GestureHandlerRootView>
   );

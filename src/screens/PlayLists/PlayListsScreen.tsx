@@ -161,7 +161,7 @@ const PlayListsScreen: React.FC<any> = () => {
             </BWView>
             <View style={styles.flex}>
               <BWView column gap={15}>
-                {isLoading ? (
+                {isFetching ? (
                   <View style={{ marginTop: 50 }}>
                     <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
                   </View>
@@ -217,7 +217,11 @@ const PlayListsScreen: React.FC<any> = () => {
             )}
             <View style={styles.flex}>
               <BWView column gap={15}>
-                {playlists && playlists.length ? (
+                {isFetching ? (
+                  <View style={{ marginTop: 50 }}>
+                    <ActivityIndicator color={COLORS.WARNING[500]} size="large" style={styles.loadinngSpinner} />
+                  </View>
+                ) : playlists && playlists.length ? (
                   <BWView column gap={16}>
                     <BWView row justifyContent="space-between" style={{ paddingHorizontal: 20 }}>
                       <Text style={styles.playlistsCount}>{total} playlists</Text>

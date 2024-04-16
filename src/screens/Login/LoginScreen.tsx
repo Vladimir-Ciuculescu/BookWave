@@ -39,6 +39,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const formRef = useRef<FormikProps<FormikValues>>(null);
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("blur", () => {
@@ -75,6 +76,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const handleLogin = async (values: LoginData) => {
     try {
+      setLoading(true);
       const userInfo = await UserService.loginApi(values);
 
       const isUserVerified = await UserService.isVerifiedApi(userInfo.user.id);
@@ -99,6 +101,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     } catch (error: any) {
       setErrorMessage(error.message);
     }
+    setLoading(false);
   };
 
   return (
@@ -121,7 +124,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     <BWButton title="Forgot Password" link onPress={goToForgotPassword} labelStyle={styles.linkOption} />
                     <BWButton title="Sign Up" link onPress={goToRegister} labelStyle={styles.linkOption} />
                   </View>
-                  <BWSubmitButton title="Log in" style={styles.signInBtn} />
+                  <BWSubmitButton loading={loading} title="Log in" style={styles.signInBtn} />
                   {errorMessage && <Text style={styles.errorMsg}>{errorMessage}</Text>}
                 </View>
               </BWForm>

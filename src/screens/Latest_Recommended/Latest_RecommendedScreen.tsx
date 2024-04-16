@@ -4,12 +4,13 @@ import AudioActionsBottomSheet from "components/AudioActionsBottomSheet";
 import AudioPlayer from "components/AudioPlayer";
 import PlayAudioCard from "components/PlayAudioCard";
 import useAudioController from "hooks/useAudioController";
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { FlatList, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useActiveTrack } from "react-native-track-player";
 import { Text, TouchableOpacity, View } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
+import { toggleNewPlaylistBottomSheetAction, toggleOptionBottomSheetsAction, togglePlaylistsBottomSheetAction } from "redux/reducers/audio-actions.reducer";
 import { playerSelector, setQueueAction } from "redux/reducers/player.reducer";
 import { StackNavigatorProps } from "types/interfaces/navigation";
 import { COLORS } from "utils/colors";
@@ -28,6 +29,14 @@ const Latest_RecommendedScreen: React.FC<Latest_RecommendedScreenProps> = ({ nav
   const { isPlaying, onAudioPress } = useAudioController();
   const track = useActiveTrack();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    navigation.addListener("blur", (e) => {
+      dispatch(toggleOptionBottomSheetsAction(false));
+      dispatch(togglePlaylistsBottomSheetAction(false));
+      dispatch(toggleNewPlaylistBottomSheetAction(false));
+    });
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({

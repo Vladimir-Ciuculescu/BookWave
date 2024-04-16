@@ -2,7 +2,7 @@ import { AntDesign, FontAwesome, MaterialCommunityIcons } from "@expo/vector-ico
 import FavoriteService from "api/favorites.api";
 import useAudioController from "hooks/useAudioController";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useActiveTrack } from "react-native-track-player";
 import { Text } from "react-native-ui-lib";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +27,7 @@ interface AudioActionsBottomSheetProps {
   optionsBottomSheetOffSet: string | number;
   playlistsBottomSheetOffset: string | number;
   newPlaylistBottomSheetOffset: string | number;
+  onRemove?: (audioId: string, isInFavorites: boolean) => void;
 }
 
 const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
@@ -34,13 +35,16 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
   optionsBottomSheetOffSet,
   playlistsBottomSheetOffset,
   newPlaylistBottomSheetOffset,
+  onRemove,
 }) => {
   // ? Hooks
   const { optionsVisible, playlistsVisible, newPlaylistVisible, selectedAudio } = useSelector(audioActionsSelector);
+
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
   const { isPlaying, onAudioPress } = useAudioController();
   const dispatch = useDispatch();
   const track = useActiveTrack();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (optionsVisible && selectedAudio) {
@@ -50,9 +54,13 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
         setIsInFavorites(isAudioInFavorites);
       };
 
+      setLoading(true);
       checkIfInFavorites();
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
-  }, [optionsVisible]);
+  }, [selectedAudio]);
 
   //? Functions
   const openPlaylistsList = () => {
@@ -62,14 +70,21 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
 
   const toggleFavoriteAudio = async () => {
     try {
+      setLoading(true);
       await FavoriteService.toggleFavoriteAudioApi(selectedAudio!.id);
 
       setIsInFavorites((prevValue) => !prevValue);
 
       dispatch(setToastMessageAction({ message: isInFavorites ? "Audio removed from favorites !" : "Audio added to favorites", type: "success" }));
+
+      if (onRemove && isInFavorites) {
+        onRemove(selectedAudio!.id, isInFavorites);
+      }
     } catch (error) {
       dispatch(setToastMessageAction({ message: "An unexpected error occured !", type: "error" }));
     }
+
+    setLoading(false);
   };
 
   const closeOptionsBottomSheet = () => {
@@ -112,7 +127,8 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
     },
     {
       label: isInFavorites ? "Remove from favorites" : "Add to favorites",
-      icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
+      // icon: <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
+      icon: loading ? <ActivityIndicator /> : <AntDesign name={isInFavorites ? "heart" : "hearto"} size={24} color={COLORS.MUTED[50]} />,
       onPress: () => toggleFavoriteAudio(),
     },
   ];
@@ -128,14 +144,22 @@ const AudioActionsBottomSheet: React.FC<AudioActionsBottomSheetProps> = ({
           </BWView>
           <BWDivider orientation="horizontal" color={COLORS.DARK[300]} width="100%" thickness={2} />
           <BWView column gap={30}>
-            {options.map((option: AudioAction) => (
-              <Pressable onPress={option.onPress} key={option.label} style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}>
-                <BWView row alignItems="center" gap={20}>
-                  {option.icon}
-                  <Text style={styles.labelOption}>{option.label}</Text>
-                </BWView>
-              </Pressable>
-            ))}
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                {options.map((option) => {
+                  return (
+                    <Pressable onPress={option.onPress} key={option.label} style={({ pressed }) => (pressed ? styles.pressed : styles.unpressed)}>
+                      <BWView row alignItems="center" gap={20}>
+                        {option.icon}
+                        <Text style={styles.labelOption}>{option.label}</Text>
+                      </BWView>
+                    </Pressable>
+                  );
+                })}
+              </>
+            )}
           </BWView>
         </BWView>
       </BWBottomSheet>

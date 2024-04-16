@@ -4,8 +4,9 @@ import { useFetchPlaylistsByProfile } from "hooks/playlists.queries";
 import _ from "lodash";
 import { Skeleton } from "moti/skeleton";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
-import { Checkbox, Text } from "react-native-ui-lib";
+import { Dimensions } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
+import { Checkbox, Text, View } from "react-native-ui-lib";
 import { useDispatch } from "react-redux";
 import { setToastMessageAction } from "redux/reducers/toast.reducer";
 import { Visibilites } from "types/enums/visibilites.enum";
@@ -16,6 +17,10 @@ import BWButton from "../../../components/shared/BWButton";
 import BWDivider from "../../../components/shared/BWDivider";
 import BWPressable from "../../../components/shared/BWPressable";
 import BWView from "../../../components/shared/BWView";
+import { NoResultsFound } from "../../../../assets/illustrations/index";
+import AnimatedLottieView from "lottie-react-native";
+
+const { width } = Dimensions.get("screen");
 
 interface PlaylistStatus {
   playlistId: string;
@@ -32,12 +37,7 @@ interface PlayListItemProps {
   onGetPlayListStatus: (e: PlaylistStatus) => void;
 }
 
-const PlayListItem: React.FC<PlayListItemProps> = ({
-  playlist,
-  onToggle,
-  audio,
-  onGetPlayListStatus,
-}) => {
+const PlayListItem: React.FC<PlayListItemProps> = ({ playlist, onToggle, audio, onGetPlayListStatus }) => {
   const [alreadyInPlaylist, setAlreadyInPlaylist] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -76,18 +76,9 @@ const PlayListItem: React.FC<PlayListItemProps> = ({
       <BWView row alignItems="center" justifyContent="space-between">
         <BWView row gap={20}>
           {loading ? (
-            <Skeleton
-              width={23}
-              height={23}
-              colors={[COLORS.MUTED[800], COLORS.MUTED[700], COLORS.MUTED[500]]}
-            />
+            <Skeleton width={23} height={23} colors={[COLORS.MUTED[800], COLORS.MUTED[700], COLORS.MUTED[500]]} />
           ) : (
-            <Checkbox
-              value={alreadyInPlaylist}
-              onValueChange={togglePlaylistStatus}
-              color={COLORS.WARNING[500]}
-              style={{ borderColor: COLORS.WARNING[500] }}
-            />
+            <Checkbox value={alreadyInPlaylist} onValueChange={togglePlaylistStatus} color={COLORS.WARNING[500]} style={{ borderColor: COLORS.WARNING[500] }} />
           )}
           <Text style={styles.playlistTitle}>{playlist.title}</Text>
         </BWView>
@@ -173,9 +164,7 @@ const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) 
 
       onClose();
     } catch (error) {
-      dispatch(
-        setToastMessageAction({ message: "An error occured, please try again !", type: "error" }),
-      );
+      dispatch(setToastMessageAction({ message: "An error occured, please try again !", type: "error" }));
     }
   };
 
@@ -193,20 +182,29 @@ const PlayLists: React.FC<PlayListsProps> = ({ onNewPlayList, audio, onClose }) 
       </BWView>
       <BWDivider width="100%" thickness={2} color={COLORS.DARK[300]} orientation="horizontal" />
       <BWView style={{ height: "60%" }}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={data}
-          contentContainerStyle={{ gap: 30 }}
-          keyExtractor={(item: PlayList) => item._id}
-          renderItem={({ item }) => (
-            <PlayListItem
-              onGetPlayListStatus={getPlaylistStatus}
-              audio={audio!}
-              onToggle={toggleOnPlaylist}
-              playlist={item}
-            />
-          )}
-        />
+        {isLoading ? (
+          <View style={{ height: "100%", width: "100%", justifyContent: "center", alignItems: "center" }}>
+            <AnimatedLottieView style={{ height: width / 3 }} autoPlay loop source={require("../../../../assets/animations/loading.json")} />
+          </View>
+        ) : data && data.length ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={data}
+            contentContainerStyle={{ gap: 30 }}
+            keyExtractor={(item: PlayList) => item._id}
+            renderItem={({ item }) => <PlayListItem onGetPlayListStatus={getPlaylistStatus} audio={audio!} onToggle={toggleOnPlaylist} playlist={item} />}
+          />
+        ) : (
+          <BWView alignItems="center" column gap={25} style={{ paddingTop: 30 }}>
+            <NoResultsFound width="100%" height={250} />
+            <BWView column alignItems="center" gap={10}>
+              <Text style={styles.notFoundTitle}>Not found</Text>
+              <Text style={styles.notFoundDescription}>Sorry, no results found. Please try again or type anything else</Text>
+            </BWView>
+          </BWView>
+        )}
+
+        {}
       </BWView>
       <BWDivider width="100%" thickness={2} color={COLORS.DARK[300]} orientation="horizontal" />
       <BWButton
@@ -246,5 +244,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.MUTED[50],
     fontFamily: "Minomu",
+  },
+  notFoundTitle: {
+    fontFamily: "MinomuBold",
+    fontSize: 22,
+    color: COLORS.MUTED[50],
+  },
+
+  notFoundDescription: {
+    fontFamily: "Minomu",
+    fontSize: 16,
+    color: COLORS.MUTED[400],
+    textAlign: "center",
   },
 });

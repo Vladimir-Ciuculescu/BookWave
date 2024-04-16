@@ -92,8 +92,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation, route }) =>
     try {
       const formData = new FormData();
 
-      console.log(555, avatar);
-
       formData.append("name", name);
       formData.append("email", email);
 

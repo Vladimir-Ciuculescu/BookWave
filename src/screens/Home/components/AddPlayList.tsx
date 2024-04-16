@@ -16,6 +16,7 @@ import BWForm from "../../../components/shared/BWForm";
 import BWInput from "../../../components/shared/BWInput";
 import BWSubmitButton from "../../../components/shared/BWSubmitButton";
 import BWView from "../../../components/shared/BWView";
+import { useState } from "react";
 
 export interface NewPlayListData {
   title: string;
@@ -45,12 +46,15 @@ const radioOptions: Visibilites[] = [Visibilites.public, Visibilites.private];
 
 const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio, onAdd }) => {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleVisibility = (setFieldValue: (label: string, value: string) => void, value: string) => {
     setFieldValue("visibility", value);
   };
 
   const handleAddPlaylist = async (values: NewPlayListData) => {
+    setLoading(true);
+
     const { title, visibility } = values;
 
     const payload: AddPlayListRequest = {
@@ -78,11 +82,15 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio, onAdd }) => {
         audios: [],
       };
 
-      onAdd!(newPlaylist);
+      if (onAdd) {
+        onAdd!(newPlaylist);
+      }
       onClose();
     } catch (error) {
       console.log(error);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -123,7 +131,7 @@ const AddPlayList: React.FC<AddPlayListProps> = ({ onClose, audio, onAdd }) => {
               <BWView row style={{ width: "100%", gap: 10 }} justifyContent="space-between">
                 <BWButton onPress={onClose} title="Cancel" style={[styles.optionBtn, styles.cancelBtn]} />
 
-                <BWSubmitButton title="Create" style={[styles.optionBtn, styles.saveBtn]} />
+                <BWSubmitButton loading={loading} title="Create" style={[styles.optionBtn, styles.saveBtn]} />
               </BWView>
             </BWView>
           </KeyboardAwareScrollView>
